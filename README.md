@@ -50,6 +50,7 @@ Project information, a 17-item pre-power-up inspection, and a 22-item final comm
 A module and power supply index, with a dedicated sheet per device covering identity, I/O programming, configuration, and performance/transport-time/smoke/airflow testing
 SenseNET/SNET+ wiring verification per segment
 Automatic PASS/FAIL/INCOMPLETE results per device, with a documented-reason override mechanism
+Import PipeCAD (.pl): pre-fills project info and one detector sheet per PipeCAD detector from a PipeCAD 3.6 project export — preview and confirm first; each sampling hole's sensitivity is checked against the target's Fire 1 limit (Table 45: VEWFD ≤1.0 %obs/ft) and the predicted transport time against the time limit, with pass/fail and margin
 An auto-collected deficiencies list pulling from every failed item across the whole report
 A module test summary and full three-party sign-off (technician, engineer, owner)
 The same 4-section Help menu structure and MM.mm.rrr_YYMMDD revision tracking as the battery calculator
@@ -61,4 +62,4 @@ Install it (Chrome/Edge: install icon in the address bar; iOS Safari: Share → 
 Work through Sections A–I in order. Entries autosave to the device automatically.
 Use Export job / Import job to move a job's data between devices or archive it, and Print / PDF for a clean, signed printed copy once commissioning is complete.
 
-The in-app Help button has the full Quick Start, a worked example, manual citations for every built-in limit, and an FAQ.
+The in-app Help button has the full Quick Start, a worked example, manual citations for every built-in limit, an FAQ, and the complete Revision Log. Current release: v01.00.004 ("Rev 11" PipeCAD import is v01.00.003). For release history, see CHANGELOG.md and RELEASE_NOTES.md on the MASD-Commissioning-Report branch.
