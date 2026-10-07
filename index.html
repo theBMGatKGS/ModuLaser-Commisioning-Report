@@ -29,6 +29,8 @@ button{font:inherit;color:inherit}
 .bar-in{max-width:1080px;margin:0 auto;padding:10px 16px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
 .bar h1{font-size:15px;margin:0;font-weight:700;letter-spacing:.01em;flex:1 1 260px}
 .bar h1 small{display:block;font-weight:500;opacity:.8;font-size:12px}
+.bar .revcell{display:inline-block;border:1px solid rgba(255,255,255,.4);border-radius:4px;padding:0 6px;margin:2px 4px 0 0;font-variant-numeric:tabular-nums}
+.bar .revcell em{font-style:normal;opacity:.75;margin-right:4px}
 .bar .save{font-size:12px;opacity:.85;min-width:120px}
 .bar .btns{display:flex;flex-wrap:wrap;gap:6px}
 .btn{border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.1);color:#fff;border-radius:6px;padding:6px 11px;cursor:pointer;font-size:13px;font-weight:600}
@@ -194,9 +196,12 @@ table.href{width:100%;border-collapse:collapse;font-size:12.5px;margin:8px 0 14p
 table.href th{text-align:left;font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:5px 7px;border-bottom:2px solid var(--line);background:var(--soft)}
 table.href td{padding:5px 7px;border-bottom:1px solid var(--line2);vertical-align:top}
 table.href td.cite{white-space:nowrap;font-weight:700;color:var(--accent)}
-.hidblk{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:14px}
-.hidblk div{font-size:13px;margin:2px 0}
-.hidblk b{color:var(--accent)}
+.idcard{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:4px 14px;margin:8px 0 16px}
+.idcard .row{display:flex;gap:14px;padding:7px 0;border-bottom:1px solid var(--line2);font-size:13px}
+.idcard .row:last-child{border-bottom:none}
+.idcard .k{flex:none;width:120px;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding-top:1px}
+.idcard .v{font-weight:700;color:var(--ink)}
+.idcard .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 table.amend{width:100%;border-collapse:collapse;font-size:12.5px}
 table.amend th{text-align:left;font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:5px 7px;border-bottom:2px solid var(--line);background:var(--soft)}
 table.amend td{padding:6px 7px;border-bottom:1px solid var(--line2);vertical-align:top}
@@ -262,7 +267,7 @@ table.amend td:nth-child(2){white-space:nowrap;color:var(--muted)}
 <body>
 <div class="bar noprint">
   <div class="bar-in">
-    <h1>Edwards ModuLaser MASD — Field Report <small>Rev <span id="revDisplay">11</span> · commissioning worksheet</small></h1>
+    <h1>Edwards ModuLaser MASD — Field Report <small><span class="revcell" title="Revision (MM.mm.rrr)"><em>Revision</em><span id="revDisplay">01.00.004</span></span><span class="revcell" title="Revision date"><em>Date</em><span id="revDateDisplay">2026-10-07</span></span> commissioning worksheet</small></h1>
     <span class="save" id="saveStatus">Not saved yet</span>
     <div class="btns">
       <button class="btn" data-act="help">Help</button>
@@ -313,7 +318,7 @@ table.amend td:nth-child(2){white-space:nowrap;color:var(--muted)}
         <p class="note">Named "How to Use This Field Report" rather than "…the Calculator" — this tool is a commissioning worksheet, not a sizing calculator, so the calculator wording was renamed to avoid confusion.</p>
 
         <div class="hsub">Quick Start</div>
-        <div class="hstep"><span class="hn">1</span><div><div class="ht">Start or resume a job</div><p>Open this file in a browser and begin — nothing to install. Every change autosaves to this browser (debounced ~¼ second) under a report-specific storage key, and the toolbar's <b>Not saved yet / Autosaved h:mm</b> status confirms it. If the browser can't store data (private/incognito mode, storage disabled, or storage full), the status instead reads <b>Autosave unavailable — use Export job</b> — save your work with <b>Export job</b> in that case. To hand a job to another technician, move it to another computer, or keep an archival copy, use <b>Export job</b> (downloads a <code>.json</code> job file) and <b>Import job</b> (loads one back in). <b>New job</b> clears the current browser data after a confirmation prompt — export first if you want to keep it.</p></div></div>
+        <div class="hstep"><span class="hn">1</span><div><div class="ht">Start or resume a job</div><p>Open this file in a browser and begin — nothing to install. Every change autosaves to this browser (debounced ~¼ second) under a report-specific storage key, and the toolbar's <b>Not saved yet / Autosaved h:mm</b> status confirms it. If the browser can't store data (private/incognito mode, storage disabled, or storage full), the status instead reads <b>Autosave unavailable — use Export job</b> — save your work with <b>Export job</b> in that case. To hand a job to another technician, move it to another computer, or keep an archival copy, use <b>Export job</b> (downloads a <code>.json</code> job file) and <b>Import job</b> (loads one back in). <b>New job</b> clears the current browser data after a confirmation prompt — export first if you want to keep it. The toolbar's <b>Revision</b> and <b>Date</b> cells show which build you are running; <b>Help → Revision Log</b> lists every change since the Rev 10 baseline, plus the reconstructed legacy history.</p></div></div>
         <div class="hstep"><span class="hn">1b</span><div><div class="ht">Optional — Import PipeCAD (.pl)</div><p>Use <b>Import PipeCAD (.pl)</b> to pre-fill the report from a PipeCAD 3.6 project export. The file is read in this browser only. A <b>preview</b> lists every Section A field and detector sheet that would be set, replaced, or kept, with each detector's design check against its performance target. Nothing changes until you confirm. Section A gets the site (ProjectName), system designer, a "PipeCAD location" line in Notes, the installing company (only if blank), and the file name + PipeCAD version as the report reference. Each PipeCAD detector becomes one detector sheet, or updates the sheet whose descriptor matches its name. The sheet gets its descriptor, fan speed, Alarm Factor, PipeCAD transport time, sampling-hole count, the performance target (only if blank, from PipeCAD's max transit time) and a <b>PipeCAD design data</b> block: pipe, pipe length (sum of the 3D pipe segments), total flow, hole balance, fittings, design sensitivity, and the full hole table. If the Alarm Factor isn't activated in PipeCAD, the sheet flags it for verification. End-cap test points are listed separately and excluded from the worst-hole and max-transport checks. <b>Not imported</b>: SenseNET address, part number, Alert/Action/Fire 1/Fire 2 levels and flow limits — enter those from the field. Re-importing an updated .pl keeps everything entered in the field. JSON Export/Import, autosave and print are unaffected.</p></div></div>
         <div class="hstep"><span class="hn">2</span><div><div class="ht">Section A — Project Information</div><p>Record the site, job number, address, commissioning date, installing company, commissioning engineer, system designer, owner contact, PipeCAD report reference, FACU make/model, and SLC panel count. This block also drives the header/footer text shown on every printed page.</p></div></div>
         <div class="hstep"><span class="hn">3</span><div><div class="ht">Section B — Pre-Power-Up Inspection</div><p>Work the 17-item checklist before applying power: FACU isolation, PipeCAD pipe-length limits, pressure zone and exhaust placement, sampling-hole count and condition, cable knockouts, field wiring including SenseNET/SNET+ data lines, EOL resistors and EOL PCBs, supply voltage, battery standby capacity, FACU SLC addressing, clearance, housekeeping, and ESD precautions. Each row is Y / N / N/A with a notes field. The section header shows a live rollup (Y/N/N-A/open counts and a PASS/FAIL/INCOMPLETE badge) — any "N" answer here also appears automatically in Section G's deficiencies list.</p></div></div>
@@ -384,14 +389,21 @@ table.amend td:nth-child(2){white-space:nowrap;color:var(--muted)}
       </section>
 
       <section class="hsec" id="help-rev">
-        <div class="hidblk">
-          <div><b>Document:</b> Edwards ModuLaser MASD — Field Report</div>
-          <div><b>Current revision:</b> <span id="revLogFull">—</span></div>
-          <div><b>Author / document owner:</b> Brent Wilkins</div>
+        <h3>Revision Log</h3>
+        <div class="idcard">
+          <div class="row"><span class="k">Application</span><span class="v">Edwards ModuLaser MASD — Field Report</span></div>
+          <div class="row"><span class="k">Revision</span><span class="v mono" id="revLogFull">—</span></div>
+          <div class="row"><span class="k">Authored by</span><span class="v">Brent Wilkins</span></div>
         </div>
-        <h3 style="border:none;padding:0;margin-bottom:8px">Amendments</h3>
-        <table class="amend"><thead><tr><th>Rev</th><th>Date</th><th>Description</th></tr></thead>
+        <p class="note">Revision format <code>MM.mm.rrr_YYMMDD</code>: major and minor are set by the document owner; the revision counter advances by one per distinct logical change. Every release is archived below, newest first, and mirrored in the repository's <code>CHANGELOG.md</code> (generated from this log) and <code>RELEASE_NOTES.md</code>; GitHub releases are tagged <code>vMM.mm.rrr</code>. “Rev 11” is the field name for 01.00.002–003.</p>
+        <div class="hsub">Amendments</div>
+        <table class="amend"><thead><tr><th>Revision</th><th>Date</th><th>Change</th></tr></thead>
           <tbody id="amendments-table-body"></tbody>
+        </table>
+        <div class="hsub" style="margin-top:20px">Legacy history (pre-tracking) — reconstructed</div>
+        <p class="note">These rows predate formal revision tracking. They were reconstructed from the Rev 10 file and the repository history; per-revision detail for legacy r1–r10 was never recorded, so it is summarized rather than itemized. Nothing here is invented — where detail is unknown, it says so.</p>
+        <table class="amend"><thead><tr><th>Revision</th><th>Date</th><th>Change</th></tr></thead>
+          <tbody id="legacy-table-body"></tbody>
         </table>
       </section>
 
@@ -416,22 +428,36 @@ const STORE_KEY = 'modulaser-masd-field-report-r10';
 const APP_MAJOR = "01";
 const APP_MINOR = "00";
 const AMENDMENTS = [
+  { rev: "000", date: "260930", desc: "Baseline — the Rev 10 feature set at the start of formal revision tracking (before the 001 Help menu). A — Project Information (site, job, address, commissioning date, applicable standard, installing company, installer, commissioning engineer, system designer, owner contact, PipeCAD reference, FACU, SLC panel quantity, notes). B — 17-item Pre-Power-Up Inspection (Y / N / N/A with notes and a live rollup). C — Module & Power Supply Index — detector, standard display, command display and other modules kept in SenseNET address order (1–127, duplicates flagged), power supplies, and a shared Test setup block. D — per-module sheets — identity and location, IN1/IN2/OUT1–OUT3 FACU programming with PPP:CCC:DDDD address validation (display OUT1 fixed to General Fault), configuration (alarm levels, Alarm Factor 0–8, fan speed 1–16, flow limits ≤20%, delays, Day/Night, FastLearn, Demo Mode, access codes, baseline, filter); detector page 2 with performance target (NFPA 76 VEWFD/EWFD/SFD, EN 54-20 Class A/B/C, Custom), average hole sensitivity = chamber sensitivity × holes, T1 transport time vs PipeCAD with variance, T2 three-run smoke test with spread, T3 airflow fault, T4 input/output test. E — power supply sheets (identity, battery, AC-fail and trouble monitoring points, battery/standby test vs required hours). F — SenseNET / SNET+ node-to-node wiring verification (continuity, isolation, capacitance with total nF). G — 22-item Final Commissioning Checklist with auto-collected deficiencies. H — Module Test Summary. I — acceptance status and three-party sign-off. Automatic PASS / FAIL / INCOMPLETE per section and device, with an override applied only when a reason is entered. Autosave to the browser, Export / Import job (.json), New job, and Print / PDF on Portrait Letter with running headers, footers and Page X of Y." },
   { rev: "001", date: "260930", desc: "Migrated from the legacy single-integer “Rev 10” scheme to formal MM.mm.rrr_YYMMDD revision tracking (patch counter restarted at 001 per document owner). Prior r1–r10 history: iterative development of the module/PSU index, per-device sheets, automatic PASS/FAIL/INCOMPLETE evaluation, wiring verification, auto-collected deficiencies, module test summary, and sign-off — through Rev 10’s current single-page, autosaving, print-ready form. Added the 4-section Help menu (How to Use This Field Report, Standards and Formulas, FAQs, Revision Log) and this amendments table." },
   { rev: "002", date: "261007", desc: "Rev 11: added Import PipeCAD (.pl). Reads a PipeCAD 3.6 project export in the browser, shows a preview for confirmation, then pre-fills Section A (site, designer, location note, installing company if blank, PipeCAD reference) and one detector sheet per PipeCAD detector (descriptor, fan speed, Alarm Factor with a not-activated flag, PipeCAD transport time, sampling-hole count) plus a new PipeCAD design-data block: pipe name/length, total flow, hole balance, fittings, design sensitivity and the full hole table. End-cap test points are listed separately and excluded from worst-hole and max-transport checks. Re-importing updates the matching sheets and keeps field-entered data. Address, part number, alarm levels and flow limits are not imported." },
-  { rev: "003", date: "261007", desc: "Rev 11: corrected built-in performance targets to the Table 45 (p.112, FM 3230 / NFPA 76) Fire 1 per-hole sensitivity: VEWFD 0.2 → 1.0 %obs/ft (0.2 is the VEWFD Alert threshold and is not applied per hole), SFD now ≤2.5 %obs/ft. Added per-hole PipeCAD design checks (worst hole sensitivity vs Fire 1, predicted transport time vs target) with pass/fail and margin." }
+  { rev: "003", date: "261007", desc: "Rev 11: corrected built-in performance targets to the Table 45 (p.112, FM 3230 / NFPA 76) Fire 1 per-hole sensitivity: VEWFD 0.2 → 1.0 %obs/ft (0.2 is the VEWFD Alert threshold and is not applied per hole), SFD now ≤2.5 %obs/ft. Added per-hole PipeCAD design checks (worst hole sensitivity vs Fire 1, predicted transport time vs target) with pass/fail and margin." },
+  { rev: "004", date: "261007", desc: "Revision Log rebuilt as a complete release archive, matching the Battery Calculator: identity card (Application / Revision / Authored by), Revision and Date cells in the toolbar, readable YYYY-MM-DD dates, a 000 Baseline entry inventorying the Rev 10 feature set, and a reconstructed Legacy history section (legacy r1–r10 summary and the 260930 installable/offline packaging). Repository now carries CHANGELOG.md (generated from this log) and RELEASE_NOTES.md; GitHub releases are tagged vMM.mm.rrr starting with v01.00.003 (Rev 11)." }
+];
+/* Pre-tracking history, reconstructed from the Rev 10 file and the repository history. Unnumbered; shown in Help → Revision Log
+   and mirrored in CHANGELOG.md. Do not add new entries here — new changes go in AMENDMENTS. */
+const LEGACY = [
+  { label: "PWA packaging", date: "260930", desc: "Packaged the Rev 10 report as an installable, offline-first web app: manifest.json (name, colors, icons), a service worker (sw.js) that caches the app shell and refreshes it in the background, app icons (192 px, 512 px, maskable 512 px, Apple touch), and install meta tags; published with GitHub Pages at masdtools.net. Recorded retroactively from the repository history — unnumbered, the app revision stayed 01.00.001." },
+  { label: "r1–r10", date: "", dateText: "before 2026-09-30", desc: "Legacy integer revisions r1 through r10: iterative development of the module and power supply index, per-device sheets, automatic PASS / FAIL / INCOMPLETE evaluation, wiring verification, auto-collected deficiencies, the module test summary and sign-off, ending in Rev 10’s single-page, autosaving, print-ready form (inventoried in 01.00.000). Per-revision detail was not recorded at the time and cannot be itemized; this row is reconstructed from the Rev 10 file and the 01.00.001 migration note." }
 ];
 function revShort(){ const latest = AMENDMENTS[AMENDMENTS.length-1]; return `${APP_MAJOR}.${latest.minor || APP_MINOR}.${latest.rev}`; }
 function fullRev(){ const latest = AMENDMENTS[AMENDMENTS.length-1]; return `${revShort()}_${latest.date}`; }
+const fmtRevDate = d => /^\d{6}$/.test(d||'') ? `20${d.slice(0,2)}-${d.slice(2,4)}-${d.slice(4,6)}` : (d||''); // 261007 → 2026-10-07
 function renderRevisionInfo(){
   const latest = AMENDMENTS[AMENDMENTS.length - 1];
   const revS = revShort(), full = fullRev();
   const rd = document.getElementById('revDisplay'); if(rd) rd.textContent = revS;
+  const rdd = document.getElementById('revDateDisplay'); if(rdd) rdd.textContent = fmtRevDate(latest.date);
   const rl = document.getElementById('revLogFull'); if(rl) rl.textContent = full;
   const amendBody = document.getElementById('amendments-table-body');
   if(amendBody){
     amendBody.innerHTML = AMENDMENTS.slice().reverse().map(a =>
-      `<tr><td>${APP_MAJOR}.${a.minor || "00"}.${a.rev}</td><td>${a.date}</td><td>${esc(a.desc)}</td></tr>`
+      `<tr><td>${APP_MAJOR}.${a.minor || "00"}.${a.rev}</td><td>${fmtRevDate(a.date)}</td><td>${esc(a.desc)}</td></tr>`
     ).join('');
+  }
+  const legBody = document.getElementById('legacy-table-body');
+  if(legBody){
+    legBody.innerHTML = LEGACY.map(a => `<tr><td>${esc(a.label)}</td><td>${esc(a.dateText || fmtRevDate(a.date))}</td><td>${esc(a.desc)}</td></tr>`).join('');
   }
 }
 
