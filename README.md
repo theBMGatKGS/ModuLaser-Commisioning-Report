@@ -59,6 +59,12 @@ Open the hosted URL on the device that will use it:
 - **iOS / iPadOS Safari**: Share button → "Add to Home Screen." (iOS doesn't support the browser install prompt, but the home-screen icon works the same way.)
 - **Desktop**, once installed, behaves like any other app — its own icon, its own window, launches without opening a browser tab first.
 
+### Windows installer (.exe)
+
+A Windows desktop build wraps the same `index.html` in Electron (`electron/`). The **Windows installer** GitHub Actions workflow builds `ModuLaser-MASD-Field-Report-Setup-<revision>.exe` on a Windows runner: download it from the workflow run's artifacts, or publish a GitHub release and the workflow attaches it to that release automatically. The installer version comes from the app revision in `index.html`. It is unsigned, so Windows SmartScreen shows "Windows protected your PC" the first time; choose **More info → Run anyway**. Its autosave is separate from the browser PWA's, so move jobs between them with Export job / Import job.
+
+To build locally on Windows: `cd electron && npm ci && npm run dist` (or `npm start` to run it without installing).
+
 ## Using it
 
 1. Open the installed app (or the hosted URL — both work identically; installing just adds the icon and drops the browser chrome).
