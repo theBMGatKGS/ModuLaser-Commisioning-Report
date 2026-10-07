@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Edwards ModuLaser MASD — Field Report Rev 10</title>
+<title>Edwards ModuLaser MASD — Field Report Rev 11</title>
 <meta name="description" content="Offline commissioning worksheet for Edwards ModuLaser Modular Aspirating Smoke Detector installations.">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1f3a5f">
@@ -173,6 +173,21 @@ table.sum .bd{padding:1px 6px;font-size:10px}
 .hstep p{margin:0;font-size:13px;color:var(--muted);line-height:1.5}
 .hnote{font-size:12px;color:var(--muted);background:var(--soft);border:1px dashed var(--line);border-radius:6px;padding:8px 10px;margin:8px 0}
 .hq{margin:0 0 14px}
+/* ---------- PipeCAD import preview / design data ---------- */
+.pcCard{max-width:1180px}
+.pcFoot{display:flex;gap:8px;justify-content:flex-end;align-items:center;padding:10px 18px;border-top:1px solid var(--line);background:var(--soft);flex:none}
+.pcFoot .msg{flex:1;font-size:12px;color:var(--muted)}
+.pbtn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:6px;padding:7px 14px;cursor:pointer;font-size:13px;font-weight:700}
+.pbtn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.pbtn:hover{filter:brightness(.95)}
+table.t.pc td,table.t.pc th{white-space:nowrap}
+table.t.pc td.wrap{white-space:normal}
+table.t tr.hi td{background:var(--incbg)}
+.calc .pcflag{white-space:normal;margin:2px 0 0}
+.calc:has(.pcflag){flex-wrap:wrap}
+.pcflag{display:inline-block;font-size:11px;font-weight:700;color:var(--inc);background:var(--incbg);border:1px solid #e8c77a;border-radius:4px;padding:1px 5px;margin-left:4px;white-space:nowrap}
+.pcchk{display:flex;flex-wrap:wrap;gap:6px 18px;margin:8px 0 2px;font-size:12.5px}
+.pcchk b{color:var(--accent)}
 .hq dt{font-weight:700;font-size:13.5px;color:var(--ink);margin:0 0 3px}
 .hq dd{margin:0 0 0 0;font-size:13px;color:var(--muted);line-height:1.5}
 table.href{width:100%;border-collapse:collapse;font-size:12.5px;margin:8px 0 14px}
@@ -247,22 +262,37 @@ table.amend td:nth-child(2){white-space:nowrap;color:var(--muted)}
 <body>
 <div class="bar noprint">
   <div class="bar-in">
-    <h1>Edwards ModuLaser MASD — Field Report <small>Rev <span id="revDisplay">10</span> · commissioning worksheet</small></h1>
+    <h1>Edwards ModuLaser MASD — Field Report <small>Rev <span id="revDisplay">11</span> · commissioning worksheet</small></h1>
     <span class="save" id="saveStatus">Not saved yet</span>
     <div class="btns">
       <button class="btn" data-act="help">Help</button>
       <button class="btn" data-act="export">Export job</button>
       <button class="btn" data-act="import">Import job</button>
+      <button class="btn" data-act="importpl">Import PipeCAD (.pl)</button>
       <button class="btn" data-act="print">Print / PDF</button>
       <button class="btn" data-act="new">New job</button>
     </div>
     <input type="file" id="importFile" accept=".json,application/json" hidden>
+    <input type="file" id="importPl" accept=".pl,.xml" hidden>
   </div>
 </div>
 <nav class="nav noprint"><div class="nav-in">
   <a href="#sec-a">A Project</a><a href="#sec-b">B Pre-Power</a><a href="#sec-c">C Index</a><a href="#sec-d">D Modules</a><a href="#sec-e">E Power Supplies</a><a href="#sec-f">F Wiring</a><a href="#sec-g">G Final Checklist</a><a href="#sec-h">H Summary</a><a href="#sec-i">I Sign-Off</a>
 </div></nav>
 <main id="app"></main>
+
+<div class="helpOverlay noprint" id="pcOverlay">
+  <div class="helpCard pcCard" role="dialog" aria-modal="true" aria-labelledby="pcTitle">
+    <div class="helpHead">
+      <h2 id="pcTitle">Import PipeCAD — preview</h2>
+      <button class="helpClose" id="pcClose" type="button" aria-label="Close preview">&times;</button>
+    </div>
+    <div class="helpBody" id="pcBody"></div>
+    <div class="pcFoot"><span class="msg">Nothing is changed until you confirm. Field-entered data on matched sheets is kept.</span>
+      <button class="pbtn" id="pcCancel" type="button">Cancel</button>
+      <button class="pbtn pri" id="pcApply" type="button">Import</button></div>
+  </div>
+</div>
 
 <div class="helpOverlay noprint" id="helpOverlay">
   <div class="helpCard" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
@@ -284,6 +314,7 @@ table.amend td:nth-child(2){white-space:nowrap;color:var(--muted)}
 
         <div class="hsub">Quick Start</div>
         <div class="hstep"><span class="hn">1</span><div><div class="ht">Start or resume a job</div><p>Open this file in a browser and begin — nothing to install. Every change autosaves to this browser (debounced ~¼ second) under a report-specific storage key, and the toolbar's <b>Not saved yet / Autosaved h:mm</b> status confirms it. If the browser can't store data (private/incognito mode, storage disabled, or storage full), the status instead reads <b>Autosave unavailable — use Export job</b> — save your work with <b>Export job</b> in that case. To hand a job to another technician, move it to another computer, or keep an archival copy, use <b>Export job</b> (downloads a <code>.json</code> job file) and <b>Import job</b> (loads one back in). <b>New job</b> clears the current browser data after a confirmation prompt — export first if you want to keep it.</p></div></div>
+        <div class="hstep"><span class="hn">1b</span><div><div class="ht">Optional — Import PipeCAD (.pl)</div><p>Use <b>Import PipeCAD (.pl)</b> to pre-fill the report from a PipeCAD 3.6 project export. The file is read in this browser only. A <b>preview</b> lists every Section A field and detector sheet that would be set, replaced, or kept, with each detector's design check against its performance target. Nothing changes until you confirm. Section A gets the site (ProjectName), system designer, a "PipeCAD location" line in Notes, the installing company (only if blank), and the file name + PipeCAD version as the report reference. Each PipeCAD detector becomes one detector sheet, or updates the sheet whose descriptor matches its name. The sheet gets its descriptor, fan speed, Alarm Factor, PipeCAD transport time, sampling-hole count, the performance target (only if blank, from PipeCAD's max transit time) and a <b>PipeCAD design data</b> block: pipe, pipe length (sum of the 3D pipe segments), total flow, hole balance, fittings, design sensitivity, and the full hole table. If the Alarm Factor isn't activated in PipeCAD, the sheet flags it for verification. End-cap test points are listed separately and excluded from the worst-hole and max-transport checks. <b>Not imported</b>: SenseNET address, part number, Alert/Action/Fire 1/Fire 2 levels and flow limits — enter those from the field. Re-importing an updated .pl keeps everything entered in the field. JSON Export/Import, autosave and print are unaffected.</p></div></div>
         <div class="hstep"><span class="hn">2</span><div><div class="ht">Section A — Project Information</div><p>Record the site, job number, address, commissioning date, installing company, commissioning engineer, system designer, owner contact, PipeCAD report reference, FACU make/model, and SLC panel count. This block also drives the header/footer text shown on every printed page.</p></div></div>
         <div class="hstep"><span class="hn">3</span><div><div class="ht">Section B — Pre-Power-Up Inspection</div><p>Work the 17-item checklist before applying power: FACU isolation, PipeCAD pipe-length limits, pressure zone and exhaust placement, sampling-hole count and condition, cable knockouts, field wiring including SenseNET/SNET+ data lines, EOL resistors and EOL PCBs, supply voltage, battery standby capacity, FACU SLC addressing, clearance, housekeeping, and ESD precautions. Each row is Y / N / N/A with a notes field. The section header shows a live rollup (Y/N/N-A/open counts and a PASS/FAIL/INCOMPLETE badge) — any "N" answer here also appears automatically in Section G's deficiencies list.</p></div></div>
         <div class="hstep"><span class="hn">4</span><div><div class="ht">Section C — Module &amp; Power Supply Index</div><p>Add every detector module, standard display module, command display module, and "other" module with the four buttons at the top — each becomes its own sheet in Section D. Add power supplies with the button below the module index — each becomes its own sheet in Section E. Addresses/order are kept sorted automatically by SenseNET address. This section also holds the <b>Test setup</b> block shared by every detector's tests: test method (smoke pen, hot-wire, smoke pellet, listed canned smoke, other), material used, release location, whether Demo Mode was used, and equipment/calibration notes.</p></div></div>
@@ -326,6 +357,7 @@ table.amend td:nth-child(2){white-space:nowrap;color:var(--muted)}
           <tr><td>Sampling holes per pipe by EN 54-20 class</td><td class="cite">p.106</td><td>20 holes max. for Class A (most sensitive); 40 max. for Class B; 50 max. for Class C (least sensitive).</td></tr>
           <tr><td>EN 54-20 Class A/B/C limits</td><td class="cite">p.110</td><td>Per PipeCAD-determined Class: <b>A</b> hole sensitivity &lt;0.41 %obs/m, transport time &lt;70 s; <b>B</b> &lt;2.221 %obs/m, &lt;85 s; <b>C</b> &lt;3.78 %obs/m, &lt;95 s. Flow low/high must not exceed 20%; power must be EN 54-4 approved; cable glands IP67+.</td></tr>
           <tr><td>Hole sensitivity &amp; transport time by listing (Table 45)</td><td class="cite">Table 45, p.112</td><td>FM Class Number 3230 (NFPA 76 terms): <b>VEWFD</b> &lt;1.00 %obs/ft, &lt;60 s; <b>EWFD</b> &lt;1.50 %obs/ft, &lt;90 s; <b>SFD</b> &lt;2.50 %obs/ft, &lt;120 s. Also lists UL 268 Ed.7 Open Area (1.70–2.18%, 6–43 s), UL 268 Ed.7 Special Application Ranges 1/2, UL 268A Duct Ranges 1/2, and ULC-S529.</td></tr>
+          <tr><td>Per-hole sensitivity check (PipeCAD import)</td><td class="cite">Table 45, p.112</td><td>Every PipeCAD sampling hole's sensitivity is compared with the selected target's <b>Fire 1</b> limit (VEWFD ≤1.0, EWFD ≤1.5, SFD ≤2.5 %obs/ft). The worst (highest) hole decides PASS/FAIL, with margin = limit − worst hole. PipeCAD's longest sampling-hole transport time is compared with the target's time limit (VEWFD 60 s, EWFD 90 s, SFD 120 s), with margin = limit − max transport. The NFPA 76 VEWFD <i>Alert</i> threshold (0.2 %obs/ft) is a separate alarm stage and is not applied per hole. End-cap test points are excluded.</td></tr>
         </tbody></table>
 
         <div class="hsub">Known discrepancies with this report's built-in defaults — flagged, not silently changed</div>
@@ -333,7 +365,7 @@ table.amend td:nth-child(2){white-space:nowrap;color:var(--muted)}
           <dt>Pre-Power-Up item 11 — EOL resistor tolerance</dt>
           <dd>Section B's checklist currently reads "All input EOL resistors fitted (15 kΩ, 5%, ¼ W)?" The manual's Table 5 (p.27) specifies <b>15 kΩ ±10%</b>, not 5%, and states no wattage rating for this resistor. The 5%/¼ W figures could not be confirmed against this manual and were left in the checklist text unchanged pending the document owner's decision on whether to correct the wording in a future revision.</dd>
           <dt>Detector performance targets — VEWFD sensitivity</dt>
-          <dd>This report's built-in VEWFD target uses a 0.2 %obs/ft sensitivity limit with a 60 s transport-time limit. The 60 s time limit matches Table 45's FM Class 3230 VEWFD listing above, but Table 45's VEWFD <i>sensitivity</i> figure is &lt;1.00 %obs/ft, not 0.2%. The built-in 0.2% figure corresponds instead to the NFPA 76 Chapter 8 VEWFD <i>Alert</i> threshold (a different, earlier alarm stage than the 1.00% FM-listed Alarm threshold) — a legitimate but distinct source and threshold, not an error, but the two should not be read as citing the same table.</dd>
+          <dd><b>Resolved in Rev 11 (01.00.003).</b> Up to Rev 10, the built-in VEWFD target used a 0.2 %obs/ft per-hole limit. That figure is the NFPA 76 VEWFD <i>Alert</i> threshold, not the Table 45 (FM Class 3230) per-hole figure. The VEWFD target now uses the Table 45 <b>Fire 1</b> limit of ≤1.0 %obs/ft with the 60 s transport limit. SFD now carries Table 45's ≤2.5 %obs/ft (EWFD was already ≤1.5). A custom sensitivity limit on the sheet still overrides the target.</dd>
           <dt>Detector performance targets — EN 54-20 Class A/B/C</dt>
           <dd>This report's built-in EN 54-20 Class A/B/C targets currently carry no sensitivity limit and a uniform 120 s transport-time limit. The manual's own EN 54-20 compliance table (p.110) gives distinct, tighter figures per class: Class A &lt;0.41 %obs/m &amp; &lt;70 s, Class B &lt;2.221 %obs/m &amp; &lt;85 s, Class C &lt;3.78 %obs/m &amp; &lt;95 s. This is a real gap between the report's defaults and the manual, left as-is pending the document owner's decision (changing it affects live PASS/FAIL calculations, not just reference text).</dd>
         </div>
@@ -348,7 +380,7 @@ table.amend td:nth-child(2){white-space:nowrap;color:var(--muted)}
         <div class="hq"><dt>How does the override mechanism work, and why does it need a reason?</dt><dd>A device's automatic result can be overridden (e.g. a technician judges a borderline reading acceptable) only when <i>both</i> an override result and a non-blank reason are entered — a result with no reason is not applied, and the sheet shows a warning until one is added. This keeps every override traceable to a documented justification, both on the device sheet and in the auto-collected deficiencies list.</dd></div>
         <div class="hq"><dt>What triggers a SenseNET address error vs. a FACU address error?</dt><dd>SenseNET addresses (module/PSU network addresses) must be a whole number 1–127 and unique — out-of-range or duplicate addresses fail immediately. FACU addresses (the point label programmed at the fire alarm control unit for a given input/output/monitoring point) must match the <code>PPP:CCC:DDDD</code> panel/circuit/device pattern — anything else is flagged as a format error, separate from the SenseNET check.</dd></div>
         <div class="hq"><dt>What populates the "Outstanding items / deficiencies" list in Section G?</dt><dd>It's built automatically, not typed in: every "N" answer in Section B or G, every failed item on any module or PSU sheet, every wiring segment marked Fail, and every applied result override (with its reason) are collected there in one place so nothing needs to be re-transcribed by hand.</dd></div>
-        <div class="hq"><dt>What's the difference between PASS, FAIL, and INCOMPLETE?</dt><dd>FAIL means at least one scored/required item failed its check. INCOMPLETE means no item has failed but at least one required item is still blank. PASS means every scored/required item passed. See "Known discrepancies" above for two areas — EN 54-20 targets and the VEWFD sensitivity figure — where the built-in pass/fail limits are worth double-checking against your specific listing before relying on an automatic PASS.</dd></div>
+        <div class="hq"><dt>What's the difference between PASS, FAIL, and INCOMPLETE?</dt><dd>FAIL means at least one scored/required item failed its check. INCOMPLETE means no item has failed but at least one required item is still blank. PASS means every scored/required item passed. See "Known discrepancies" above for the EN 54-20 targets, where the built-in pass/fail limits are worth double-checking against your specific listing before relying on an automatic PASS. (The VEWFD sensitivity figure was corrected to the Table 45 Fire 1 value in Rev 11.)</dd></div>
       </section>
 
       <section class="hsec" id="help-rev">
@@ -370,11 +402,11 @@ table.amend td:nth-child(2){white-space:nowrap;color:var(--muted)}
 <script>
 "use strict";
 /* =====================================================================
-   Edwards ModuLaser MASD Field Report — Rev 10
+   Edwards ModuLaser MASD Field Report — Rev 11
    Single-file, offline. Data autosaves in this browser; Export/Import
    a .json job file to hand off or archive.
    ===================================================================== */
-const REV = '10';
+const REV = '11';
 const STORE_KEY = 'modulaser-masd-field-report-r10';
 
 /* ---------------- revision tracking: MM.mm.rrr_YYMMDD ----------------
@@ -384,7 +416,9 @@ const STORE_KEY = 'modulaser-masd-field-report-r10';
 const APP_MAJOR = "01";
 const APP_MINOR = "00";
 const AMENDMENTS = [
-  { rev: "001", date: "260930", desc: "Migrated from the legacy single-integer “Rev 10” scheme to formal MM.mm.rrr_YYMMDD revision tracking (patch counter restarted at 001 per document owner). Prior r1–r10 history: iterative development of the module/PSU index, per-device sheets, automatic PASS/FAIL/INCOMPLETE evaluation, wiring verification, auto-collected deficiencies, module test summary, and sign-off — through Rev 10’s current single-page, autosaving, print-ready form. Added the 4-section Help menu (How to Use This Field Report, Standards and Formulas, FAQs, Revision Log) and this amendments table." }
+  { rev: "001", date: "260930", desc: "Migrated from the legacy single-integer “Rev 10” scheme to formal MM.mm.rrr_YYMMDD revision tracking (patch counter restarted at 001 per document owner). Prior r1–r10 history: iterative development of the module/PSU index, per-device sheets, automatic PASS/FAIL/INCOMPLETE evaluation, wiring verification, auto-collected deficiencies, module test summary, and sign-off — through Rev 10’s current single-page, autosaving, print-ready form. Added the 4-section Help menu (How to Use This Field Report, Standards and Formulas, FAQs, Revision Log) and this amendments table." },
+  { rev: "002", date: "261007", desc: "Rev 11: added Import PipeCAD (.pl). Reads a PipeCAD 3.6 project export in the browser, shows a preview for confirmation, then pre-fills Section A (site, designer, location note, installing company if blank, PipeCAD reference) and one detector sheet per PipeCAD detector (descriptor, fan speed, Alarm Factor with a not-activated flag, PipeCAD transport time, sampling-hole count) plus a new PipeCAD design-data block: pipe name/length, total flow, hole balance, fittings, design sensitivity and the full hole table. End-cap test points are listed separately and excluded from worst-hole and max-transport checks. Re-importing updates the matching sheets and keeps field-entered data. Address, part number, alarm levels and flow limits are not imported." },
+  { rev: "003", date: "261007", desc: "Rev 11: corrected built-in performance targets to the Table 45 (p.112, FM 3230 / NFPA 76) Fire 1 per-hole sensitivity: VEWFD 0.2 → 1.0 %obs/ft (0.2 is the VEWFD Alert threshold and is not applied per hole), SFD now ≤2.5 %obs/ft. Added per-hole PipeCAD design checks (worst hole sensitivity vs Fire 1, predicted transport time vs target) with pass/fail and margin." }
 ];
 function revShort(){ const latest = AMENDMENTS[AMENDMENTS.length-1]; return `${APP_MAJOR}.${latest.minor || APP_MINOR}.${latest.rev}`; }
 function fullRev(){ const latest = AMENDMENTS[AMENDMENTS.length-1]; return `${revShort()}_${latest.date}`; }
@@ -409,10 +443,12 @@ const OUTS = ['out1','out2','out3'];
 const INS = ['in1','in2'];
 const ADDR_RE = /^\d{1,3}:\d{1,3}:\d{1,4}$/;
 
+/* Per-hole sensitivity limits are the Fire 1 (alarm) thresholds from Table 45 (p.112, FM 3230 / NFPA 76).
+   The VEWFD Alert threshold (0.2 %obs/ft) is a separate, earlier alarm stage and is NOT applied per hole. */
 const TARGETS = {
-  VEWFD:{label:'NFPA 76 — VEWFD (≤0.2 %obs/ft per hole · ≤60 s)', sens:0.2, tt:60},
-  EWFD: {label:'NFPA 76 — EWFD (≤1.5 %obs/ft per hole · ≤90 s)',  sens:1.5, tt:90},
-  SFD:  {label:'NFPA 76 — SFD (≤120 s · sensitivity per listing)', sens:null, tt:120},
+  VEWFD:{label:'NFPA 76 — VEWFD (Fire 1 ≤1.0 %obs/ft per hole · ≤60 s)', sens:1.0, tt:60},
+  EWFD: {label:'NFPA 76 — EWFD (Fire 1 ≤1.5 %obs/ft per hole · ≤90 s)',  sens:1.5, tt:90},
+  SFD:  {label:'NFPA 76 — SFD (Fire 1 ≤2.5 %obs/ft per hole · ≤120 s)', sens:2.5, tt:120},
   EN_A: {label:'EN 54-20 — Class A (≤120 s)', sens:null, tt:120},
   EN_B: {label:'EN 54-20 — Class B (≤120 s)', sens:null, tt:120},
   EN_C: {label:'EN 54-20 — Class C (≤120 s)', sens:null, tt:120},
@@ -588,6 +624,54 @@ function sortModules(){
 function modName(m){ return `SN ${pad3(m.sn)} · ${TYPE_SHORT[m.type]||'Module'}${m.desc?` · ${m.desc}`:''}`; }
 function psuName(p, i){ return p.label || `PSU ${i+1}`; }
 
+/* ---------------- PipeCAD design data helpers ---------------- */
+// Worst (highest) sampling-hole sensitivity and longest sampling-hole transport. Test points are stored separately and never included.
+function pcStats(pc){
+  const hs = Array.isArray(pc?.holes) ? pc.holes : [];
+  let worst=null, maxTT=null;
+  hs.forEach(h=>{ if(ok(h.sens) && (!worst || h.sens>worst.sens)) worst=h; if(ok(h.tt) && (!maxTT || h.tt>maxTT.tt)) maxTT=h; });
+  return {worst, maxTT};
+}
+function gcd(a,b){ return b ? gcd(b, a%b) : a; }
+function holeFrac(v){ // inches → nearest 64th, reduced (0.140625 → 9/64″)
+  if(!ok(v)) return '';
+  const n = Math.round(v*64); if(!n) return `${fmt(v,4)}″`;
+  const whole = Math.floor(n/64), r = n%64; if(!r) return `${whole}″`;
+  const d = gcd(r,64); return `${whole?whole+' ':''}${r/d}/${64/d}″`;
+}
+const fmtM = v => v.toFixed(Math.abs(v)<1 ? 2 : 1); // margins: keep small margins visible (0.02 s)
+// HTML for the detector's PipeCAD block — regenerated in refresh() so it tracks the selected target.
+function pcBlock(m){
+  const pc = m.pipecad; if(!pc) return '';
+  const L = limits(m), P = pcStats(pc);
+  const kv = (k,v) => `<div class="f"><span class="lb">${k}</span><span class="calc">${v}</span></div>`;
+  const u = t => `<span class="u">${t}</span>`;
+  const grid = `<div class="g6">
+    ${kv('Pipe', esc(pc.pipe||'—'))}
+    ${kv('Pipe length', ok(pc.lengthFt)?fmt(pc.lengthFt,1)+u('ft'):'—')}
+    ${kv('Total flow', ok(pc.flow)?fmt(pc.flow,1)+u('L/min'):'—')}
+    ${kv('Hole balance', ok(pc.balance)?fmt(pc.balance,1)+u('%'):'—')}
+    ${kv('Fittings', [ok(pc.bends90)?pc.bends90+' × 90°':'', ok(pc.sockets)?pc.sockets+' sockets':'', ok(pc.clips)?pc.clips+' clips':''].filter(Boolean).join(' · ')||'—')}
+    ${kv('Design sensitivity', ok(pc.designSens)?fmt(pc.designSens,3)+u('%obs/ft'):'—')}
+  </div>`;
+  const vs = h => !ok(h.sens) ? '—' : L.sens==null ? BDs('B') : BDs(h.sens<=L.sens?'P':'F');
+  const row = (h,tp) => `<tr class="${!tp && (h===P.worst||h===P.maxTT)?'hi':''}"><td class="n">${esc(h.i)}</td><td>${holeFrac(h.size)}${ok(h.size)?` <span class="u">(${fmt(h.size,4)} in)</span>`:''}</td><td>${ok(h.flow)?fmt(h.flow,2):'—'}</td><td>${ok(h.tt)?fmt(h.tt,1):'—'}${!tp&&h===P.maxTT?' <b>max</b>':''}</td><td>${ok(h.sens)?fmt(h.sens,3):'—'}${!tp&&h===P.worst?' <b>worst</b>':''}</td><td>${tp?'<span class="note">test point — excluded</span>':vs(h)}</td></tr>`;
+  const holes = (pc.holes||[]).map(h=>row(h,false)).join('');
+  const tps = (pc.testPoints||[]).map(h=>row(h,true)).join('');
+  const fire1 = L.sens!=null ? `≤ ${L.sens}` : 'no limit';
+  const chk = [];
+  if(P.worst) chk.push(L.sens==null ? `<span><b>Worst hole sens.:</b> ${fmt(P.worst.sens,3)} %obs/ft (hole ${esc(P.worst.i)}) ${BDs('B')} select a target</span>`
+    : `<span><b>Worst hole sens.:</b> ${P.worst.sens.toFixed(3)} %obs/ft (hole ${esc(P.worst.i)}) vs Fire 1 ${fire1} ${BDs(P.worst.sens<=L.sens?'P':'F')} margin ${fmtM(L.sens-P.worst.sens)} %obs/ft</span>`);
+  if(P.maxTT) chk.push(L.tt==null ? `<span><b>Max transport:</b> ${fmt(P.maxTT.tt,1)} s (hole ${esc(P.maxTT.i)}) ${BDs('B')} select a target</span>`
+    : `<span><b>Max transport:</b> ${P.maxTT.tt.toFixed(2)} s (hole ${esc(P.maxTT.i)}) vs ≤ ${L.tt} s ${BDs(P.maxTT.tt<=L.tt?'P':'F')} margin ${fmtM(L.tt-P.maxTT.tt)} s</span>`);
+  return `<div class="blk-h">PipeCAD design data <span class="note" style="text-transform:none;letter-spacing:0;font-weight:500">· ${esc(pc.file||'')}${pc.version?' · PipeCAD '+esc(pc.version):''}</span></div>
+    ${pc.afActivated===false ? `<div class="warnline" style="color:var(--inc)">Alarm Factor ${esc(pc.af??'')} — Verify: not activated in PipeCAD.</div>` : ''}
+    ${grid}
+    <div class="pcchk">${chk.join('')}</div>
+    <div class="scroll"><table class="t pc"><thead><tr><th>Hole</th><th>Size</th><th>Flow (L/min)</th><th>Transport (s)</th><th>Sensitivity (%obs/ft)</th><th>vs Fire 1 (${fire1})</th></tr></thead><tbody>${holes}${tps}</tbody></table></div>
+    <p class="note" style="margin-top:6px">PipeCAD-predicted values (design). Sampling-hole sensitivity is checked against the selected target's Fire 1 limit; end-cap test points are listed for reference and excluded from the worst-hole and max-transport checks.</p>`;
+}
+
 /* ---------------- evaluation ---------------- */
 function limits(m){
   const T = TARGETS[m.perf?.target] || null;
@@ -635,11 +719,20 @@ function evalModule(m){
     if(!ok(ch) || !ok(h)) add('perf','Hole sensitivity','B');
     else if(L.sens==null) add('perf','Sensitivity limit','B','enter a custom sensitivity limit for this target');
     else { const avg = ch*h; add('perf','Hole sensitivity', avg<=L.sens?'P':'F', avg<=L.sens?'':`${fmt(avg,3)} %obs/ft exceeds ${L.sens} limit`); }
+    const P = pcStats(m.pipecad);
+    if(P.worst){
+      if(L.sens==null) add('perf','PipeCAD worst-hole sensitivity','B','no Fire 1 sensitivity limit for this target');
+      else add('perf','PipeCAD worst-hole sensitivity', P.worst.sens<=L.sens?'P':'F', P.worst.sens<=L.sens?'':`hole ${P.worst.i}: ${fmt(P.worst.sens,3)} %obs/ft exceeds Fire 1 ${L.sens} limit`);
+    }
     // Transport
     const mt = num(m.t?.tt?.meas);
     if(!ok(mt)) add('tt','Measured transport time','B');
     else if(L.tt==null) add('tt','Transport time limit','B','enter a custom time limit');
     else add('tt','Measured transport time', mt<=L.tt?'P':'F', mt<=L.tt?'':`${mt} s exceeds ${L.tt} s limit`);
+    if(P.maxTT){
+      if(L.tt==null) add('tt','PipeCAD predicted transport','B','enter a custom time limit');
+      else add('tt','PipeCAD predicted transport', P.maxTT.tt<=L.tt?'P':'F', P.maxTT.tt<=L.tt?'':`hole ${P.maxTT.i}: ${fmt(P.maxTT.tt,1)} s exceeds ${L.tt} s limit`);
+    }
     // Smoke
     ['r1','r2','r3'].forEach((r,i)=>{
       const v = num(m.t?.smoke?.[r]);
@@ -830,7 +923,8 @@ function moduleSheet(m, i){
   </div>`;
   const cfgs = cfgFor(m.type);
   const half = Math.ceil(cfgs.length/2);
-  const cfgTable = list => `<table class="t cfg"><tbody>${list.map(c=>`<tr><td class="pl">${c.score||c.req?'<span class="sc" title="Scored"></span>':''}${c.label}${c.rg?` <span class="rg">${c.rg}</span>`:''}</td><td>${c.kind==='yn'?YN(`${b}.cfg.${c.k}`):IN(`${b}.cfg.${c.k}`, {num:1, max:8})}</td></tr>`).join('')}</tbody></table>`;
+  const afFlag = det && m.pipecad?.afActivated===false ? '<span class="pcflag">Verify — not activated in PipeCAD</span>' : '';
+  const cfgTable = list => `<table class="t cfg"><tbody>${list.map(c=>`<tr><td class="pl">${c.score||c.req?'<span class="sc" title="Scored"></span>':''}${c.label}${c.rg?` <span class="rg">${c.rg}</span>`:''}${c.k==='af'?afFlag:''}</td><td>${c.kind==='yn'?YN(`${b}.cfg.${c.k}`):IN(`${b}.cfg.${c.k}`, {num:1, max:8})}</td></tr>`).join('')}</tbody></table>`;
   const cfg = `<div class="blk"><div class="blk-h">3 · Configuration ${det?'— designer-sourced values':''} <span data-calc="${m.id}-sec-cfg"></span></div>
     ${det?'<p class="note">Enter alarm levels, fan speed, and flow limits from the ASD designer’s documentation — no defaults are assumed. ● = scored in the module result.</p>':'<p class="note">● = scored in the module result.</p>'}
     <div class="cfgwrap">${cfgTable(cfgs.slice(0,half))}${cfgTable(cfgs.slice(half))}</div>
@@ -874,6 +968,7 @@ function moduleSheet(m, i){
         ${CF('Compliance', m.id+'-senscomp')}
       </div>
     </div>
+    ${m.pipecad ? `<div class="blk" data-calc="${m.id}-pc"></div>` : ''}
     <div><div class="blk-h">5 · Tests</div>
     <div class="tc"><div class="tc-h"><span class="id">T1</span>Transport time<span data-calc="${m.id}-sec-tt"></span></div>
       <div class="g5">
@@ -1064,7 +1159,8 @@ function refresh(){
       setC(id+'-senslim', L.sens!=null ? `≤ ${L.sens}<span class="u">%obs/ft</span>` : nol);
       const tl = L.tt!=null ? `≤ ${L.tt}<span class="u">s</span>` : nol;
       setC(id+'-ttlim', tl); setC(id+'-ttlim2', tl);
-      setC(id+'-af', m.cfg?.af!=null && m.cfg.af!=='' ? esc(m.cfg.af) : '—');
+      setC(id+'-af', (m.cfg?.af!=null && m.cfg.af!=='' ? esc(m.cfg.af) : '—') + (m.pipecad?.afActivated===false ? '<span class="pcflag">Verify — not activated in PipeCAD</span>' : ''));
+      if(m.pipecad) setC(id+'-pc', pcBlock(m));
       const avg = ok(ch)&&ok(h) ? ch*h : null;
       setC(id+'-avg', avg!=null ? `${fmt(avg,3)}<span class="u">%obs/ft</span>` : '—');
       const pi = e.it.find(x=>x.sec==='perf' && (x.label==='Hole sensitivity'||x.label==='Sensitivity limit'));
@@ -1232,8 +1328,172 @@ document.addEventListener('click', e=>{
     setSave('Exported '+name);
   }
   else if(act==='import'){ document.getElementById('importFile').click(); }
+  else if(act==='importpl'){ document.getElementById('importPl').click(); }
   else if(act==='new'){ if(confirm('Start a new job? Current data in this browser will be cleared. Export first if you need to keep it.')){ state=blank(); save(); renderAll(); window.scrollTo(0,0); } }
   else if(act==='help'){ openHelp(); }
+});
+
+/* ---------------- PipeCAD (.pl) import ----------------
+   PipeCAD 3.6 project export = XML. Parsed with DOMParser; nothing is written until the preview is confirmed.
+   Not imported (left for field entry): detector address, part number, Alert/Action/Fire 1/Fire 2, flow limits. */
+const kid  = (el, tag) => el ? Array.from(el.children).find(c=>c.localName===tag) || null : null;
+const kids = (el, tag) => el ? Array.from(el.children).filter(c=>c.localName===tag) : [];
+const ktxt = (el, tag) => (kid(el, tag)?.textContent ?? '').trim();
+const knum = (el, tag) => { const t = ktxt(el, tag); if(t==='') return null; const n = Number(t); return isNaN(n) ? null : n; };
+const kfirst = (el, tag) => { const a = kid(el, tag); const c = a && a.children[0]; if(!c) return null; const n = Number(c.textContent); return isNaN(n) ? null : n; };
+const TGT_BY_TT = {60:'VEWFD', 90:'EWFD', 120:'SFD'};
+
+function parsePipeCAD(xml, fileName){
+  const doc = new DOMParser().parseFromString(xml, 'application/xml');
+  if(doc.getElementsByTagName('parsererror').length) throw new Error('File is not valid XML');
+  const root = doc.documentElement;
+  if(!root || root.localName!=='PipeLayout') throw new Error('Not a PipeCAD project file (no <PipeLayout> root)');
+  const pr = kid(root, 'properties');
+  const unit = ktxt(root, 'unit');
+  const toFt = unit==='1' ? 1 : 3.28084; // unit 1 = imperial (ft); otherwise metres
+  const results = {};
+  kids(kid(root, 'resultsDatabase'), 'SavedDatabase').forEach(sd=>{ results[ktxt(sd, 'detectorId')] = sd; });
+  const dets = [];
+  kids(kid(root, 'floorDatabase'), 'Floor').forEach(fl=>{
+    kids(kid(fl, 'detectorDatabase'), 'Detector').forEach(d=>{
+      const runs = kids(kid(d, 'piperunDatabase'), 'Piperun')
+        .filter(r=>!/^exhaust pipe$/i.test(ktxt(r, 'name')) && r.getElementsByTagName('Hole').length);
+      let len = 0; const holes = [], testPoints = [];
+      runs.forEach(r=> kids(kid(r, 'pipeDatabase'), 'Pipe').forEach(pp=>{
+        const c = ['X','Y','Z'].map(a=>[knum(pp,'start'+a), knum(pp,'end'+a)]);
+        if(c.every(([a,b])=>a!=null && b!=null)) len += Math.hypot(...c.map(([a,b])=>b-a));
+        kids(kid(pp, 'holeDatabase'), 'Hole').forEach(h=>{
+          const o = {i:ktxt(h,'index'), size:knum(h,'holeSize'), flow:knum(h,'holeFlowRate'), tt:knum(h,'transitTime'), sens:knum(h,'holeSensitivity')};
+          (ktxt(h,'isTestPoint')==='true' ? testPoints : holes).push(o);
+        });
+      }));
+      const byIdx = (a,b)=>(Number(a.i)||0)-(Number(b.i)||0);
+      holes.sort(byIdx); testPoints.sort(byIdx);
+      const sd = results[ktxt(d, 'id')];
+      dets.push({
+        name: ktxt(d, 'name'), pipe: runs.map(r=>ktxt(r,'name')).join(', '),
+        fan: knum(d, 'aspiratorSpeed'), af: knum(d, 'alarmFactor'), afActivated: ktxt(d, 'alarmFactorActivated')!=='false',
+        designSens: knum(d, 'sensitivity'), maxTransit: knum(d, 'maxTransitTime'),
+        lengthFt: len*toFt, holes, testPoints,
+        flow: sd ? knum(sd, 'totalFlow') : null, tt: sd ? kfirst(sd, 'transitTime') : null, balance: sd ? kfirst(sd, 'holeBalance') : null,
+        bends90: sd ? kfirst(sd, 'bends90') : null, sockets: sd ? kfirst(sd, 'sockets') : null, clips: sd ? kfirst(sd, 'clips') : null,
+        hasResults: !!sd
+      });
+    });
+  });
+  if(!dets.length) throw new Error('No detectors found in this PipeCAD file');
+  return {file: fileName, version: ktxt(root, 'pipecadVersion'), unit, metric: unit!=='1',
+    project: {site: ktxt(pr,'ProjectName'), location: ktxt(pr,'Location'), designer: ktxt(pr,'Designer'), company: ktxt(pr,'CompanyName')}, dets};
+}
+
+// Decide what the import would do, without touching state.
+function planPipeCAD(pc){
+  const P = state.project || {};
+  const proj = [];
+  const setRow = (label, key, val, onlyBlank) => {
+    if(!val) return;
+    const cur = (P[key]||'').trim();
+    const act = cur===val ? 'same' : (onlyBlank && cur) ? 'keep' : cur ? 'replace' : 'set';
+    proj.push({label, key, cur, val, act});
+  };
+  setRow('Site / facility name', 'site', pc.project.site);
+  setRow('System designer', 'designer', pc.project.designer);
+  setRow('Installing company', 'instCo', pc.project.company, true);
+  setRow('PipeCAD report reference', 'pipecad', [pc.file, pc.version && 'PipeCAD '+pc.version].filter(Boolean).join(' · '));
+  if(pc.project.location){
+    const line = 'PipeCAD location: '+pc.project.location, cur = P.notes||'';
+    proj.push({label:'Notes (location / zones)', key:'notes', cur, val: cur.includes(line) ? cur : (cur ? cur+'\n' : '')+line, act: cur.includes(line) ? 'same' : 'append', show: line});
+  }
+  const taken = new Set();
+  const dets = pc.dets.map(d=>{
+    const m = state.modules.find(x=>x.type==='det' && !taken.has(x.id) && (x.pipecad?.detName===d.name || (x.desc||'').trim()===d.name));
+    if(m) taken.add(m.id);
+    const target = m?.perf?.target || TGT_BY_TT[d.maxTransit] || '';
+    return {d, m, target};
+  });
+  const added = dets.filter(x=>!x.m).length;
+  return {pc, proj, dets, added, tooMany: state.modules.length + added > 127};
+}
+
+function pcFromDet(d, pc){
+  return {detName:d.name, file:pc.file, version:pc.version, pipe:d.pipe, lengthFt:d.lengthFt, flow:d.flow, balance:d.balance,
+    bends90:d.bends90, sockets:d.sockets, clips:d.clips, designSens:d.designSens, af:d.af, afActivated:d.afActivated,
+    tt:d.tt, holes:d.holes, testPoints:d.testPoints};
+}
+
+let pcPending = null;
+function showPipeCADPreview(plan){
+  pcPending = plan;
+  const {pc} = plan;
+  const actTxt = {set:'Set', replace:'Replace', keep:'Keep existing', same:'No change', append:'Append'};
+  const projT = `<table class="t pc"><thead><tr><th>Section A field</th><th>Current</th><th>From PipeCAD</th><th>Action</th></tr></thead><tbody>
+    ${plan.proj.map(r=>`<tr><td>${esc(r.label)}</td><td class="wrap">${esc(r.key==='notes' ? (r.cur ? '(existing notes)' : '') : r.cur) || '<span class="note">blank</span>'}</td><td class="wrap">${esc(r.show || r.val)}</td><td>${r.act==='keep'||r.act==='same' ? actTxt[r.act] : '<b>'+actTxt[r.act]+'</b>'}</td></tr>`).join('')}
+  </tbody></table>`;
+  const rows = plan.dets.map(({d,m,target})=>{
+    const fake = {perf:{...(m?.perf||{}), target}, pipecad:pcFromDet(d,pc)};
+    const L = limits(fake), P = pcStats(fake.pipecad);
+    const sOk = P.worst && L.sens!=null ? P.worst.sens<=L.sens : null, tOk = P.maxTT && L.tt!=null ? P.maxTT.tt<=L.tt : null;
+    const res = sOk==null || tOk==null ? BDs('B') : BDs(sOk && tOk ? 'P':'F');
+    const margins = [sOk!=null ? `sens ${fmtM(L.sens-P.worst.sens)}` : '', tOk!=null ? `time ${fmtM(L.tt-P.maxTT.tt)} s` : ''].filter(Boolean).join(' · ');
+    return `<tr><td><b>${esc(d.name)}</b></td><td>${m ? `Update ${m.sn ? 'SN '+pad3(m.sn) : 'existing sheet'}` : '<b>New sheet</b>'}</td><td>${esc(d.pipe||'—')}</td><td>${d.fan ?? '—'}</td>
+      <td>${d.af ?? '—'}${d.afActivated ? '' : '<span class="pcflag">Verify — not activated</span>'}</td><td>${ok(d.designSens)?fmt(d.designSens,3):'—'}</td><td>${ok(d.flow)?fmt(d.flow,1):'—'}</td>
+      <td>${ok(d.tt)?d.tt.toFixed(1):'—'}</td><td>${P.worst?P.worst.sens.toFixed(2)+` <span class="u">(#${esc(P.worst.i)})</span>`:'—'}</td><td>${d.holes.length} / ${d.testPoints.length}</td><td>${fmt(d.lengthFt,1)}</td>
+      <td>${esc(target||'—')}</td><td>${res} <span class="u">${margins}</span></td></tr>`;
+  }).join('');
+  const detT = `<table class="t pc"><thead><tr><th>Detector</th><th>Action</th><th>Pipe</th><th>Fan</th><th>Alarm Factor</th><th>Design sens. (%obs/ft)</th><th>Flow (L/min)</th><th>Transport (s)</th><th>Worst hole (%obs/ft)</th><th>Holes / test pts</th><th>Length (ft)</th><th>Target</th><th>Design check · margin</th></tr></thead><tbody>${rows}</tbody></table>`;
+  const warns = [];
+  if(plan.tooMany) warns.push(`Importing would exceed the 127-module SenseNET limit (${state.modules.length} existing + ${plan.added} new). Import is blocked.`);
+  if(pc.metric) warns.push('This file uses metric units — pipe lengths were converted from metres to feet.');
+  const noRes = pc.dets.filter(d=>!d.hasResults).map(d=>d.name);
+  if(noRes.length) warns.push(`No saved PipeCAD results for: ${noRes.map(esc).join(', ')} — flow, transport and fittings will be blank. Re-run calculations in PipeCAD and re-export.`);
+  document.getElementById('pcBody').innerHTML = `
+    <p class="note"><b>${esc(pc.file)}</b>${pc.version?' · PipeCAD '+esc(pc.version):''} · ${pc.dets.length} detector${pc.dets.length===1?'':'s'} · ${plan.added} new sheet${plan.added===1?'':'s'}, ${pc.dets.length-plan.added} update${pc.dets.length-plan.added===1?'':'s'}</p>
+    ${warns.map(w=>`<div class="warnline" style="margin-bottom:6px">${w}</div>`).join('')}
+    <div class="blk-h">Project information (Section A)</div><div class="scroll">${projT}</div>
+    <div class="blk-h" style="margin-top:14px">Detector module sheets (Section D)</div><div class="scroll">${detT}</div>
+    <p class="note" style="margin-top:8px">Imported per detector: descriptor, fan speed, Alarm Factor, PipeCAD transport time, sampling-hole count, the performance target (only if blank, from PipeCAD's max transit time) and the PipeCAD design data (pipe, length, flow, hole balance, fittings, hole table). End-cap test points are excluded from the worst-hole and max-transport checks. <b>Not imported</b> (left for field entry): SenseNET address, part number, Alert/Action/Fire 1/Fire 2 levels, flow limits. On matched sheets, all field-entered data is kept.</p>`;
+  const btn = document.getElementById('pcApply');
+  btn.textContent = `Import ${pc.dets.length} detector${pc.dets.length===1?'':'s'}`;
+  btn.disabled = plan.tooMany;
+  pcOverlay.classList.add('show'); btn.focus();
+}
+function closePipeCAD(){ pcOverlay.classList.remove('show'); pcPending = null; }
+
+function applyPipeCAD(plan){
+  const {pc} = plan;
+  state.project = state.project || {};
+  plan.proj.forEach(r=>{ if(r.act!=='keep' && r.act!=='same') state.project[r.key] = r.val; });
+  plan.dets.forEach(({d,m,target})=>{
+    if(!m){
+      m = {id:uid(), type:'det', sn:'', io:{}, cfg:{}, reg:{}, t:{}, perf:{}, ovr:{}};
+      if(state.psus.length===1) m.psu = state.psus[0].id;
+      state.modules.push(m);
+    }
+    m.cfg = m.cfg || {}; m.perf = m.perf || {}; m.t = m.t || {}; m.t.tt = m.t.tt || {};
+    m.desc = d.name;
+    if(d.fan!=null) m.cfg.fan = String(d.fan);
+    if(d.af!=null) m.cfg.af = String(d.af);
+    const tt = ok(d.tt) ? d.tt : pcStats({holes:d.holes}).maxTT?.tt;
+    if(ok(tt)) m.t.tt.pipecad = tt.toFixed(1);
+    if(d.holes.length) m.perf.holes = String(d.holes.length);
+    if(!m.perf.target && target) m.perf.target = target;
+    m.pipecad = pcFromDet(d, pc);
+  });
+  save(); renderAll(); setSave('Imported PipeCAD '+pc.file);
+}
+
+const pcOverlay = document.getElementById('pcOverlay');
+document.getElementById('pcClose').addEventListener('click', closePipeCAD);
+document.getElementById('pcCancel').addEventListener('click', closePipeCAD);
+document.getElementById('pcApply').addEventListener('click', ()=>{ const p = pcPending; if(!p || p.tooMany) return; closePipeCAD(); applyPipeCAD(p); });
+pcOverlay.addEventListener('click', e=>{ if(e.target===pcOverlay) closePipeCAD(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && pcOverlay.classList.contains('show')) closePipeCAD(); });
+document.getElementById('importPl').addEventListener('change', e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{ try{ showPipeCADPreview(planPipeCAD(parsePipeCAD(String(r.result), f.name))); }
+    catch(err){ alert('Could not import PipeCAD file: '+err.message); } e.target.value=''; };
+  r.readAsText(f);
 });
 
 /* ---------------- help modal ---------------- */
