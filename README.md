@@ -28,12 +28,12 @@ Every module and power supply gets an automatic **PASS / FAIL / INCOMPLETE** res
 
 ### PipeCAD .pl Merge (separate tool)
 
-[`pl-merge.html`](pl-merge.html) (live at `/pl-merge.html` next to the report) combines several PipeCAD `.pl` project files into one, for example one file per floor. It runs in the browser and nothing is uploaded.
-- The first file in the list supplies the project header (name, location, designer, company, units, PipeCAD version). Reorder the list to choose it.
-- Every floor, detector, pipe network and saved result from the other files is appended.
-- IDs that clash are renumbered and their references updated. Repeated floor or detector names get the source file name added.
-- Files with different units are refused.
-- **Download merged .pl**, then import that one file into the report with **Import PipeCAD (.pl)**.
+[`pl-merge.html`](pl-merge.html) (live at `/pl-merge.html` next to the report) combines several PipeCAD `.pl` project files into one `.pl` that opens in PipeCAD, for example one file per floor or building. It runs in the browser and nothing is uploaded.
+- **The design is copied unchanged.** Floors, detectors, pipe runs, holes, end caps, T-pieces and saved PipeCAD results keep every value.
+- **IDs.** PipeCAD numbers each file's detectors, pipes and holes from 0, and its saved results refer to them. Each later file's numbers, and all of its results references, shift by one offset, so nothing collides.
+- **Names.** Only names that clash with an earlier file change, following their own pattern: `MASD 01 → MASD 05`, `MASD 1-2 → MASD 1-7`, `Area A → Area B`, otherwise `Floor name (2)`. Any new name can be edited before downloading.
+- **Project settings** (project details, units, pipe type, default options) come from the first file in the list. Reorder the list to choose it. Different units, or a different pipe bore or material, are refused. A different stick length or part number is flagged.
+- Download the merged `.pl`, open it in PipeCAD, or import it into the report with **Import PipeCAD (.pl)**.
 - End-cap test points are excluded from the checks.
 - Address, part number, alarm levels and flow limits are left for field entry.
 

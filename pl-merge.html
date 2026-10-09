@@ -61,7 +61,7 @@ ul.tree li{margin:2px 0}
 </head>
 <body>
 <div class="bar"><div class="bar-in">
-  <h1>PipeCAD .pl Merge <small>Combine several PipeCAD project files into one · v01.00.000 · 2026-10-09</small></h1>
+  <h1>PipeCAD .pl Merge <small>Combine several PipeCAD project files into one, unchanged · v01.00.000 · 2026-10-09</small></h1>
   <a href="index.html">Open the Field Report</a>
 </div></div>
 <main>
@@ -97,11 +97,11 @@ ul.tree li{margin:2px 0}
   <section class="card">
     <h2>How the merge works</h2>
     <ul class="tree" style="padding-left:18px">
-      <li>Every floor, with its detectors and pipe network, and every saved PipeCAD result is copied into one file.</li>
-      <li>IDs that clash with an earlier file are renumbered, and every reference to them in that file (for example the link from a detector to its saved results) is updated to match.</li>
-      <li>A floor or detector name already used in an earlier file gets the source file name added, e.g. <i>MASD 1-2 (Level 2)</i>. The Field Report matches sheets by detector name, so names must be unique.</li>
-      <li>Files with different units are refused. Set them to the same units in PipeCAD and export again.</li>
-      <li>Project details and PipeCAD version differences are listed so you can see what was not carried over.</li>
+      <li><b>Nothing in the design changes.</b> Every floor, detector, pipe run, sampling hole, end cap, T-piece, outline, label and saved PipeCAD result is copied exactly: coordinates, hole sizes, fan speeds, alarm settings, flows and transport times included.</li>
+      <li><b>IDs.</b> PipeCAD numbers each file's detectors, pipes and holes from 0, and its saved results point at those numbers. Each later file's numbers are shifted by one fixed amount, together with every results reference, so nothing collides and every result still belongs to the same pipe or hole.</li>
+      <li><b>Names.</b> Only names that clash with an earlier file change. Detectors continue their own numbering (<i>MASD 01 → MASD 05</i>, <i>MASD 1-2 → MASD 1-7</i>). Floors keep their description: <i>Area A → Area B</i>, <i>Floor 1 → Floor 2</i>, otherwise a copy number (<i>Pipes 1 &amp; 4 (2)</i>). Pipe names belong to their detector and never clash. You can edit any new name before downloading.</li>
+      <li><b>Project settings</b> (project details, units, pipe type, default options, snap grid) come from the first file. Files in different units, or with a different pipe bore or material, are refused because their airflow results would change. A different stick length or part number is allowed and flagged.</li>
+      <li>The file is written the way PipeCAD writes it: same XML declaration, indentation and Windows line endings.</li>
     </ul>
   </section>
 </main>
@@ -120,80 +120,145 @@ function readPl(name, text){
   const root = doc.documentElement;
   if(root?.localName!=='PipeLayout') throw new Error(name+' is not a PipeCAD project file (no <PipeLayout> root)');
   const floors = kids(kid(root,'floorDatabase'),'Floor');
+  const leafs = el => el ? Object.fromEntries(Array.from(el.children).map(c=>[c.localName, c.textContent.trim()])) : {};
   return {name, text, unit: ktxt(root,'unit'), version: ktxt(root,'pipecadVersion'),
     site: ktxt(kid(root,'properties'),'ProjectName'), location: ktxt(kid(root,'properties'),'Location'),
+    pipeType: leafs(kid(root,'pipeType')), options: leafs(kid(root,'options')),
     floors: floors.length, dets: floors.reduce((n,f)=>n+kids(kid(f,'detectorDatabase'),'Detector').length, 0)};
 }
 const unitName = u => u==='1' ? 'Imperial (ft)' : u==='' ? '—' : 'Metric (unit '+u+')';
+const verCmp = (a,b) => { const x = String(a).split('.').map(Number), y = String(b).split('.').map(Number);
+  for(let i=0;i<Math.max(x.length,y.length);i++){ const d = (x[i]||0)-(y[i]||0); if(d) return d; } return 0; };
 
-/* Merge parsed PipeCAD exports into one <PipeLayout>. The first file supplies the header and every top-level
-   block other than floors and results; every Floor and SavedDatabase from the later files is appended.
-   Colliding <id> values in a later file are renumbered, and every <id> / <…Id> element in that file carrying
-   the old value is rewritten so detector ↔ results links stay intact. Duplicate floor and detector names get
-   " (file name)" appended. */
-function mergePipeCAD(files){
+/* Next free name in the same pattern as the original.
+   Detectors are numbered labels: the trailing number continues at the same width
+     ("MASD 01" → "MASD 05", "MASD 1-2" → "MASD 1-7"); a name with no number gets one ("Detector" → "Detector 2").
+   Floors are descriptive, so a number inside the description is never changed:
+     "Area A" → "Area B"; "Floor 1" / "Level 03" (words + number only) → "Floor 2" / "Level 04";
+     anything else gets a copy number ("Pipes 1 & 4" → "Pipes 1 & 4 (2)", "Data Hall" → "Data Hall (2)"). */
+function nextName(name, used, what){
+  const free = gen => { for(let i = 0; ; i++){ const c = gen(i); if(c==null) return null; if(!used.has(c)) return c; } };
+  let m;
+  if(what==='Floor'){
+    if((m = name.match(/^(.*\s)([A-Y])$/))){ const r = free(i=>{ const c = m[2].charCodeAt(0)+1+i; return c<=90 ? m[1]+String.fromCharCode(c) : null; }); if(r) return r; }
+    if((m = name.match(/^([A-Za-z][A-Za-z ]*?\s)(\d+)$/))) return free(i=>m[1]+String(+m[2]+1+i).padStart(m[2].length,'0'));
+    return free(i=>`${name} (${i+2})`);
+  }
+  if((m = name.match(/^(.*?)(\d+)$/))) return free(i=>m[1]+String(+m[2]+1+i).padStart(m[2].length,'0'));
+  return free(i=>`${name} ${i+2}`);
+}
+
+/* PipeCAD numbers every detector, pipe and sampling hole from one counter per file (<id>, 0…max), and its saved
+   results point back at them: SavedDatabase/detectorId and the <int> lists under objectsList (pipeIds, holeIds,
+   ancillaryIds, and each TPiece's pipeDatabase1/2 and holeDatabase1/2). A 0 in those lists is an empty slot (id 0 is
+   always the file's first detector, never a pipe or hole), so it stays 0. <layerTag> numbers the project tree (exhaust
+   pipes negative). Bends/sockets/clips <int>s are counts, not references, and are never touched. */
+const REF_LISTS = new Set(['pipeIds','holeIds','ancillaryIds','pipeDatabase1','pipeDatabase2','holeDatabase1','holeDatabase2']);
+const isIdEl = e => !e.children.length && (e.localName==='id' || e.localName==='detectorId' || (e.localName==='int' && REF_LISTS.has(e.parentNode?.localName)));
+
+/* Merge PipeCAD exports into one <PipeLayout> that PipeCAD can open. The first file supplies the header
+   (properties, units, snap grid, pipe type, default options). Every Floor and SavedDatabase from the later files
+   is copied unchanged except: all IDs and their references shift by one offset per file (so nothing collides and
+   every results link still points at the same pipe or hole), project-tree tags shift the same way, and a floor or
+   detector name already used gets the next free name in its own pattern. Coordinates, hole sizes, fan speeds,
+   alarm settings and saved results are copied byte for byte. */
+function mergePipeCAD(files, overrides = new Map()){
   const docs = files.map(f=>new DOMParser().parseFromString(f.text, 'application/xml'));
-  const base = docs[0], root = base.documentElement, notes = [];
+  const base = docs[0], root = base.documentElement, h0 = files[0];
+  const errors = [], warns = [], notes = [], renames = [];
   const ensure = tag => kid(root, tag) || root.appendChild(base.createElementNS(root.namespaceURI, tag));
   const floorDb = ensure('floorDatabase'), resDb = ensure('resultsDatabase');
-  const allEls = (doc, test) => Array.from(doc.getElementsByTagName('*')).filter(test);
-  const idEls = doc => allEls(doc, e=>e.localName==='id' && !e.children.length && e.textContent.trim()!=='');
-  const used = new Set(idEls(base).map(e=>e.textContent.trim()));
-  const floorNames = new Set(kids(floorDb,'Floor').map(f=>ktxt(f,'name')).filter(Boolean));
+  const els = doc => Array.from(doc.getElementsByTagName('*'));
+  const ints = (doc, test) => els(doc).filter(test).map(e=>Number(e.textContent.trim())).filter(Number.isFinite);
+  const maxId = doc => Math.max(-1, ...ints(doc, isIdEl));
+  const maxTag = doc => Math.max(0, ...ints(doc, e=>e.localName==='layerTag').map(Math.abs));
+  let idOff = maxId(base) + 1, tagOff = maxTag(base);
+  const floorNames = new Set(kids(floorDb,'Floor').map(f=>ktxt(f,'name')));
   const detNames = new Set(kids(floorDb,'Floor').flatMap(f=>kids(kid(f,'detectorDatabase'),'Detector')).map(d=>ktxt(d,'name')));
-  const isInt = v => /^-?\d+$/.test(v), isGuid = v => /^\{?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\}?$/i.test(v);
-  const newGuid = () => crypto.randomUUID ? crypto.randomUUID()
-    : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c=>{ const r = Math.random()*16|0; return (c==='x' ? r : (r&3|8)).toString(16); });
-  const newId = old => {
-    let v;
-    if(isInt(old)) v = String(Math.max(0, ...Array.from(used).filter(isInt).map(Number)) + 1);
-    else if(isGuid(old)){ do { v = newGuid(); if(old.startsWith('{')) v = '{'+v+'}'; if(old===old.toUpperCase()) v = v.toUpperCase(); } while(used.has(v)); }
-    else { let n = 2; while(used.has(old+'-'+n)) n++; v = old+'-'+n; }
-    used.add(v); return v;
+  // Keep the merged file's whitespace in PipeCAD's own layout: new children go where the existing ones are indented.
+  const append = (parent, node) => {
+    const txt = d => base.createTextNode(d);
+    const pin = parent.previousSibling?.nodeType===3 ? parent.previousSibling.data : '\n';
+    const first = parent.firstElementChild;
+    const ind = first?.previousSibling?.nodeType===3 ? first.previousSibling.data : pin+'  ';
+    const tail = parent.lastChild?.nodeType===3 && !parent.lastChild.data.trim() ? parent.lastChild : null;
+    if(tail){ parent.insertBefore(txt(ind), tail); parent.insertBefore(node, tail); }
+    else { parent.appendChild(txt(ind)); parent.appendChild(node); parent.appendChild(txt(pin)); }
   };
-  const rename = (el, set, file, what) => {
-    const n = kid(el,'name'); const name = n?.textContent.trim(); if(!name) return;
-    if(set.has(name)){
-      let nn = `${name} (${file})`, i = 2; while(set.has(nn)) nn = `${name} (${file} ${i++})`;
-      n.textContent = nn; set.add(nn);
-      notes.push(`${what} “${name}” from ${file} is also in an earlier file. Renamed “${nn}”.`);
-    } else set.add(name);
-  };
-  const h0 = files[0];
-  docs.slice(1).forEach((doc, k)=>{
-    const f = files[k+1], file = stemOf(f.name);
-    if(f.unit!==h0.unit) throw new Error(`${f.name} uses different units from ${h0.name} (${unitName(f.unit)} vs ${unitName(h0.unit)}). Set both projects to the same units in PipeCAD and export again.`);
-    if(f.version!==h0.version) notes.push(`${f.name} was saved by PipeCAD ${f.version||'?'}. The merged file keeps ${h0.name}'s version ${h0.version||'?'}.`);
+  const srcOf = new Map(kids(floorDb,'Floor').map(f=>[f, h0.name]));
+
+  // Project-level differences: inner diameter changes the flow calculation, so it blocks the merge.
+  const pt0 = h0.pipeType;
+  files.slice(1).forEach(f=>{
+    if(f.unit!==h0.unit) errors.push(`${f.name} uses different units from ${h0.name} (${unitName(f.unit)} vs ${unitName(h0.unit)}). Set both projects to the same units in PipeCAD and export again.`);
+    const pt = f.pipeType;
+    if(pt.innerDiameter!==pt0.innerDiameter || pt.material!==pt0.material)
+      errors.push(`${f.name} uses a different pipe (${pt.name||'?'}: ID ${pt.innerDiameter||'?'}, material ${pt.material||'?'}) from ${h0.name} (${pt0.name||'?'}: ID ${pt0.innerDiameter||'?'}, material ${pt0.material||'?'}). Its airflow results would change in PipeCAD, so it can't be merged.`);
+    else if(['outerDiameter','length','partNumber','name'].some(k=>pt[k]!==pt0[k]))
+      warns.push(`${f.name} uses pipe “${pt.name}” (${pt.length} ft sticks, OD ${pt.outerDiameter}, part ${pt.partNumber}); the merged file uses ${h0.name}'s “${pt0.name}” (${pt0.length} ft, OD ${pt0.outerDiameter}, part ${pt0.partNumber}). Same bore, so airflow is unchanged, but socket counts and part numbers will follow “${pt0.name}” if PipeCAD recalculates.`);
+    if(f.options.DetectorType && f.options.DetectorType!==h0.options.DetectorType)
+      warns.push(`${f.name} is a ${f.options.DetectorType} project; the merged file is ${h0.options.DetectorType}. Each detector keeps its own type.`);
     if(f.site && f.site!==h0.site) notes.push(`${f.name} project name “${f.site}” is not carried over. The merged file keeps “${h0.site}”.`);
     if(f.location && f.location!==h0.location) notes.push(`${f.name} location “${f.location}” is not carried over. The merged file keeps “${h0.location}”.`);
-    // Renumber ids that collide with ones already in the merged file, then rewrite every reference in this file.
-    const map = new Map();
-    idEls(doc).forEach(e=>{ const v = e.textContent.trim(); if(used.has(v)) map.set(v, null); });
-    idEls(doc).forEach(e=>{ const v = e.textContent.trim(); if(!map.has(v)) used.add(v); });
-    map.forEach((_, v)=>map.set(v, newId(v)));
-    if(map.size){
-      allEls(doc, e=>(e.localName==='id' || /Id$/.test(e.localName)) && !e.children.length && map.has(e.textContent.trim()))
-        .forEach(e=>{ e.textContent = map.get(e.textContent.trim()); });
-      notes.push(`${map.size} ID${map.size===1?'':'s'} in ${f.name} clashed with an earlier file and ${map.size===1?'was':'were'} renumbered.`);
-    }
-    kids(kid(doc.documentElement,'floorDatabase'),'Floor').forEach(fl=>{
-      rename(fl, floorNames, file, 'Floor');
-      kids(kid(fl,'detectorDatabase'),'Detector').forEach(d=>rename(d, detNames, file, 'Detector'));
-      const imported = base.importNode(fl, true); imported.__src = f.name; floorDb.appendChild(imported);
-    });
-    kids(kid(doc.documentElement,'resultsDatabase'),'SavedDatabase').forEach(sd=>resDb.appendChild(base.importNode(sd, true)));
   });
-  // Tree of the merged result for the review table.
-  const tree = kids(floorDb,'Floor').map(fl=>({floor: ktxt(fl,'name') || '(unnamed floor)', src: fl.__src || h0.name,
+  if(files.slice(1).some(f=>['MaxTransitTime','Sensitivity','HoleSizeChange','MinHoleSize','MaxHoleSize','BalanceMinLimit'].some(k=>f.options[k]!==h0.options[k])))
+    notes.push(`Project default options (new-detector defaults) come from ${h0.name}. Existing detectors keep their own limits, hole sizes and sensitivity.`);
+  const newest = files.reduce((a,f)=>verCmp(f.version,a.version)>0 ? f : a, h0);
+  if(newest!==h0){
+    kid(root,'pipecadVersion').textContent = newest.version;
+    notes.push(`Files come from different PipeCAD versions; the merged file is marked ${newest.version} (newest, from ${newest.name}).`);
+  }
+  if(errors.length) return {errors, warns, notes, renames, tree: []};
+
+  docs.slice(1).forEach((doc, k)=>{
+    const f = files[k+1], dOff = idOff, tOff = tagOff;
+    els(doc).forEach(e=>{
+      if(isIdEl(e)){ const v = e.textContent.trim(); if(/^\d+$/.test(v) && !(v==='0' && e.localName==='int')) e.textContent = String(+v + dOff); }
+      else if(e.localName==='layerTag'){ const v = Number(e.textContent.trim()); if(Number.isInteger(v) && v) e.textContent = String(v>0 ? v+tOff : v-tOff); }
+    });
+    idOff = Math.max(idOff, maxId(doc) + 1); tagOff = Math.max(tagOff, maxTag(doc));
+    if(dOff) notes.push(`${f.name}: detector, pipe and hole IDs shifted by +${dOff}, with every saved-results reference shifted to match.`);
+    // Names only clash with earlier files; duplicates inside one file are the designer's own and stay as they are.
+    // The same original name always maps to the same new name within a file.
+    const floorsK = kids(kid(doc.documentElement,'floorDatabase'),'Floor');
+    const detsK = floorsK.flatMap(fl=>kids(kid(fl,'detectorDatabase'),'Detector'));
+    const renameAll = (items, prev, what) => {
+      const own = new Set(items.map(el=>kid(el,'name')?.textContent ?? '')), map = new Map(), taken = new Set([...prev, ...own]);
+      items.forEach(el=>{
+        const n = kid(el,'name'); if(!n) return; const name = n.textContent;
+        if(!prev.has(name)) return;
+        if(!map.has(name)){
+          const key = `${f.name}|${what}|${name}`, want = (overrides.get(key) || '').trim();
+          let nn = nextName(name, taken, what), auto = nn;
+          if(want && want!==auto){ if(taken.has(want)) errors.push(`“${want}” is already used, so ${f.name}'s ${what.toLowerCase()} “${name}” can't take that name.`); else nn = want; }
+          taken.add(nn); map.set(name, nn); renames.push({what, file:f.name, from:name, to:nn, auto, key});
+        }
+        n.textContent = map.get(name);
+      });
+      items.forEach(el=>prev.add(kid(el,'name')?.textContent ?? ''));
+    };
+    renameAll(floorsK, floorNames, 'Floor');
+    renameAll(detsK, detNames, 'Detector');
+    if(errors.length) return;
+    floorsK.forEach(fl=>{ const imp = base.importNode(fl, true); srcOf.set(imp, f.name); append(floorDb, imp); });
+    kids(kid(doc.documentElement,'resultsDatabase'),'SavedDatabase').forEach(sd=>append(resDb, base.importNode(sd, true)));
+  });
+
+  if(errors.length) return {errors, warns, notes, renames, tree: []};
+  const tree = kids(floorDb,'Floor').map(fl=>({floor: ktxt(fl,'name'), src: srcOf.get(fl),
     dets: kids(kid(fl,'detectorDatabase'),'Detector').map(d=>ktxt(d,'name'))}));
-  let xml = new XMLSerializer().serializeToString(base);
+  // Serialize in PipeCAD's own style: original declaration, " />" empty elements, CRLF line ends.
+  let xml = new XMLSerializer().serializeToString(base).replace(/^<\?xml[^>]*\?>\s*/, '');
+  xml = xml.replace(/<([A-Za-z_][\w.:-]*)\/>/g, '<$1 />');
   const decl = h0.text.match(/^﻿?\s*(<\?xml[^>]*\?>)/);
-  if(decl && !xml.startsWith('<?xml')) xml = decl[1]+'\n'+xml;
-  return {xml, notes, tree, renamedNames: new Set(notes.filter(n=>/Renamed “/.test(n)).map(n=>n.match(/Renamed “(.*)”\.$/)[1]))};
+  if(decl) xml = decl[1]+'\n'+xml;
+  xml = xml.replace(/\r?\n/g, '\r\n');
+  return {xml, errors, warns, notes, renames, tree};
 }
 
 /* ---------- UI ---------- */
 let files = [], merged = null;
+const overrides = new Map(); // user-edited clash names, keyed file|Floor/Detector|original name
 const $ = id => document.getElementById(id);
 const pick = $('pick'), drop = $('drop');
 
@@ -219,19 +284,38 @@ function render(){
   const card = $('resultCard'), out = $('result');
   if(files.length < 2){ card.hidden = !files.length; out.innerHTML = files.length ? '<div class="msg">Add at least one more .pl file to merge.</div>' : ''; $('dl').disabled = true; return; }
   card.hidden = false;
-  try{ merged = mergePipeCAD(files); }
+  let m;
+  try{ m = mergePipeCAD(files, overrides); }
   catch(e){ out.innerHTML = `<div class="msg err">${esc(e.message)}</div>`; $('dl').disabled = true; return; }
+  const renamed = new Set(m.renames.map(r=>r.to));
+  const renameT = m.renames.length ? `<p class="note"><b>Renamed to avoid clashes with an earlier file.</b> Edit a new name if you prefer another; it must not match any other floor or detector.</p>
+    <div class="scroll"><table><thead><tr><th></th><th>From file</th><th>Original name</th><th>New name</th></tr></thead><tbody>
+    ${m.renames.map(r=>`<tr><td>${r.what}</td><td>${esc(r.file)}</td><td>${esc(r.from)}</td>
+      <td><input type="text" class="ren" data-key="${esc(r.key)}" value="${esc(r.to)}" aria-label="New name for ${esc(r.from)}" style="width:100%;min-width:140px;border:1px solid var(--line);border-radius:5px;padding:4px 7px"></td></tr>`).join('')}
+    </tbody></table></div>` : '';
+  const warnH = m.warns.map(n=>`<div class="msg">${esc(n)}</div>`).join('');
+  if(m.errors.length){
+    out.innerHTML = m.errors.map(e=>`<div class="msg err">${esc(e)}</div>`).join('') + warnH + renameT;
+    $('dl').disabled = true; return;
+  }
+  merged = m;
   $('dl').disabled = false;
   if(!$('outName').dataset.edited) $('outName').value = `${stemOf(files[0].name)}+${files.length-1}-merged.pl`;
-  const nDet = merged.tree.reduce((n,f)=>n+f.dets.length, 0);
-  out.innerHTML = `<div class="msg ok">${files.length} files → ${merged.tree.length} floor${merged.tree.length===1?'':'s'}, ${nDet} detector${nDet===1?'':'s'}.</div>
-    ${merged.notes.map(n=>`<div class="msg">${esc(n)}</div>`).join('')}
+  const nDet = m.tree.reduce((n,f)=>n+f.dets.length, 0);
+  out.innerHTML = `<div class="msg ok">${files.length} files → ${m.tree.length} floor${m.tree.length===1?'':'s'}, ${nDet} detector${nDet===1?'':'s'}. Pipe layouts, hole sizes, detector settings and saved PipeCAD results are copied unchanged.</div>
+    ${warnH}${m.warns.some(w=>/uses pipe/.test(w)) ? '<p class="note">PipeCAD keeps one pipe type per project. To keep a file\'s own pipe type, move it to the top of the list.</p>' : ''}
+    ${renameT}
     <div class="scroll" style="margin-top:8px"><table><thead><tr><th>Floor</th><th>From</th><th>Detectors</th></tr></thead><tbody>
-    ${merged.tree.map(f=>`<tr><td>${esc(f.floor)}${merged.renamedNames.has(f.floor)?' <span class="tag ren">renamed</span>':''}</td><td>${esc(f.src)}</td>
-      <td>${f.dets.map(d=>esc(d)+(merged.renamedNames.has(d)?' <span class="tag ren">renamed</span>':'')).join(', ') || '—'}</td></tr>`).join('')}
-    </tbody></table></div>`;
+    ${m.tree.map(f=>`<tr><td>${esc(f.floor)}${renamed.has(f.floor)?' <span class="tag ren">renamed</span>':''}</td><td>${esc(f.src)}</td>
+      <td>${f.dets.map(d=>esc(d)+(renamed.has(d)?' <span class="tag ren">renamed</span>':'')).join(', ') || '—'}</td></tr>`).join('')}
+    </tbody></table></div>
+    ${m.notes.map(n=>`<p class="note">${esc(n)}</p>`).join('')}`;
 }
 
+$('result').addEventListener('change', e=>{
+  const i = e.target.closest('input.ren'); if(!i) return;
+  overrides.set(i.dataset.key, i.value); render();
+});
 $('fileRows').addEventListener('click', e=>{
   const b = e.target.closest('button'); if(!b) return;
   if(b.dataset.rm!=null) files.splice(+b.dataset.rm, 1);
