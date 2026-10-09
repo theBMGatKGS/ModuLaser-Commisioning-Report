@@ -24,6 +24,7 @@ Every module and power supply gets an automatic **PASS / FAIL / INCOMPLETE** res
 **Import PipeCAD (.pl)** pre-fills the report from a PipeCAD 3.6 project export.
 - It fills Section A and one detector sheet per PipeCAD detector: fan speed, Alarm Factor, predicted transport time, pipe length, flow, fittings, and the full hole table.
 - It checks each sampling hole's sensitivity against the selected target's **Fire 1** limit (Table 45: VEWFD ≤1.0, EWFD ≤1.5, SFD ≤2.5 %obs/ft) and the predicted transport time against the time limit, showing pass/fail and margin.
+- Select several `.pl` files at once (for example one per floor) to merge them into one project. Clashing IDs are renumbered, duplicate floor or detector names get the file name appended, and **Download merged .pl** saves the combined file.
 - A preview lists every change, and nothing is written until you confirm.
 - End-cap test points are excluded from the checks.
 - Address, part number, alarm levels and flow limits are left for field entry.
