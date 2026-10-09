@@ -267,7 +267,7 @@ table.amend td:nth-child(2){white-space:nowrap;color:var(--muted)}
 <body>
 <div class="bar noprint">
   <div class="bar-in">
-    <h1>Edwards ModuLaser MASD — Field Report <small><span class="revcell" title="Revision (MM.mm.rrr)"><em>Revision</em><span id="revDisplay">01.00.004</span></span><span class="revcell" title="Revision date"><em>Date</em><span id="revDateDisplay">2026-10-07</span></span> commissioning worksheet</small></h1>
+    <h1>Edwards ModuLaser MASD — Field Report <small><span class="revcell" title="Revision (MM.mm.rrr)"><em>Revision</em><span id="revDisplay">01.00.005</span></span><span class="revcell" title="Revision date"><em>Date</em><span id="revDateDisplay">2026-10-09</span></span> commissioning worksheet</small></h1>
     <span class="save" id="saveStatus">Not saved yet</span>
     <div class="btns">
       <button class="btn" data-act="help">Help</button>
@@ -278,7 +278,7 @@ table.amend td:nth-child(2){white-space:nowrap;color:var(--muted)}
       <button class="btn" data-act="new">New job</button>
     </div>
     <input type="file" id="importFile" accept=".json,application/json" hidden>
-    <input type="file" id="importPl" accept=".pl,.xml" hidden>
+    <input type="file" id="importPl" accept=".pl,.xml" multiple hidden>
   </div>
 </div>
 <nav class="nav noprint"><div class="nav-in">
@@ -295,6 +295,7 @@ table.amend td:nth-child(2){white-space:nowrap;color:var(--muted)}
     <div class="helpBody" id="pcBody"></div>
     <div class="pcFoot"><span class="msg">Nothing is changed until you confirm. Field-entered data on matched sheets is kept.</span>
       <button class="pbtn" id="pcCancel" type="button">Cancel</button>
+      <button class="pbtn" id="pcMergeDl" type="button" hidden>Download merged .pl</button>
       <button class="pbtn pri" id="pcApply" type="button">Import</button></div>
   </div>
 </div>
@@ -319,7 +320,7 @@ table.amend td:nth-child(2){white-space:nowrap;color:var(--muted)}
 
         <div class="hsub">Quick Start</div>
         <div class="hstep"><span class="hn">1</span><div><div class="ht">Start or resume a job</div><p>Open this file in a browser and begin — nothing to install. Every change autosaves to this browser (debounced ~¼ second) under a report-specific storage key, and the toolbar's <b>Not saved yet / Autosaved h:mm</b> status confirms it. If the browser can't store data (private/incognito mode, storage disabled, or storage full), the status instead reads <b>Autosave unavailable — use Export job</b> — save your work with <b>Export job</b> in that case. To hand a job to another technician, move it to another computer, or keep an archival copy, use <b>Export job</b> (downloads a <code>.json</code> job file) and <b>Import job</b> (loads one back in). <b>New job</b> clears the current browser data after a confirmation prompt — export first if you want to keep it. The toolbar's <b>Revision</b> and <b>Date</b> cells show which build you are running; <b>Help → Revision Log</b> lists every change since the Rev 10 baseline, plus the reconstructed legacy history.</p></div></div>
-        <div class="hstep"><span class="hn">1b</span><div><div class="ht">Optional — Import PipeCAD (.pl)</div><p>Use <b>Import PipeCAD (.pl)</b> to pre-fill the report from a PipeCAD 3.6 project export. The file is read in this browser only. A <b>preview</b> lists every Section A field and detector sheet that would be set, replaced, or kept, with each detector's design check against its performance target. Nothing changes until you confirm. Section A gets the site (ProjectName), system designer, a "PipeCAD location" line in Notes, the installing company (only if blank), and the file name + PipeCAD version as the report reference. Each PipeCAD detector becomes one detector sheet, or updates the sheet whose descriptor matches its name. The sheet gets its descriptor, fan speed, Alarm Factor, PipeCAD transport time, sampling-hole count, the performance target (only if blank, from PipeCAD's max transit time) and a <b>PipeCAD design data</b> block: pipe, pipe length (sum of the 3D pipe segments), total flow, hole balance, fittings, design sensitivity, and the full hole table. If the Alarm Factor isn't activated in PipeCAD, the sheet flags it for verification. End-cap test points are listed separately and excluded from the worst-hole and max-transport checks. <b>Not imported</b>: SenseNET address, part number, Alert/Action/Fire 1/Fire 2 levels and flow limits — enter those from the field. Re-importing an updated .pl keeps everything entered in the field. JSON Export/Import, autosave and print are unaffected.</p></div></div>
+        <div class="hstep"><span class="hn">1b</span><div><div class="ht">Optional — Import PipeCAD (.pl)</div><p>Use <b>Import PipeCAD (.pl)</b> to pre-fill the report from a PipeCAD 3.6 project export. The file is read in this browser only. A <b>preview</b> lists every Section A field and detector sheet that would be set, replaced, or kept, with each detector's design check against its performance target. Nothing changes until you confirm. Section A gets the site (ProjectName), system designer, a "PipeCAD location" line in Notes, the installing company (only if blank), and the file name + PipeCAD version as the report reference. Each PipeCAD detector becomes one detector sheet, or updates the sheet whose descriptor matches its name. The sheet gets its descriptor, fan speed, Alarm Factor, PipeCAD transport time, sampling-hole count, the performance target (only if blank, from PipeCAD's max transit time) and a <b>PipeCAD design data</b> block: pipe, pipe length (sum of the 3D pipe segments), total flow, hole balance, fittings, design sensitivity, and the full hole table. If the Alarm Factor isn't activated in PipeCAD, the sheet flags it for verification. End-cap test points are listed separately and excluded from the worst-hole and max-transport checks. <b>Not imported</b>: SenseNET address, part number, Alert/Action/Fire 1/Fire 2 levels and flow limits — enter those from the field. Re-importing an updated .pl keeps everything entered in the field. <b>Several .pl files</b> (for example one per floor) can be selected together: they are merged into one project, the preview lists any renamed floors or detectors and renumbered IDs, and <b>Download merged .pl</b> saves the combined file. All files must use the same units. JSON Export/Import, autosave and print are unaffected.</p></div></div>
         <div class="hstep"><span class="hn">2</span><div><div class="ht">Section A — Project Information</div><p>Record the site, job number, address, commissioning date, installing company, commissioning engineer, system designer, owner contact, PipeCAD report reference, FACU make/model, and SLC panel count. This block also drives the header/footer text shown on every printed page.</p></div></div>
         <div class="hstep"><span class="hn">3</span><div><div class="ht">Section B — Pre-Power-Up Inspection</div><p>Work the 17-item checklist before applying power: FACU isolation, PipeCAD pipe-length limits, pressure zone and exhaust placement, sampling-hole count and condition, cable knockouts, field wiring including SenseNET/SNET+ data lines, EOL resistors and EOL PCBs, supply voltage, battery standby capacity, FACU SLC addressing, clearance, housekeeping, and ESD precautions. Each row is Y / N / N/A with a notes field. The section header shows a live rollup (Y/N/N-A/open counts and a PASS/FAIL/INCOMPLETE badge) — any "N" answer here also appears automatically in Section G's deficiencies list.</p></div></div>
         <div class="hstep"><span class="hn">4</span><div><div class="ht">Section C — Module &amp; Power Supply Index</div><p>Add every detector module, standard display module, command display module, and "other" module with the four buttons at the top — each becomes its own sheet in Section D. Add power supplies with the button below the module index — each becomes its own sheet in Section E. Addresses/order are kept sorted automatically by SenseNET address. This section also holds the <b>Test setup</b> block shared by every detector's tests: test method (smoke pen, hot-wire, smoke pellet, listed canned smoke, other), material used, release location, whether Demo Mode was used, and equipment/calibration notes.</p></div></div>
@@ -433,6 +434,7 @@ const AMENDMENTS = [
   { rev: "002", date: "261007", desc: "Rev 11: added Import PipeCAD (.pl). Reads a PipeCAD 3.6 project export in the browser, shows a preview for confirmation, then pre-fills Section A (site, designer, location note, installing company if blank, PipeCAD reference) and one detector sheet per PipeCAD detector (descriptor, fan speed, Alarm Factor with a not-activated flag, PipeCAD transport time, sampling-hole count) plus a new PipeCAD design-data block: pipe name/length, total flow, hole balance, fittings, design sensitivity and the full hole table. End-cap test points are listed separately and excluded from worst-hole and max-transport checks. Re-importing updates the matching sheets and keeps field-entered data. Address, part number, alarm levels and flow limits are not imported." },
   { rev: "003", date: "261007", desc: "Rev 11: corrected built-in performance targets to the Table 45 (p.112, FM 3230 / NFPA 76) Fire 1 per-hole sensitivity: VEWFD 0.2 → 1.0 %obs/ft (0.2 is the VEWFD Alert threshold and is not applied per hole), SFD now ≤2.5 %obs/ft. Added per-hole PipeCAD design checks (worst hole sensitivity vs Fire 1, predicted transport time vs target) with pass/fail and margin." },
   { rev: "004", date: "261007", desc: "Revision Log rebuilt as a complete release archive, matching the Battery Calculator: identity card (Application / Revision / Authored by), Revision and Date cells in the toolbar, readable YYYY-MM-DD dates, a 000 Baseline entry inventorying the Rev 10 feature set, and a reconstructed Legacy history section (legacy r1–r10 summary and the 260930 installable/offline packaging). Repository now carries CHANGELOG.md (generated from this log) and RELEASE_NOTES.md; GitHub releases are tagged vMM.mm.rrr starting with v01.00.003 (Rev 11)." }
+  { rev: "005", date: "261009", desc: "Import PipeCAD (.pl) now accepts several files at once and merges them into one PipeCAD project, so the floors and detectors from separate .pl files land in one report. The first file supplies the project header (site, location, designer, units, version); every floor and saved result from the later files is appended. IDs that clash with an earlier file are renumbered and their detector-to-results links rewritten; a floor or detector name already used in an earlier file gets the source file name appended, since sheets are matched by detector name. Files in different units are refused. The preview lists every merge note, and Download merged .pl saves the combined file so later re-imports use one file." },
 ];
 /* Pre-tracking history, reconstructed from the Rev 10 file and the repository history. Unnumbered; shown in Help → Revision Log
    and mirrored in CHANGELOG.md. Do not add new entries here — new changes go in AMENDMENTS. */
@@ -1412,8 +1414,75 @@ function parsePipeCAD(xml, fileName){
     project: {site: ktxt(pr,'ProjectName'), location: ktxt(pr,'Location'), designer: ktxt(pr,'Designer'), company: ktxt(pr,'CompanyName')}, dets};
 }
 
+/* Merge several PipeCAD exports into one <PipeLayout>. The first file supplies the header (properties, unit,
+   version and every other top-level block); every Floor and SavedDatabase from the later files is appended.
+   Colliding <id> values in a later file are renumbered, and every <id> / <…Id> element in that file carrying
+   the old value is rewritten so detector ↔ results links stay intact. Duplicate floor and detector names get
+   " (file name)" appended, because the import matches sheets by detector name. */
+function mergePipeCAD(files){
+  const parse = f => {
+    const doc = new DOMParser().parseFromString(f.text, 'application/xml');
+    if(doc.getElementsByTagName('parsererror').length) throw new Error(f.name+' is not valid XML');
+    if(doc.documentElement?.localName!=='PipeLayout') throw new Error(f.name+' is not a PipeCAD project file (no <PipeLayout> root)');
+    return doc;
+  };
+  const docs = files.map(parse), base = docs[0], root = base.documentElement, notes = [];
+  const ensure = tag => kid(root, tag) || root.appendChild(base.createElementNS(root.namespaceURI, tag));
+  const floorDb = ensure('floorDatabase'), resDb = ensure('resultsDatabase');
+  const allEls = (doc, test) => Array.from(doc.getElementsByTagName('*')).filter(test);
+  const idEls = doc => allEls(doc, e=>e.localName==='id' && !e.children.length && e.textContent.trim()!=='');
+  const used = new Set(idEls(base).map(e=>e.textContent.trim()));
+  const floorNames = new Set(kids(floorDb,'Floor').map(f=>ktxt(f,'name')).filter(Boolean));
+  const detNames = new Set(kids(floorDb,'Floor').flatMap(f=>kids(kid(f,'detectorDatabase'),'Detector')).map(d=>ktxt(d,'name')));
+  const isInt = v => /^-?\d+$/.test(v), isGuid = v => /^\{?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\}?$/i.test(v);
+  const newId = old => {
+    let v;
+    if(isInt(old)) { v = String(Math.max(0, ...Array.from(used).filter(isInt).map(Number)) + 1); }
+    else if(isGuid(old) && crypto.randomUUID) { const g = crypto.randomUUID(); v = old.startsWith('{') ? '{'+g+'}' : g;
+      if(old===old.toUpperCase()) v = v.toUpperCase(); }
+    else { let n = 2; while(used.has(old+'-'+n)) n++; v = old+'-'+n; }
+    used.add(v); return v;
+  };
+  const rename = (el, set, file, what) => {
+    const n = kid(el,'name'); const name = n?.textContent.trim(); if(!name) return;
+    if(set.has(name)){ let nn = `${name} (${file})`, i = 2; while(set.has(nn)) nn = `${name} (${file} ${i++})`;
+      n.textContent = nn; notes.push(`${what} "${name}" from ${file} is also in an earlier file — renamed "${nn}".`); set.add(nn); }
+    else set.add(name);
+  };
+  const r0 = files[0], hdr = doc => ({unit: ktxt(doc.documentElement,'unit'), version: ktxt(doc.documentElement,'pipecadVersion'),
+    site: ktxt(kid(doc.documentElement,'properties'),'ProjectName'), location: ktxt(kid(doc.documentElement,'properties'),'Location')});
+  const h0 = hdr(base);
+  docs.slice(1).forEach((doc, k)=>{
+    const f = files[k+1], h = hdr(doc), file = f.name.replace(/\.(pl|xml)$/i,'');
+    if(h.unit!==h0.unit) throw new Error(`${f.name} uses different units from ${r0.name} (unit ${h.unit||'?'} vs ${h0.unit||'?'}). Set both projects to the same units in PipeCAD and re-export.`);
+    if(h.version!==h0.version) notes.push(`${f.name} was saved by PipeCAD ${h.version||'?'}; the merged file keeps ${r0.name}'s version ${h0.version||'?'}.`);
+    ['site','location'].forEach(k2=>{ if(h[k2] && h[k2]!==h0[k2]) notes.push(`${f.name} ${k2==='site'?'project name':'location'} "${h[k2]}" differs — the merged file keeps "${h0[k2]}" from ${r0.name}.`); });
+    // Renumber ids that collide with ones already in the merged file, then rewrite every reference in this file.
+    const map = new Map();
+    idEls(doc).forEach(e=>{ const v = e.textContent.trim(); if(used.has(v) && !map.has(v)) map.set(v, null); });
+    idEls(doc).forEach(e=>{ const v = e.textContent.trim(); if(!map.has(v)) used.add(v); });
+    map.forEach((_, v)=>map.set(v, newId(v)));
+    if(map.size){
+      allEls(doc, e=>(e.localName==='id' || /Id$/.test(e.localName)) && !e.children.length && map.has(e.textContent.trim()))
+        .forEach(e=>{ e.textContent = map.get(e.textContent.trim()); });
+      notes.push(`${map.size} ID${map.size===1?'':'s'} in ${f.name} clashed with an earlier file and ${map.size===1?'was':'were'} renumbered.`);
+    }
+    kids(kid(doc.documentElement,'floorDatabase'),'Floor').forEach(fl=>{
+      rename(fl, floorNames, file, 'Floor');
+      kids(kid(fl,'detectorDatabase'),'Detector').forEach(d=>rename(d, detNames, file, 'Detector'));
+      floorDb.appendChild(base.importNode(fl, true));
+    });
+    kids(kid(doc.documentElement,'resultsDatabase'),'SavedDatabase').forEach(sd=>resDb.appendChild(base.importNode(sd, true)));
+  });
+  let xml = new XMLSerializer().serializeToString(base);
+  const decl = files[0].text.match(/^﻿?\s*(<\?xml[^>]*\?>)/);
+  if(decl && !xml.startsWith('<?xml')) xml = decl[1]+'\n'+xml;
+  const stem = files[0].name.replace(/\.(pl|xml)$/i,'');
+  return {xml, name: `${stem}+${files.length-1}-merged.pl`, sources: files.map(f=>f.name), notes};
+}
+
 // Decide what the import would do, without touching state.
-function planPipeCAD(pc){
+function planPipeCAD(pc, merged){
   const P = state.project || {};
   const proj = [];
   const setRow = (label, key, val, onlyBlank) => {
@@ -1438,7 +1507,7 @@ function planPipeCAD(pc){
     return {d, m, target};
   });
   const added = dets.filter(x=>!x.m).length;
-  return {pc, proj, dets, added, tooMany: state.modules.length + added > 127};
+  return {pc, proj, dets, added, merged, tooMany: state.modules.length + added > 127};
 }
 
 function pcFromDet(d, pc){
@@ -1469,6 +1538,7 @@ function showPipeCADPreview(plan){
   const detT = `<table class="t pc"><thead><tr><th>Detector</th><th>Action</th><th>Pipe</th><th>Fan</th><th>Alarm Factor</th><th>Design sens. (%obs/ft)</th><th>Flow (L/min)</th><th>Transport (s)</th><th>Worst hole (%obs/ft)</th><th>Holes / test pts</th><th>Length (ft)</th><th>Target</th><th>Design check · margin</th></tr></thead><tbody>${rows}</tbody></table>`;
   const warns = [];
   if(plan.tooMany) warns.push(`Importing would exceed the 127-module SenseNET limit (${state.modules.length} existing + ${plan.added} new). Import is blocked.`);
+  if(plan.merged) warns.push(`Merged from ${plan.merged.sources.length} files: ${plan.merged.sources.map(esc).join(', ')}. Use <b>Download merged .pl</b> to keep the combined file.`, ...plan.merged.notes.map(esc));
   if(pc.metric) warns.push('This file uses metric units — pipe lengths were converted from metres to feet.');
   const noRes = pc.dets.filter(d=>!d.hasResults).map(d=>d.name);
   if(noRes.length) warns.push(`No saved PipeCAD results for: ${noRes.map(esc).join(', ')} — flow, transport and fittings will be blank. Re-run calculations in PipeCAD and re-export.`);
@@ -1481,6 +1551,7 @@ function showPipeCADPreview(plan){
   const btn = document.getElementById('pcApply');
   btn.textContent = `Import ${pc.dets.length} detector${pc.dets.length===1?'':'s'}`;
   btn.disabled = plan.tooMany;
+  document.getElementById('pcMergeDl').hidden = !plan.merged;
   pcOverlay.classList.add('show'); btn.focus();
 }
 function closePipeCAD(){ pcOverlay.classList.remove('show'); pcPending = null; }
@@ -1514,12 +1585,21 @@ document.getElementById('pcCancel').addEventListener('click', closePipeCAD);
 document.getElementById('pcApply').addEventListener('click', ()=>{ const p = pcPending; if(!p || p.tooMany) return; closePipeCAD(); applyPipeCAD(p); });
 pcOverlay.addEventListener('click', e=>{ if(e.target===pcOverlay) closePipeCAD(); });
 document.addEventListener('keydown', e=>{ if(e.key==='Escape' && pcOverlay.classList.contains('show')) closePipeCAD(); });
-document.getElementById('importPl').addEventListener('change', e=>{
-  const f = e.target.files[0]; if(!f) return;
-  const r = new FileReader();
-  r.onload = ()=>{ try{ showPipeCADPreview(planPipeCAD(parsePipeCAD(String(r.result), f.name))); }
-    catch(err){ alert('Could not import PipeCAD file: '+err.message); } e.target.value=''; };
-  r.readAsText(f);
+document.getElementById('pcMergeDl').addEventListener('click', ()=>{
+  const mg = pcPending?.merged; if(!mg) return;
+  const url = URL.createObjectURL(new Blob([mg.xml], {type:'application/xml'}));
+  const l = document.createElement('a'); l.href = url; l.download = mg.name; document.body.appendChild(l); l.click(); l.remove(); setTimeout(()=>URL.revokeObjectURL(url), 1500);
+  setSave('Saved '+mg.name);
+});
+// One file imports as-is; several are merged into one PipeCAD project first (see mergePipeCAD).
+document.getElementById('importPl').addEventListener('change', async e=>{
+  const fs = Array.from(e.target.files); e.target.value=''; if(!fs.length) return;
+  try{
+    const files = await Promise.all(fs.map(async f=>({name:f.name, text:await f.text()})));
+    if(files.length===1) return showPipeCADPreview(planPipeCAD(parsePipeCAD(files[0].text, files[0].name)));
+    const mg = mergePipeCAD(files);
+    showPipeCADPreview(planPipeCAD(parsePipeCAD(mg.xml, mg.name), mg));
+  }catch(err){ alert('Could not import PipeCAD file'+(fs.length>1?'s':'')+': '+err.message); }
 });
 
 /* ---------------- help modal ---------------- */
