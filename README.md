@@ -5,6 +5,13 @@ An installable, offline-first web app for commissioning Edwards ModuLaser Modula
 **Current revision:** 01.00.004_261007, released as **v01.00.004**. "Rev 11" (PipeCAD import) is **v01.00.003**.
 Full history: in-app **Help → Revision Log** (source of truth), [CHANGELOG.md](CHANGELOG.md) (generated from it) and [RELEASE_NOTES.md](RELEASE_NOTES.md) (per-release summaries).
 
+## What's new in 02.00.000
+
+- Shares one **ModuLaser project file (`.mlproj.json`)** with the ModuLaser Battery Calculator (02.00.001+). The calculator owns the design; this report owns the site results. Both show a diff before changing anything.
+- Redesigned dark/light UI with sidebar, per-sheet Setup/Configure/Test tabs and a results panel; mobile bottom bar, stopwatch, photos and Go to device.
+- Print / Export to PDF, Word, HTML and Excel. Windows installer in `electron/`.
+- Shared code: the project schema and PipeCAD parser (`modulaser-project.js`, from the calculator repo) are inlined in `index.html`.
+
 ## What it does
 
 This is a structured field-commissioning worksheet covering the full workflow for a ModuLaser cluster:
