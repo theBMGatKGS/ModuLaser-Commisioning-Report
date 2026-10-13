@@ -10,6 +10,21 @@ Live site: [masdtools.net](https://masdtools.net) (served from the
 
 ---
 
+## v02.00.000 — Redesign and shared project file (2026-10-13)
+
+**In-app revision:** 02.00.000_261013 · **Includes:** 02.00.000 (folds in the unreleased 01.00.005 multi-file .pl import and merge tool, and the Windows installer)
+
+### Highlights
+- **ModuLaser project file (`.mlproj.json`)** shared with the Battery Calculator 02.00.001. Import project creates every detector, display and power supply sheet with addresses, Area/Group, power supply, battery and required Ah, and the PipeCAD pipe and hole data. Re-import shows a diff and never overwrites site results or hand edits unless you tick them. Save project writes site results back into the same file without touching the design.
+- **New layout:** dark PipeCAD-style theme with a one-tap light theme; menus and quick row; sidebar with PASS/FAIL/INCOMPLETE dots; one sheet at a time with Setup / Configure / Test tabs; pinned results panel with transport-time and battery gauges.
+- **Typical defaults** for alarm levels, flow limits and delays by performance class, tagged "confirm on site".
+- **New checks:** duplicate SenseNET/FACU addresses, names over 16 characters, measured vs PipeCAD transport time, installed vs required battery Ah.
+- **Print / Export:** Summary / Standard / Full, PDF, Word, HTML, Excel (CAD Schedule + Detail).
+- **Mobile:** bottom bar, stopwatch, photos, Go to device (QR or text).
+- **Windows installer** (Electron, NSIS) built from `electron/`.
+
+---
+
 ## v01.00.004 — Revision archive (2026-10-07)
 
 **In-app revision:** 01.00.004_261007 · **Includes:** 01.00.004

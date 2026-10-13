@@ -10,7 +10,7 @@ const buildDir = path.join(here, 'build');
 
 fs.rmSync(appDir, { recursive: true, force: true });
 fs.mkdirSync(appDir, { recursive: true });
-for (const f of ['index.html', 'manifest.json', 'sw.js']) {
+for (const f of ['index.html', 'manifest.json', 'sw.js', 'pl-merge.html']) {
   fs.copyFileSync(path.join(root, f), path.join(appDir, f));
 }
 fs.cpSync(path.join(root, 'icons'), path.join(appDir, 'icons'), { recursive: true });
