@@ -8,8 +8,8 @@ Full history: in-app **Help → Revision Log** (source of truth), [CHANGELOG.md]
 ## What's new in 02.00.001
 
 - Audit trail: append-only edit log, field changes / as-built with technician sign-off, approvals round trip with the **MASD Engineering Toolbox 00.01.000**.
-- Prints the Toolbox **Performance Criteria** (UL 268, 7th Edition or selected basis, limits, narrative, Engineer of Record, spec reference).
-- Shared **MASD engine 1.0.0** and **modulaser-project.js 1.2.0** with the Battery Calculator and Toolbox (harmonization rule: shared-module changes bump every app with matching notes).
+- Prints the Toolbox **Performance Criteria** (referenced standard — NFPA presets with UL 268, 7th Edition; FM DS 5-32/5-48 FM only; BS 5839-1 or Custom — code prescriptions, limits, narrative, Engineer of Record, spec reference).
+- Shared **MASD engine 1.0.0** and **modulaser-project.js 1.3.0** with the Battery Calculator and Toolbox (harmonization rule: shared-module changes bump every app with matching notes).
 - QA audit 2026-10-13: [issue #8](https://github.com/theBMGatKGS/ModuLaser-Commisioning-Report/issues/8); see [RELEASE_NOTES.md](RELEASE_NOTES.md).
 
 ## What's new in 02.00.000
@@ -37,7 +37,7 @@ Every module and power supply gets an automatic **PASS / FAIL / INCOMPLETE** res
 
 **Import PipeCAD (.pl)** pre-fills the report from a PipeCAD 3.6 project export.
 - It fills Section A and one detector sheet per PipeCAD detector: fan speed, Alarm Factor, predicted transport time, pipe length, flow, fittings, and the full hole table.
-- It checks each sampling hole's sensitivity against the selected target's **Fire 1** limit (Table 45: VEWFD ≤1.0, EWFD ≤1.5, SFD ≤2.5 %obs/ft) and the predicted transport time against the time limit, showing pass/fail and margin.
+- It checks each sampling hole's sensitivity against the selected target's **Fire 1** limit (App. A, printed p.113: VEWFD ≤1.0, EWFD ≤1.5, SFD ≤2.5 %obs/ft) and the predicted transport time against the time limit, showing pass/fail and margin.
 - A preview lists every change, and nothing is written until you confirm.
 
 ### PipeCAD .pl Merge (separate tool)
@@ -107,7 +107,7 @@ Once installed, the app opens and works with **no signal or Wi-Fi** — the serv
   - Add the change to `AMENDMENTS` in `index.html`.
   - Regenerate `CHANGELOG.md` from it.
   - Add a `RELEASE_NOTES.md` section for the new tag.
-- Manual citations in the Help → Standards and Formulas section reference Edwards ModuLaser Installation Manual P/N 04-4001-501-2803-07, REV 007 (UL/FM Applications edition). That section lists the known discrepancies between the manual and this tool's built-in defaults. Two are still open and intentionally not auto-corrected: the EOL resistor tolerance wording in Section B, and the EN 54-20 Class A/B/C limits. The third, the VEWFD sensitivity figure, was resolved in 01.00.003: the per-hole limit is now the Table 45 Fire 1 value, 1.0 %obs/ft.
+- Manual citations in the Help → Standards and Formulas section reference Edwards ModuLaser Installation Manual P/N 04-4001-501-2803-07, REV 007 (UL/FM Applications edition). That section lists the known discrepancies between the manual and this tool's built-in defaults. Two are still open and intentionally not auto-corrected: the EOL resistor tolerance wording in Section B, and the EN 54-20 Class A/B/C limits. The third, the VEWFD sensitivity figure, was resolved in 01.00.003: the per-hole limit is now the App. A, printed p.113 Fire 1 value, 1.0 %obs/ft.
 
 ## License
 
