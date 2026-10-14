@@ -17,16 +17,18 @@ Live site: [masdtools.net](https://masdtools.net) (served from the
 ### Highlights
 - **Append-only edit log** (who, when, old, new, why), typical-value confirmations logged, Saved-by holds the technician name.
 - **Field changes / As-built** (Section J): each change to a design value logged with why and photo; technician sign-off; printable report. Changes and approvals (technician → designer → QA) round-trip with the **MASD Engineering Toolbox 00.01.000**.
-- **Performance Criteria** from the Toolbox printed on the summary page: UL 268, 7th Edition statement or the selected basis, limits (strictly less than) with references, Area/Group overrides, narrative, Engineer of Record and spec reference.
+- **Performance Criteria** from the Toolbox printed on the summary page: the referenced standard (NFPA presets with the UL 268, 7th Edition statement; FM DS 5-32/5-48 FM only; BS 5839-1 or Custom), code prescriptions, limits (strictly less than) with references, Area/Group overrides, narrative, Engineer of Record and spec reference.
 - Save keeps unknown keys, changes and approvals. SHA-256 design and site hashes.
-- **Shared MASD engine 1.0.0** and **modulaser-project.js 1.2.0**, identical in the Battery Calculator, this Report and the Toolbox. Harmonization rule: a change to a shared module bumps every app that carries it, with matching notes.
+- **Shared MASD engine 1.0.0** and **modulaser-project.js 1.3.0**, identical in the Battery Calculator, this Report and the Toolbox. Harmonization rule: a change to a shared module bumps every app that carries it, with matching notes.
 
 ### QA audit
 | Date | Commit audited | Result | Issue |
 |---|---|---|---|
 | 2026-10-13 | 6854f2e (v02.00.000) | Defaults citations FAIL → fixed · Example Project rule PASS · Audit trail FAIL → fixed · Quick Start version FAIL → fixed | [#8](https://github.com/theBMGatKGS/ModuLaser-Commisioning-Report/issues/8) |
+| 2026-10-13 re-check (8:28–8:45 PM ET) | 786337f | **CONDITIONAL PASS** — fixed after re-check: stable design hash, mis-cited table number removed, UL 268 confirmation required, UL thresholds (≤60/43/43 s), sign-off order enforced, name-gated edits, append-only log, ASAG44201 replaced by NFPA 76-2024 clauses, Quick Start 02.00.001+, legacy Ah checks | [#8](https://github.com/theBMGatKGS/ModuLaser-Commisioning-Report/issues/8) |
 
 **Fixes included:** citations (App. A printed p.113 FM/UL hole limits, strictly less than; EN 54-20 p.112; flow ±20% and 120 s delay Table 29 p.76; ClassiFire factors Table 24 p.71; Prealarm replaces "Action"); unsourced defaults labelled typical – unverified; Save preserves changes, approvals and unknown keys; append-only edit log; SHA-256 hashes; Saved-by name; metric hole-sensitivity warning.
+**QA re-check (2026-10-13):** CONDITIONAL PASS; post-re-check fixes listed above and in the revision log.
 **Final verdict:** [PENDING RE-CHECK — placeholder]
 
 ---
@@ -87,8 +89,8 @@ Live site: [masdtools.net](https://masdtools.net) (served from the
 - **Re-importing** an updated `.pl` keeps everything entered in the field.
 
 ### Fixed / behavior change
-- **VEWFD per-hole sensitivity limit corrected from 0.2 to 1.0 %obs/ft.** It is now the Table 45 (p.112, FM 3230 / NFPA 76) **Fire 1** threshold. 0.2 %obs/ft is the VEWFD *Alert* stage and is not applied per hole.
-- **SFD** now carries Table 45's ≤2.5 %obs/ft (it had no sensitivity limit before). EWFD is unchanged at ≤1.5 %obs/ft.
+- **VEWFD per-hole sensitivity limit corrected from 0.2 to 1.0 %obs/ft.** It is now the App. A table (printed p.113, FM 3230 / NFPA 76) **Fire 1** threshold. 0.2 %obs/ft is the VEWFD *Alert* stage and is not applied per hole.
+- **SFD** now carries App. A p.113's ≤2.5 %obs/ft (it had no sensitivity limit before). EWFD is unchanged at ≤1.5 %obs/ft.
 - **New per-detector design checks** feed the module result, deficiencies and summary:
   - PipeCAD worst-hole sensitivity vs Fire 1.
   - PipeCAD predicted transport vs the target's time limit.
