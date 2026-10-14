@@ -10,6 +10,27 @@ Live site: [masdtools.net](https://masdtools.net) (served from the
 
 ---
 
+## v02.00.001 — Audit trail, field-change loop and Performance Criteria (2026-10-13) · not yet released
+
+**In-app revision:** 02.00.001_261013
+
+### Highlights
+- **Append-only edit log** (who, when, old, new, why), typical-value confirmations logged, Saved-by holds the technician name.
+- **Field changes / As-built** (Section J): each change to a design value logged with why and photo; technician sign-off; printable report. Changes and approvals (technician → designer → QA) round-trip with the **MASD Engineering Toolbox 00.01.000**.
+- **Performance Criteria** from the Toolbox printed on the summary page: UL 268, 7th Edition statement or the selected basis, limits (strictly less than) with references, Area/Group overrides, narrative, Engineer of Record and spec reference.
+- Save keeps unknown keys, changes and approvals. SHA-256 design and site hashes.
+- **Shared MASD engine 1.0.0** and **modulaser-project.js 1.2.0**, identical in the Battery Calculator, this Report and the Toolbox. Harmonization rule: a change to a shared module bumps every app that carries it, with matching notes.
+
+### QA audit
+| Date | Commit audited | Result | Issue |
+|---|---|---|---|
+| 2026-10-13 | 6854f2e (v02.00.000) | Defaults citations FAIL → fixed · Example Project rule PASS · Audit trail FAIL → fixed · Quick Start version FAIL → fixed | [#8](https://github.com/theBMGatKGS/ModuLaser-Commisioning-Report/issues/8) |
+
+**Fixes included:** citations (App. A printed p.113 FM/UL hole limits, strictly less than; EN 54-20 p.112; flow ±20% and 120 s delay Table 29 p.76; ClassiFire factors Table 24 p.71; Prealarm replaces "Action"); unsourced defaults labelled typical – unverified; Save preserves changes, approvals and unknown keys; append-only edit log; SHA-256 hashes; Saved-by name; metric hole-sensitivity warning.
+**Final verdict:** [PENDING RE-CHECK — placeholder]
+
+---
+
 ## v02.00.000 — Redesign and shared project file (2026-10-13)
 
 **In-app revision:** 02.00.000_261013 · **Includes:** 02.00.000 (folds in the unreleased 01.00.005 multi-file .pl import and merge tool, and the Windows installer)
