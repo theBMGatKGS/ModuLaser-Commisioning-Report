@@ -1,6 +1,6 @@
 // Edwards ModuLaser MASD Field Report — service worker
 // Bump CACHE_NAME whenever the app shell changes so clients pick up the update.
-const CACHE_NAME = 'masd-field-report-02-00-000';
+const CACHE_NAME = 'masd-field-report-02-00-001';
 const SHELL = [
   './',
   './index.html', './pl-merge.html',

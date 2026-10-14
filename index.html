@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Edwards ModuLaser MASD — Field Report 02.00.000</title>
+<title>Edwards ModuLaser MASD — Field Report 02.00.001</title>
 <meta name="description" content="Offline commissioning worksheet for Edwards ModuLaser Modular Aspirating Smoke Detector installations.">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0b0e12">
@@ -601,14 +601,14 @@ body.light .src.d{color:#003a8c;background:#e3eefc;border-color:#003a8c}
           <tr><td>EOL resistor — PSU fault output</td><td class="cite">p.28</td><td>Same 15 kΩ ±10% EOL resistor is used on the power-supply fault output, with the same short/open-circuit thresholds as Table 5.</td></tr>
           <tr><td>Input options / functionality</td><td class="cite">Table 20 p.63 · Table 21 p.64</td><td>Configurable input options and the function list assignable to IN1/IN2.</td></tr>
           <tr><td>Output options / functionality</td><td class="cite">Table 22 p.65 · Table 23 p.66</td><td>Configurable output options and the function list assignable to OUT1–OUT3 (display modules fix OUT1 to General Fault).</td></tr>
-          <tr><td>Alarm levels / alarm factor / alarm delays</td><td class="cite">Table 24 p.69 · Table 25 p.70 · Table 26 p.71</td><td>Alarm-level configuration parameters, suggested Alarm Factor settings by environment (e.g. Factor 5 for warehouses with diesel trucks), and alarm/fault delay configuration.</td></tr>
-          <tr><td>Flow parameters</td><td class="cite">Table 29, p.74</td><td>Flow High/Low Limit configurable 5–99%, default 20% — the basis for this report's ≤20% airflow-fault check.</td></tr>
+          <tr><td>Alarm levels / alarm factor / alarm delays</td><td class="cite">Table 24 p.71 · Table 25 p.72 · Table 26 p.73</td><td>Alarm-level configuration parameters (ClassiFire factors: Alert default 10, Prealarm default 6, Alarm Level default 8; Alarm 2 absolute default 20, units not stated; ModuLaser has no "Action" level), suggested Alarm Factor settings by environment (e.g. Factor 5 for warehouses with diesel trucks), and alarm/fault delay configuration.</td></tr>
+          <tr><td>Flow parameters</td><td class="cite">Table 29, p.76</td><td>Flow High/Low Limit configurable 5–99%, default 20% (High 2/Low 2 default 30%); Flow Flt. Delay 0–240 s, default 120 s — the basis for this report's ±20% airflow-fault check and the 120 s typical flow-fault delay.</td></tr>
           <tr><td>Power supply voltage</td><td class="cite">p.105</td><td>Supply voltage 18–30 VDC (24 VDC nominal); 21.2–27.2 VDC, 24 VDC nominal for UL/cUL-listed applications.</td></tr>
           <tr><td>PipeCAD pipe-length limits</td><td class="cite">p.106</td><td>Single pipe run: 150 m max. (492 ft.); combined run with up to 3 t-pieces: 250 m max. (820 ft.).</td></tr>
           <tr><td>Sampling holes per pipe by EN 54-20 class</td><td class="cite">p.106</td><td>20 holes max. for Class A (most sensitive); 40 max. for Class B; 50 max. for Class C (least sensitive).</td></tr>
-          <tr><td>EN 54-20 Class A/B/C limits</td><td class="cite">p.110</td><td>Per PipeCAD-determined Class: <b>A</b> hole sensitivity &lt;0.41 %obs/m, transport time &lt;70 s; <b>B</b> &lt;2.221 %obs/m, &lt;85 s; <b>C</b> &lt;3.78 %obs/m, &lt;95 s. Flow low/high must not exceed 20%; power must be EN 54-4 approved; cable glands IP67+.</td></tr>
-          <tr><td>Hole sensitivity &amp; transport time by listing (Table 45)</td><td class="cite">Table 45, p.112</td><td>FM Class Number 3230 (NFPA 76 terms): <b>VEWFD</b> &lt;1.00 %obs/ft, &lt;60 s; <b>EWFD</b> &lt;1.50 %obs/ft, &lt;90 s; <b>SFD</b> &lt;2.50 %obs/ft, &lt;120 s. Also lists UL 268 Ed.7 Open Area (1.70–2.18%, 6–43 s), UL 268 Ed.7 Special Application Ranges 1/2, UL 268A Duct Ranges 1/2, and ULC-S529.</td></tr>
-          <tr><td>Per-hole sensitivity check (PipeCAD import)</td><td class="cite">Table 45, p.112</td><td>Every PipeCAD sampling hole's sensitivity is compared with the selected target's <b>Fire 1</b> limit (VEWFD ≤1.0, EWFD ≤1.5, SFD ≤2.5 %obs/ft). The worst (highest) hole decides PASS/FAIL, with margin = limit − worst hole. PipeCAD's longest sampling-hole transport time is compared with the target's time limit (VEWFD 60 s, EWFD 90 s, SFD 120 s), with margin = limit − max transport. The NFPA 76 VEWFD <i>Alert</i> threshold (0.2 %obs/ft) is a separate alarm stage and is not applied per hole. End-cap test points are excluded.</td></tr>
+          <tr><td>EN 54-20 Class A/B/C limits</td><td class="cite">App. A, p.112</td><td>Per PipeCAD-determined Class: <b>A</b> hole sensitivity &lt;0.41 %obs/m, transport time &lt;70 s; <b>B</b> &lt;2.221 %obs/m, &lt;85 s; <b>C</b> &lt;3.78 %obs/m, &lt;95 s. Flow low/high must not exceed 20%; power must be EN 54-4 approved; cable glands IP67+.</td></tr>
+          <tr><td>Hole sensitivity &amp; transport time by listing (FM/UL)</td><td class="cite">App. A, printed p.113 (untitled UL and FM compliance table; there is no "Table 45")</td><td>FM Class Number 3230 (NFPA 76 terms): <b>VEWFD</b> &lt;1.00 %obs/ft, &lt;60 s; <b>EWFD</b> &lt;1.50 %obs/ft, &lt;90 s; <b>SFD</b> &lt;2.50 %obs/ft, &lt;120 s. Also lists UL 268 Ed.7 Open Area (1.70–2.18%, 6–43 s), UL 268 Ed.7 Special Application Ranges 1/2, UL 268A Duct Ranges 1/2, and ULC-S529.</td></tr>
+          <tr><td>Per-hole sensitivity check (PipeCAD import)</td><td class="cite">App. A, printed p.113</td><td>Every PipeCAD sampling hole's sensitivity is compared with the selected target's FM/UL hole-sensitivity limit (ModuLaser Install Manual 04-4001-501-0803-05, App. A, printed p.113 (FM/UL hole limits)): VEWFD &lt;1.00, EWFD &lt;1.50, SFD &lt;2.50 %obs/ft, <b>strictly less than</b> — a hole exactly at the limit FAILS. The worst (highest) hole decides PASS/FAIL, with margin = limit − worst hole. PipeCAD's longest sampling-hole transport time is compared with the target's time limit (VEWFD 60 s, EWFD 90 s, SFD 120 s), with margin = limit − max transport. The NFPA 76 VEWFD <i>Alert</i> threshold (0.2 %obs/ft) is a separate alarm stage and is not applied per hole. End-cap test points are excluded.</td></tr>
         </tbody></table>
 
         <div class="hsub">Known discrepancies with this report's built-in defaults — flagged, not silently changed</div>
@@ -616,15 +616,15 @@ body.light .src.d{color:#003a8c;background:#e3eefc;border-color:#003a8c}
           <dt>Pre-Power-Up item 11 — EOL resistor tolerance</dt>
           <dd>Section B's checklist currently reads "All input EOL resistors fitted (15 kΩ, 5%, ¼ W)?" The manual's Table 5 (p.27) specifies <b>15 kΩ ±10%</b>, not 5%, and states no wattage rating for this resistor. The 5%/¼ W figures could not be confirmed against this manual and were left in the checklist text unchanged pending the document owner's decision on whether to correct the wording in a future revision.</dd>
           <dt>Detector performance targets — VEWFD sensitivity</dt>
-          <dd><b>Resolved in Rev 11 (01.00.003).</b> Up to Rev 10, the built-in VEWFD target used a 0.2 %obs/ft per-hole limit. That figure is the NFPA 76 VEWFD <i>Alert</i> threshold, not the Table 45 (FM Class 3230) per-hole figure. The VEWFD target now uses the Table 45 <b>Fire 1</b> limit of ≤1.0 %obs/ft with the 60 s transport limit. SFD now carries Table 45's ≤2.5 %obs/ft (EWFD was already ≤1.5). A custom sensitivity limit on the sheet still overrides the target.</dd>
+          <dd><b>Resolved in Rev 11 (01.00.003).</b> Up to Rev 10, the built-in VEWFD target used a 0.2 %obs/ft per-hole limit. That figure is the NFPA 76 VEWFD <i>Alert</i> threshold (per NFPA 76, as summarized in Honeywell ASAG44201 Table 1), not the FM Class 3230 per-hole figure. The VEWFD target now uses the FM/UL hole limit &lt;1.00 %obs/ft with the 60 s transport limit; SFD &lt;2.50 (EWFD &lt;1.50). Citation corrected in 02.00.001: these come from App. A, printed p.113 — earlier text cited a non-existent "Table 45"; from 02.00.001 the comparison is strictly less than. A custom sensitivity limit on the sheet still overrides the target.</dd>
           <dt>Detector performance targets — EN 54-20 Class A/B/C</dt>
-          <dd>This report's built-in EN 54-20 Class A/B/C targets currently carry no sensitivity limit and a uniform 120 s transport-time limit. The manual's own EN 54-20 compliance table (p.110) gives distinct, tighter figures per class: Class A &lt;0.41 %obs/m &amp; &lt;70 s, Class B &lt;2.221 %obs/m &amp; &lt;85 s, Class C &lt;3.78 %obs/m &amp; &lt;95 s. This is a real gap between the report's defaults and the manual, left as-is pending the document owner's decision (changing it affects live PASS/FAIL calculations, not just reference text).</dd>
+          <dd>This report's built-in EN 54-20 Class A/B/C targets currently carry no sensitivity limit and a uniform 120 s transport-time limit. The manual's own EN 54-20 compliance table (App. A, p.112) gives distinct, tighter figures per class: Class A &lt;0.41 %obs/m &amp; &lt;70 s, Class B &lt;2.221 %obs/m &amp; &lt;85 s, Class C &lt;3.78 %obs/m &amp; &lt;95 s. This is a real gap between the report's defaults and the manual, left as-is pending the document owner's decision (changing it affects live PASS/FAIL calculations, not just reference text).</dd>
         </div>
-      </section><section class="hsec hpane" id="help-faq"><h3>FAQ</h3><div class="hq"><dt>What is the ModuLaser project file (.mlproj.json)?</dt><dd>One JSON file shared by the Battery Calculator and this report. The calculator owns the <i>design</i> section (devices, addresses, power supplies, batteries, PipeCAD links); this report owns the <i>site</i> section (tests, checklists, photos, sign-off). Each tool only writes its own section and shows a diff before changing anything.</dd></div>
-<div class="hq"><dt>Why are alarm levels pre-filled now?</dt><dd>From 02.00.000 the report pre-fills <i>typical</i> values for the performance class so technicians start from a sensible point. Fire 1 matches the Table 45 limits; the 20% flow limit is the manual default; the others are typical starting points. They are clearly tagged and the sheet stays INCOMPLETE until each is confirmed or changed on site. Always use the design or AHJ values where they differ.</dd></div>
+      </section><section class="hsec hpane" id="help-faq"><h3>FAQ</h3><div class="hq"><dt>How does this Report work with the MASD Engineering Toolbox?</dt><dd>The Toolbox (00.01.000) is the design tool: it includes the Battery Calculator, sets each device's configuration and the project Performance Criteria, and exports the .mlproj.json this Report imports. Configured values replace the Report's placeholder defaults; values still marked typical – unverified stay flagged until confirmed on site. Changes you log here (File → Field changes / As-built) go back to the Toolbox for designer verification and QA approval. All three apps use the same MASD engine 1.0.0 and modulaser-project.js 1.2.0 (harmonization rule: a change to a shared module bumps every app that carries it).</dd></div><div class="hq"><dt>Where do the Performance Criteria come from?</dt><dd>From the Toolbox. The summary page prints the UL 268, 7th Edition statement (UL market: VEWFD 1.0, EWFD 1.5, SFD/OAP 2.18 %obs/ft, strictly less than) or the engineer-confirmed basis and limits with references, any Area/Group overrides, the narrative, Engineer of Record and spec reference. Hole checks use the limits for each module's Area/Group.</dd></div><div class="hq"><dt>What is the ModuLaser project file (.mlproj.json)?</dt><dd>One JSON file shared by the Battery Calculator and this report. The calculator owns the <i>design</i> section (devices, addresses, power supplies, batteries, PipeCAD links); this report owns the <i>site</i> section (tests, checklists, photos, sign-off). Each tool only writes its own section and shows a diff before changing anything.</dd></div>
+<div class="hq"><dt>Why are alarm levels pre-filled now?</dt><dd>From 02.00.000 the report pre-fills <i>typical</i> values for the performance class so technicians start from a sensible point. Manual-sourced: the 20% flow limits and the 120 s flow-fault delay (Table 29, p.76). Fire 1 starts at the class hole-sensitivity limit (App. A, printed p.113) — that is a hole limit, not a manual alarm default. Alert, Prealarm (ModuLaser has no "Action" level), Fire 2 and the 5 s delays (site choice; Table 26 range 0–90 s) are <b>typical – unverified</b>. VEWFD Alert 0.2 %obs/ft is per NFPA 76, as summarized in Honeywell ASAG44201 Table 1. They are clearly tagged and the sheet stays INCOMPLETE until each is confirmed or changed on site. Always use the design or AHJ values where they differ.</dd></div>
 <div class="hq"><dt>Why is a 17-character name a FAIL?</dt><dd>The ModuLaser display shows 16 characters. Longer names are truncated on the panel, so the report fails them. The counter under the name field shows the length.</dd></div>
 <div class="hq"><dt>Why does battery Ah fail when the battery is fitted?</dt><dd>The installed Ah is compared with the required Ah from the Battery Calculator. If it is lower, the power supply fails, even if the standby test passes.</dd></div>
-<div class="hq"><dt>Where do addresses come from?</dt><dd>SenseNET addresses are set in the Battery Calculator and imported. Confirm each one on the display (Setup tab → <i>Address confirmed on display</i>). Duplicate SenseNET and FACU addresses fail.</dd></div><div class="hq"><dt>What exactly does autosave cover, and what doesn't it cover?</dt><dd>Autosave writes the full job (project info, every module and PSU sheet, wiring segments, checklists, sign-off) to this browser's local storage about ¼ second after each change. It's scoped to one browser on one device — it does not sync between devices or browsers, and clearing that browser's site data removes it. For anything that needs to move between machines, survive a browser reset, or be archived long-term, use <b>Export job</b>.</dd></div><div class="hq"><dt>What's the difference between Export/Import and Print/PDF?</dt><dd>Export/Import moves the underlying data (a <code>.json</code> job file) so work can continue on another machine or be archived and re-opened later in this same tool. Print/PDF produces a static, formatted document of the current state for signatures, submittal, or the owner's records — it can't be re-imported and edited.</dd></div><div class="hq"><dt>Why do some configuration items have a dot (●) and others don't?</dt><dd>The dot marks an item that's scored toward the module's automatic PASS/FAIL/INCOMPLETE result. Un-dotted items (e.g. cascading alarms, latching behavior, Day/Night settings) are recorded for the record but don't drive the automatic result on their own — they still surface in the deficiencies list if they fail a bound (e.g. flow limits over 20%).</dd></div><div class="hq"><dt>How does the override mechanism work, and why does it need a reason?</dt><dd>A device's automatic result can be overridden (e.g. a technician judges a borderline reading acceptable) only when <i>both</i> an override result and a non-blank reason are entered — a result with no reason is not applied, and the sheet shows a warning until one is added. This keeps every override traceable to a documented justification, both on the device sheet and in the auto-collected deficiencies list.</dd></div><div class="hq"><dt>What triggers a SenseNET address error vs. a FACU address error?</dt><dd>SenseNET addresses (module/PSU network addresses) must be a whole number 1–127 and unique — out-of-range or duplicate addresses fail immediately. FACU addresses (the point label programmed at the fire alarm control unit for a given input/output/monitoring point) must match the <code>PPP:CCC:DDDD</code> panel/circuit/device pattern — anything else is flagged as a format error, separate from the SenseNET check.</dd></div><div class="hq"><dt>What populates the "Outstanding items / deficiencies" list in Section G?</dt><dd>It's built automatically, not typed in: every "N" answer in Section B or G, every failed item on any module or PSU sheet, every wiring segment marked Fail, and every applied result override (with its reason) are collected there in one place so nothing needs to be re-transcribed by hand.</dd></div><div class="hq"><dt>What's the difference between PASS, FAIL, and INCOMPLETE?</dt><dd>FAIL means at least one scored/required item failed its check. INCOMPLETE means no item has failed but at least one required item is still blank. PASS means every scored/required item passed. See "Known discrepancies" above for the EN 54-20 targets, where the built-in pass/fail limits are worth double-checking against your specific listing before relying on an automatic PASS. (The VEWFD sensitivity figure was corrected to the Table 45 Fire 1 value in Rev 11.)</dd></div></section><section class="hsec hpane" id="help-rev">
+<div class="hq"><dt>Where do addresses come from?</dt><dd>SenseNET addresses are set in the Battery Calculator and imported. Confirm each one on the display (Setup tab → <i>Address confirmed on display</i>). Duplicate SenseNET and FACU addresses fail.</dd></div><div class="hq"><dt>What exactly does autosave cover, and what doesn't it cover?</dt><dd>Autosave writes the full job (project info, every module and PSU sheet, wiring segments, checklists, sign-off) to this browser's local storage about ¼ second after each change. It's scoped to one browser on one device — it does not sync between devices or browsers, and clearing that browser's site data removes it. For anything that needs to move between machines, survive a browser reset, or be archived long-term, use <b>Export job</b>.</dd></div><div class="hq"><dt>What's the difference between Export/Import and Print/PDF?</dt><dd>Export/Import moves the underlying data (a <code>.json</code> job file) so work can continue on another machine or be archived and re-opened later in this same tool. Print/PDF produces a static, formatted document of the current state for signatures, submittal, or the owner's records — it can't be re-imported and edited.</dd></div><div class="hq"><dt>Why do some configuration items have a dot (●) and others don't?</dt><dd>The dot marks an item that's scored toward the module's automatic PASS/FAIL/INCOMPLETE result. Un-dotted items (e.g. cascading alarms, latching behavior, Day/Night settings) are recorded for the record but don't drive the automatic result on their own — they still surface in the deficiencies list if they fail a bound (e.g. flow limits over 20%).</dd></div><div class="hq"><dt>How does the override mechanism work, and why does it need a reason?</dt><dd>A device's automatic result can be overridden (e.g. a technician judges a borderline reading acceptable) only when <i>both</i> an override result and a non-blank reason are entered — a result with no reason is not applied, and the sheet shows a warning until one is added. This keeps every override traceable to a documented justification, both on the device sheet and in the auto-collected deficiencies list.</dd></div><div class="hq"><dt>What triggers a SenseNET address error vs. a FACU address error?</dt><dd>SenseNET addresses (module/PSU network addresses) must be a whole number 1–127 and unique — out-of-range or duplicate addresses fail immediately. FACU addresses (the point label programmed at the fire alarm control unit for a given input/output/monitoring point) must match the <code>PPP:CCC:DDDD</code> panel/circuit/device pattern — anything else is flagged as a format error, separate from the SenseNET check.</dd></div><div class="hq"><dt>What populates the "Outstanding items / deficiencies" list in Section G?</dt><dd>It's built automatically, not typed in: every "N" answer in Section B or G, every failed item on any module or PSU sheet, every wiring segment marked Fail, and every applied result override (with its reason) are collected there in one place so nothing needs to be re-transcribed by hand.</dd></div><div class="hq"><dt>What's the difference between PASS, FAIL, and INCOMPLETE?</dt><dd>FAIL means at least one scored/required item failed its check. INCOMPLETE means no item has failed but at least one required item is still blank. PASS means every scored/required item passed. See "Known discrepancies" above for the EN 54-20 targets, where the built-in pass/fail limits are worth double-checking against your specific listing before relying on an automatic PASS. (The VEWFD sensitivity figure was corrected in Rev 11; from 02.00.001 the limits are cited to App. A, printed p.113 — FM/UL hole limits, strictly less than.)</dd></div></section><section class="hsec hpane" id="help-rev">
         <h3>Revision Log</h3>
         <div class="idcard">
           <div class="row"><span class="k">Application</span><span class="v">Edwards ModuLaser MASD — Field Report</span></div>
@@ -649,12 +649,14 @@ body.light .src.d{color:#003a8c;background:#e3eefc;border-color:#003a8c}
    Keep the two repos' copies identical (MLP.VERSION below). No dependencies, no network.
 
    File: *.mlproj.json  { format:'modulaser-project', schemaVersion:1, ... }
-   Ownership: the Battery Calculator owns `design`; the Field Report owns `site`.
+   Ownership: the Battery Calculator / MASD Engineering Toolbox own `design` (incl. design.devices[].config);
+   the Field Report owns `site`; `changes` (field-change log) and `approvals` are shared: the Report logs,
+   the Toolbox verifies, QA signs off.
    Each app keeps the other app's section as-is and never overwrites it without a diff prompt. */
 (function (root) {
 'use strict';
 const MLP = {};
-MLP.VERSION = '1.0.0';
+MLP.VERSION = '1.2.0';
 MLP.FORMAT = 'modulaser-project';
 MLP.SCHEMA_VERSION = 1;
 MLP.EXT = '.mlproj.json';
@@ -668,11 +670,14 @@ MLP.TT_TO_CLASS = { 60: 'VEWFD', 90: 'EWFD', 120: 'SFD' };
 /* Typical starting values by performance class, used ONLY as editable prefills marked
    "typical — confirm on site". They are not design values; the commissioning engineer confirms them. */
 MLP.TYPICAL_DEFAULTS = {
-  // Fire 1 matches the Table 45 (p.112) per-hole limit and VEWFD Alert the NFPA 76 0.2 %obs/ft stage; flow limits are the
-  // manual default (Table 29, 20%). Action, Fire 2 and the delays are typical starting points only — confirm on site.
-  VEWFD: { alert: 0.2, action: 0.5, fire1: 1.0, fire2: 2.0, actionDly: 5, fire1Dly: 5, flowLow: 20, flowHigh: 20, flowDly: 60 },
-  EWFD:  { alert: 0.5, action: 1.0, fire1: 1.5, fire2: 3.0, actionDly: 5, fire1Dly: 5, flowLow: 20, flowHigh: 20, flowDly: 60 },
-  SFD:   { alert: 1.0, action: 1.5, fire1: 2.5, fire2: 5.0, actionDly: 5, fire1Dly: 5, flowLow: 20, flowHigh: 20, flowDly: 60 }
+  // Manual-sourced (ModuLaser Install Manual 04-4001-501-0803-05): flow High/Low limit 20% and flow-fault delay 120 s (Table 29, p.76).
+  // Fire 1 per class = the FM/UL HOLE-sensitivity limit (App. A, printed p.113) used as a starting point; the manual gives no %obs/ft
+  // alarm default (thresholds come from ClassiFire; Table 24 p.71 factors: Alert 10, Prealarm 6, Alarm 8, Alarm 2 absolute 20).
+  // VEWFD Alert 0.2 = per NFPA 76, as summarized in Honeywell ASAG44201 Table 1 (secondary). Everything else
+  // (EWFD 0.5 / SFD 1.0 Alert, Prealarm, Fire 2, the 5 s delays — site choice, Table 26 range 0–90 s) is 'typical – unverified'.
+  VEWFD: { alert: 0.2, action: 0.5, fire1: 1.0, fire2: 2.0, actionDly: 5, fire1Dly: 5, flowLow: 20, flowHigh: 20, flowDly: 120 },
+  EWFD:  { alert: 0.5, action: 1.0, fire1: 1.5, fire2: 3.0, actionDly: 5, fire1Dly: 5, flowLow: 20, flowHigh: 20, flowDly: 120 },
+  SFD:   { alert: 1.0, action: 1.5, fire1: 2.5, fire2: 5.0, actionDly: 5, fire1Dly: 5, flowLow: 20, flowHigh: 20, flowDly: 120 }
 };
 
 /* ---------------- small helpers ---------------- */
@@ -682,6 +687,28 @@ function txt(el, tag){ const k = kid(el, tag); return k ? k.textContent.trim() :
 function num(el, tag){ const t = txt(el, tag); if (t === '') return null; const n = Number(t); return isFinite(n) ? n : null; }
 function num0(el, tag){ const n = num(el, tag); return n == null ? 0 : n; }
 function first(el, tag){ const a = kid(el, tag); const c = a && a.children[0]; if (!c) return null; const n = Number(c.textContent); return isFinite(n) ? n : null; }
+/* synchronous SHA-256 (hex) used for canonical-JSON hashes */
+function sha256hex(str){
+  const K = [0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  const b = new TextEncoder().encode(str), l = b.length, n = ((l + 9 + 63) >> 6) << 6, m = new Uint8Array(n);
+  m.set(b); m[l] = 0x80; const dv = new DataView(m.buffer); dv.setUint32(n - 4, (l * 8) >>> 0); dv.setUint32(n - 8, Math.floor(l / 0x20000000));
+  const H = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19], W = new Uint32Array(64), r = (x, k) => (x >>> k) | (x << (32 - k));
+  for (let o = 0; o < n; o += 64){
+    for (let i = 0; i < 16; i++) W[i] = dv.getUint32(o + i * 4);
+    for (let i = 16; i < 64; i++){ const s0 = r(W[i-15], 7) ^ r(W[i-15], 18) ^ (W[i-15] >>> 3), s1 = r(W[i-2], 17) ^ r(W[i-2], 19) ^ (W[i-2] >>> 10); W[i] = (W[i-16] + s0 + W[i-7] + s1) | 0; }
+    let a = H[0], bb = H[1], c = H[2], d = H[3], e = H[4], f = H[5], g = H[6], h = H[7];
+    for (let i = 0; i < 64; i++){ const t1 = (h + (r(e, 6) ^ r(e, 11) ^ r(e, 25)) + ((e & f) ^ (~e & g)) + K[i] + W[i]) | 0, t2 = ((r(a, 2) ^ r(a, 13) ^ r(a, 22)) + ((a & bb) ^ (a & c) ^ (bb & c))) | 0; h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = bb; bb = a; a = (t1 + t2) | 0; }
+    H[0] = (H[0] + a) | 0; H[1] = (H[1] + bb) | 0; H[2] = (H[2] + c) | 0; H[3] = (H[3] + d) | 0; H[4] = (H[4] + e) | 0; H[5] = (H[5] + f) | 0; H[6] = (H[6] + g) | 0; H[7] = (H[7] + h) | 0;
+  }
+  return H.map(x => (x >>> 0).toString(16).padStart(8, '0')).join('');
+}
+/* canonical JSON: keys sorted, listed volatile keys dropped */
+function canon(v, drop){
+  if (Array.isArray(v)) return '[' + v.map(x => canon(x, drop)).join(',') + ']';
+  if (v && typeof v === 'object') return '{' + Object.keys(v).filter(k => !(drop || []).includes(k) && v[k] !== undefined).sort().map(k => JSON.stringify(k) + ':' + canon(v[k], drop)).join(',') + '}';
+  return JSON.stringify(v === undefined ? null : v);
+}
+MLP.sha256Sync = sha256hex; MLP.canon = canon;
 function fnv(str){ let h = 0x811c9dc5; for (let i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); } return (h >>> 0).toString(16).padStart(8, '0'); }
 MLP.fnv = fnv;
 MLP.baseName = n => String(n || '').replace(/^.*[\\/]/, '').replace(/\.pl$/i, '');
@@ -712,18 +739,22 @@ MLP.parsePl = function (text, fileName){
   const unitRaw = txt(rootEl, 'unit');
   const imperial = unitRaw === '1';
   const scale = imperial ? 1 : MLP.M_TO_FT;
+  // Metric files: PipeCAD's metric hole-sensitivity unit is UNRESOLVED (no metric .pl sample yet). Values are NOT converted;
+  // the parse result carries a warning so every app shows it until a metric sample confirms %obs/m vs %obs/ft.
+  const sensScale = 1;
   const pipeProps = kid(rootEl, 'pipeType') ? rootEl : null;
   const projectName = txt(props, 'ProjectName');
   const results = {};
   kids(kid(rootEl, 'resultsDatabase'), 'SavedDatabase').forEach(sd => { results[txt(sd, 'detectorId')] = sd; });
   const out = {
     fileName: fileName || '', version: txt(rootEl, 'pipecadVersion'), unitRaw, imperial,
-    unitLabel: imperial ? 'Imperial (ft)' : `Metric (m, unit ${unitRaw || '?'}) — converted to ft`,
+    unitLabel: imperial ? 'Imperial (ft)' : `Metric (m, unit ${unitRaw || '?'}) — lengths converted to ft`, sensWarning: imperial ? '' : 'Metric .pl: hole sensitivity is shown as PipeCAD wrote it. The metric unit (%obs/m or %obs/ft) is not yet confirmed — do not rely on the per-hole PASS/FAIL until a metric sample is verified.',
     project: { name: projectName || MLP.baseName(fileName), location: txt(props, 'Location'), designer: txt(props, 'Designer'), company: txt(props, 'CompanyName') },
     projectFromFile: !projectName,
     pipe: { innerDiameter: num(rootEl, 'innerDiameter'), outerDiameter: num(rootEl, 'outerDiameter'), material: txt(rootEl, 'material') },
     groups: [], skipped: []
   };
+  if (!imperial) out.skipped.push(out.sensWarning);
   kids(kid(rootEl, 'floorDatabase'), 'Floor').forEach((fl, gi) => {
     const gname = txt(fl, 'name') || `Area ${gi + 1}`;
     const g = { idx: gi, name: gname, detectors: [], displays: [], psus: [], batteries: [] };
@@ -747,7 +778,7 @@ MLP.parsePl = function (text, fileName){
         const c = ['X', 'Y', 'Z'].map(a => [num(pp, 'start' + a), num(pp, 'end' + a)]);
         if (c.every(([a, b]) => a != null && b != null)) len += Math.hypot(...c.map(([a, b]) => b - a));
         kids(kid(pp, 'holeDatabase'), 'Hole').forEach(h => {
-          const o = { i: txt(h, 'index'), size: num(h, 'holeSize'), flow: num(h, 'holeFlowRate'), tt: num(h, 'transitTime'), sens: num(h, 'holeSensitivity') };
+          const o = { i: txt(h, 'index'), size: num(h, 'holeSize'), flow: num(h, 'holeFlowRate'), tt: num(h, 'transitTime'), sens: num(h, 'holeSensitivity') == null ? null : num(h, 'holeSensitivity') * sensScale };
           (txt(h, 'isTestPoint') === 'true' ? testPoints : holes).push(o);
         });
       }));
@@ -783,11 +814,101 @@ MLP.parsePl = function (text, fileName){
   return out;
 };
 
+
+/* ---------------- design configuration (MASD Engineering Toolbox, Config mode) ----------------
+   Same keys as the Field Report's Configure tab. src per key: 'manual' (value stated in the ModuLaser manual),
+   'typical' (typical starting point — verify), 'design' (set by the designer). */
+MLP.CONFIG_FIELDS = [
+  { k: 'alert', label: 'Alert level', unit: '%obs/ft', kind: 'num', det: 1 },
+  { k: 'action', label: 'Prealarm level', unit: '%obs/ft', kind: 'num', det: 1 },
+  { k: 'fire1', label: 'Fire 1 level', unit: '%obs/ft', kind: 'num', det: 1 },
+  { k: 'fire2', label: 'Fire 2 level (absolute)', unit: '%obs/ft', kind: 'num', det: 1 },
+  { k: 'actionDly', label: 'Prealarm delay', unit: 's', kind: 'num', min: 0, max: 90, det: 1 },
+  { k: 'fire1Dly', label: 'Fire 1 delay', unit: 's', kind: 'num', min: 0, max: 90, det: 1 },
+  { k: 'cascade', label: 'Cascading alarms', kind: 'yn', det: 1 },
+  { k: 'latchA', label: 'Latching alarms', kind: 'yn', det: 1, disp: 1 },
+  { k: 'latchF', label: 'Latching faults', kind: 'yn', det: 1, disp: 1 },
+  { k: 'flowLow', label: 'Flow low limit', unit: '%', kind: 'num', min: 0, max: 20, det: 1 },
+  { k: 'flowHigh', label: 'Flow high limit', unit: '%', kind: 'num', min: 0, max: 20, det: 1 },
+  { k: 'flowLow2', label: 'Flow low 2 limit', unit: '%', kind: 'num', min: 0, max: 30, det: 1 },
+  { k: 'flowHigh2', label: 'Flow high 2 limit', unit: '%', kind: 'num', min: 0, max: 30, det: 1 },
+  { k: 'flowDly', label: 'Flow fault delay', unit: 's', kind: 'num', min: 0, max: 240, det: 1 },
+  { k: 'dayNight', label: 'Day/Night', kind: 'yn', det: 1 },
+  { k: 'dayStart', label: 'Day start hour', kind: 'num', min: 0, max: 23, det: 1 },
+  { k: 'nightStart', label: 'Night start hour', kind: 'num', min: 0, max: 23, det: 1 },
+  { k: 'ldd', label: 'LDD (Laser Dust Discrimination)', kind: 'yn', det: 1 },
+  { k: 'buzzer', label: 'Display buzzer enabled', kind: 'yn', disp: 1 },
+  { k: 'cdmRole', label: 'Display role', kind: 'sel', opts: ['', 'Primary CDM', 'Backup CDM', 'Local display'], disp: 1 }
+];
+MLP.IO_PORTS = ['in1', 'in2', 'out1', 'out2', 'out3'];
+MLP.IO_FUNCS = { in: ['', 'Remote reset', 'Remote isolate', 'Day/Night switch', 'Standby', 'Other'], out: ['', 'Alert', 'Action', 'Fire 1', 'Fire 2', 'General Fault', 'Urgent Fault', 'Flow Fault', 'Isolated', 'Other'] };
+/* Values the ModuLaser manual states directly. Everything else in TYPICAL_DEFAULTS is a typical starting point. */
+MLP.MANUAL_REF = 'ModuLaser Install Manual 04-4001-501-0803-05';
+MLP.MANUAL_SOURCED = { flowLow: 'Table 29, p.76 (Flow Low Limit default 20%)', flowHigh: 'Table 29, p.76 (Flow High Limit default 20%)', flowDly: 'Table 29, p.76 (Flow Flt. Delay default 120 s, range 0–240)' };
+/* Per-key citation / status text shown in tooltips and reports. */
+MLP.CITES = {
+  fire1: 'Starting point = FM/UL hole-sensitivity limit for the class (ModuLaser Install Manual 04-4001-501-0803-05, App. A, printed p.113: VEWFD <1.00, EWFD <1.50, SFD <2.50 %obs/ft). Not a manual alarm default — Alarm Level is a ClassiFire factor (Table 24, p.71, default 8). Verify.',
+  alert: 'Typical – unverified. Alert Level is a ClassiFire factor (Table 24, p.71, default 10). VEWFD 0.2 %obs/ft: per NFPA 76, as summarized in Honeywell ASAG44201 Table 1. EWFD 0.5 / SFD 1.0: no source.',
+  action: 'Typical – unverified. ModuLaser has no "Action" level; this is the Prealarm level (Table 24, p.71: Prealarm factor default 6).',
+  fire2: 'Typical – unverified. Alarm 2 Level is absolute (Table 24, p.71: 0.10–25, default 20; units not stated).',
+  actionDly: 'Typical – unverified site choice. Prealarm Delay range 0–90 s (Table 26, p.73).',
+  fire1Dly: 'Typical – unverified site choice. Alarm Delay range 0–90 s (Table 26, p.73).',
+  flowLow: 'Table 29, p.76: default 20%.', flowHigh: 'Table 29, p.76: default 20%.', flowDly: 'Table 29, p.76: default 120 s (range 0–240).'
+};
+MLP.CLASSIFIRE_FACTORS = { alert: 10, prealarm: 6, alarm: 8, alarm2: 20 };   // Table 24, p.71 (factors / absolute; units not stated for Alarm 2)
+MLP.HOLE_LIMITS = { VEWFD: 1.00, EWFD: 1.50, SFD: 2.50, ref: 'ModuLaser Install Manual 04-4001-501-0803-05, App. A, printed p.113 (FM/UL hole limits) — strictly less than' };
+MLP.configSeed = function (perfClass, kind){
+  const values = {}, src = {};
+  if (kind === 'display'){
+    values.latchA = 'N'; values.latchF = 'N'; values.buzzer = 'Y'; ['latchA', 'latchF', 'buzzer'].forEach(k => { src[k] = 'typical'; });
+    values.io = { out1: { used: true, fn: 'General Fault', addr: '' } }; src['io.out1'] = 'manual';
+    return { perfClass: '', values, src };
+  }
+  const T = MLP.TYPICAL_DEFAULTS[perfClass];
+  if (T) Object.keys(T).forEach(k => { values[k] = T[k]; src[k] = MLP.MANUAL_SOURCED[k] ? 'manual' : 'typical'; });
+  Object.assign(values, { cascade: 'N', latchA: 'N', latchF: 'N', dayNight: 'N', ldd: 'Y' });
+  ['cascade', 'latchA', 'latchF', 'dayNight', 'ldd'].forEach(k => { src[k] = 'typical'; });
+  values.io = {};
+  return { perfClass: perfClass || '', values, src };
+};
+MLP.srcLabel = s => s === 'manual' ? 'manual' : s === 'typical' ? 'typical – unverified' : s === 'design' ? 'design' : '';
+function cfgFlat(c){ const o = {}; if (!c) return o; const v = c.values || {};
+  o.cfg_perf = c.perfClass || '';
+  MLP.CONFIG_FIELDS.forEach(f => { o['cfg_' + f.k] = v[f.k] == null ? '' : String(v[f.k]); });
+  MLP.IO_PORTS.forEach(p => { const x = (v.io || {})[p]; o['cfg_io_' + p] = x && x.used ? `${x.fn || ''} ${x.addr || ''}`.trim() || 'used' : ''; });
+  return o; }
+const CFG_DIFF_FIELDS = [['cfg_perf', 'Performance class']].concat(MLP.CONFIG_FIELDS.map(f => ['cfg_' + f.k, f.label])).concat(MLP.IO_PORTS.map(p => ['cfg_io_' + p, p.toUpperCase() + ' assignment']));
+
+/* ---------------- field-change loop ----------------
+   doc.changes: [{ id, dev, devName, field, label, design, value, by, at, why, photo, pipecad, status, verify:{ by, at, note }, plCheck:{ state, at, file, found } }]
+   status: logged → verified (designer, Toolbox) | rejected → approved (QA/Auditor).
+   doc.approvals: { technician:{ name, date, status }, designer:{…}, qa:{…} } */
+MLP.CHANGE_STATUS = ['logged', 'verified', 'rejected', 'approved'];
+MLP.APPROVAL_ROLES = [['technician', 'Technician (logged on site)'], ['designer', 'Designer (verified in the Toolbox)'], ['qa', 'QA / Auditor (sign-off)']];
+/* Fields whose change must also be made in the PipeCAD model (PipeCAD has no import). */
+MLP.PIPECAD_FIELDS = { 'cfg.fan': 'Fan speed', 'cfg.af': 'Alarm Factor', desc: 'Detector name', 't.tt.pipecad': 'Transport time', 'perf.holes': 'Sampling holes', 'perf.target': 'Performance class' };
+MLP.changeId = () => 'fc-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
+/* Check logged PipeCAD changes against a freshly parsed .pl (MLP.parsePl result). Returns [{id, state:'match'|'mismatch'|'not-found', found}] */
+MLP.verifyChangesAgainstPl = function (changes, parsed, devices){
+  const byKey = {}, byName = {};
+  (parsed.groups || []).forEach(g => g.detectors.forEach(d => { byKey[d.key] = d; byName[String(d.origName || '').toLowerCase()] = d; }));
+  const devById = {}; (devices || []).forEach(d => { devById[d.id] = d; });
+  return (changes || []).filter(c => c.pipecad).map(c => {
+    const dv = devById[c.dev] || {}; const key = dv.pl && dv.pl.key;
+    let d = (key && byKey[key]) || byName[String(c.field === 'desc' ? c.value : (dv.plName || c.devName || '')).toLowerCase()];
+    if (!d) return { id: c.id, state: 'not-found', found: '' };
+    const p = d.pipe || {};
+    const found = { 'cfg.fan': d.fan, 'cfg.af': p.af, desc: d.origName, 't.tt.pipecad': p.tt == null ? '' : (+p.tt).toFixed(1), 'perf.holes': p.holes ? p.holes.length : '', 'perf.target': MLP.TT_TO_CLASS[p.maxTransit] || '' }[c.field];
+    const eq = (a, b) => { const x = parseFloat(a), y = parseFloat(b); return isFinite(x) && isFinite(y) ? Math.abs(x - y) < 0.051 : String(a).trim().toLowerCase() === String(b).trim().toLowerCase(); };
+    return { id: c.id, state: eq(found, c.value) ? 'match' : 'mismatch', found: found == null ? '' : String(found) };
+  });
+};
+
 /* ---------------- project document ---------------- */
 MLP.blank = function (){
   return { format: MLP.FORMAT, schemaVersion: MLP.SCHEMA_VERSION, savedAt: '', savedBy: null,
     project: { name: '', location: '', designer: '', company: '', building: '', networkNumber: '', preparedBy: '', date: '' },
-    design: null, site: null };
+    design: null, site: null, changes: [], approvals: {} };
 };
 MLP.isProject = o => !!(o && o.format === MLP.FORMAT && typeof o.schemaVersion === 'number');
 MLP.parse = function (text){
@@ -796,16 +917,21 @@ MLP.parse = function (text){
   if (o.schemaVersion > MLP.SCHEMA_VERSION) throw new Error(`This project file uses schema ${o.schemaVersion}; this app reads up to ${MLP.SCHEMA_VERSION}. Update the app.`);
   return o;
 };
-MLP.stringify = function (doc, app, rev){
-  doc.format = MLP.FORMAT; doc.schemaVersion = MLP.SCHEMA_VERSION; doc.savedAt = new Date().toISOString(); doc.savedBy = { app, rev };
-  if (doc.design) doc.design.hash = MLP.designHash(doc.design);
+MLP.stringify = function (doc, app, rev, user){
+  doc.format = MLP.FORMAT; doc.schemaVersion = MLP.SCHEMA_VERSION; doc.savedAt = new Date().toISOString(); doc.savedBy = Object.assign({ app, rev }, user ? { name: user } : {});
+  if (doc.design){ doc.design.hash = MLP.designHash(doc.design); doc.design.id = MLP.designId(doc.design); }
+  if (doc.site) doc.site.hash = MLP.siteHash(doc.site);
   return JSON.stringify(doc, null, 1);
 };
-/* hash of the identity-relevant design content (ignores timestamps and calc internals) */
-MLP.designHash = function (design){
+/* SHA-256 over canonical JSON of the whole design (volatile keys excluded): tamper-evident.
+   design.id keeps the old 32-bit FNV identity hash as a short display id only. */
+MLP.HASH_DROP = ['hash', 'id', 'updatedAt', 'importedAt'];
+MLP.designHash = function (design){ return design ? 'sha256:' + sha256hex(canon(design, MLP.HASH_DROP)) : ''; };
+MLP.siteHash = function (site){ return site ? 'sha256:' + sha256hex(canon(site, ['hash', 'updatedAt'])) : ''; };
+MLP.designId = function (design){
   if (!design) return '';
   const strip = { psus: (design.psus || []).map(p => [p.id, p.name, p.area, p.location, p.model, p.battery && p.battery.ah, p.battery && p.battery.qty, p.requiredAh]),
-    devices: (design.devices || []).map(d => [d.id, d.name, d.type, d.area, d.address, d.psuId, d.fan, d.pl && d.pl.fp]) };
+    devices: (design.devices || []).map(d => [d.id, d.name, d.type, d.area, d.address, d.psuId, d.fan, d.pl && d.pl.fp].concat(d.config ? [JSON.stringify(d.config.values || {}), d.config.perfClass || ''] : [])) };
   return fnv(JSON.stringify(strip));
 };
 
@@ -873,7 +999,7 @@ function diffList(oldL, newL, flat, fields){
 }
 MLP.diffDesign = function (oldD, newD){
   const project = [];
-  const devices = diffList(oldD && oldD.devices, newD && newD.devices, devFlat, DEV_FIELDS);
+  const devices = diffList(oldD && oldD.devices, newD && newD.devices, d => Object.assign(devFlat(d), cfgFlat(d.config)), DEV_FIELDS.concat(CFG_DIFF_FIELDS));
   const psus = diffList(oldD && oldD.psus, newD && newD.psus, psuFlat, PSU_FIELDS);
   const count = devices.added.length + devices.removed.length + devices.changed.length + psus.added.length + psus.removed.length + psus.changed.length;
   return { project, devices, psus, count };
@@ -894,6 +1020,69 @@ MLP.diffHtml = function (diff, esc){
   return (sec('Devices', diff.devices) + sec('Power supplies', diff.psus)) || '<p>No design changes.</p>';
 };
 
+/* ---------------- Performance Criteria (design.performance) ----------------
+   market 'UL': printouts state "Complies with UL 268, 7th Edition"; UL least-sensitive hole limits enforced
+   (VEWFD 1.0, EWFD 1.5, SFD/OAP 2.18 %obs/ft — overrides the manual's FM SFD 2.50 for UL).
+   market 'other': the engineer selects the basis and enters per-class limits; the project is blocked until defined.
+   narrative: required text aligned with the Engineer of Record's published intent (printed on the summary page). */
+MLP.PERF_BASES = ['UL', 'FM', 'NFPA 75', 'NFPA 76', 'NFPA 318', 'Other', 'Custom'];
+MLP.PERF_CLASSES = ['VEWFD', 'EWFD', 'SFD'];
+MLP.UL_STATEMENT = 'Complies with UL 268, 7th Edition';
+MLP.UL_LIMITS = { VEWFD: { sens: 1.0, tt: 60 }, EWFD: { sens: 1.5, tt: 90 }, SFD: { sens: 2.18, tt: 120 } };   // SFD = SFD/OAP (UL 268 7th Ed. open-area least-sensitive)
+/* Cited prefills per basis. Only values with a source are prefilled; everything else stays blank (never invented). */
+MLP.PERF_SOURCED = {
+  FM: { ref: 'FM Class 3230 per ModuLaser Install Manual 04-4001-501-0803-05, App. A, printed p.113 (FM/UL hole limits)',
+        VEWFD: { sens: 1.00, tt: 60 }, EWFD: { sens: 1.50, tt: 90 }, SFD: { sens: 2.50, tt: 120 } },
+  'NFPA 76': { ref: 'Per NFPA 76, as summarized in Honeywell ASAG44201 Table 1 (VEWFD alarm 1.0 %obs/ft per hole, <60 s); EWFD/SFD not stated there',
+        VEWFD: { sens: 1.0, tt: 60 } }
+};
+MLP.UL_REF = 'UL 268, 7th Edition (least-sensitive hole limits; SFD/OAP 2.18 %obs/ft)';
+MLP.perfLimitBlank = () => ({ sens: null, tt: null, ref: '', confirmed: false, src: '' });
+MLP.perfPrefill = function (basis){
+  const S = MLP.PERF_SOURCED[basis] || {}; const out = {};
+  MLP.PERF_CLASSES.forEach(c => { const v = S[c]; out[c] = v ? { sens: v.sens, tt: v.tt, ref: S.ref, confirmed: false, src: 'prefill' } : MLP.perfLimitBlank(); });
+  return out;
+};
+MLP.perfBlank = () => ({ market: 'UL', basis: 'UL', basisOther: '', limits: MLP.perfUlLimits(), areas: {}, narrative: '', narrativeDraft: '', eorName: '', specRef: '', statement: MLP.UL_STATEMENT, definedBy: '', definedAt: '' });
+MLP.perfUlLimits = () => { const o = {}; MLP.PERF_CLASSES.forEach(c => { o[c] = { sens: MLP.UL_LIMITS[c].sens, tt: MLP.UL_LIMITS[c].tt, ref: MLP.UL_REF, confirmed: true, src: 'UL' }; }); return o; };
+/* effective per-class limits for the project or an Area/Group override (null when not defined) */
+MLP.perfLimits = function (perf, area){
+  if (!perf) return null;
+  const o = area && perf.areas && perf.areas[area] && perf.areas[area].enabled ? perf.areas[area] : perf;
+  if ((o.market || perf.market) === 'UL' && o === perf) return MLP.perfUlLimits();
+  if (o.basis === 'UL') return MLP.perfUlLimits();
+  return o.limits || null;
+};
+function perfScopeIssues(o, tag, out){
+  if (o.basis === 'UL') return;
+  if (!o.basis) out.push(`${tag}Select the performance basis (UL, FM, NFPA 75, NFPA 76, NFPA 318, Other or Custom)`);
+  if ((o.basis === 'Other' || o.basis === 'Custom') && !String(o.basisOther || '').trim()) out.push(`${tag}Describe the Other/Custom basis`);
+  MLP.PERF_CLASSES.forEach(c => { const l = (o.limits || {})[c] || {};
+    if (!(Number(l.sens) > 0)) out.push(`${tag}${c}: enter the per-hole sensitivity limit (%obs/ft)`);
+    if (!(Number(l.tt) > 0)) out.push(`${tag}${c}: enter the transport-time limit (s)`);
+    if (!String(l.ref || '').trim()) out.push(`${tag}${c}: record the reference for these limits`);
+    if (!l.confirmed) out.push(`${tag}${c}: engineer must confirm the limits`); });
+}
+/* blocking issues for the performance criteria */
+MLP.perfIssues = function (perf){
+  const out = [];
+  if (!perf){ out.push('Performance Criteria not defined'); return out; }
+  if (!String(perf.narrative || '').trim()) out.push('Performance narrative is required (align it with the Engineer of Record\'s published intent)');
+  else if (!perf.narrativeConfirmed) out.push('Engineer must confirm the performance narrative (auto-drafted from the selections)');
+  if (perf.market !== 'UL') perfScopeIssues(perf, '', out);
+  Object.entries(perf.areas || {}).forEach(([a, o]) => { if (o && o.enabled) perfScopeIssues(o, `Area/Group "${a}" override — `, out); });
+  return out;
+};
+/* auto-draft narrative from the selections; the engineer edits it */
+MLP.perfDraft = function (perf, classesUsed){
+  if (!perf) return '';
+  const L = MLP.perfLimits(perf) || {}; const cls = (classesUsed && classesUsed.length ? classesUsed : MLP.PERF_CLASSES);
+  const basis = perf.market === 'UL' ? 'UL 268, 7th Edition' : (perf.basis === 'Other' || perf.basis === 'Custom' ? (perf.basisOther || perf.basis) : perf.basis);
+  const lim = cls.map(c => { const l = L[c] || {}; return `${c === 'SFD' ? 'SFD/OAP' : c}: every sampling hole less than ${l.sens ?? '[limit]'} %obs/ft with transport time less than ${l.tt ?? '[time]'} s`; }).join('; ');
+  const areas = Object.entries(perf.areas || {}).filter(([, o]) => o && o.enabled).map(([a, o]) => `${a} (${o.basis || 'basis not set'})`);
+  return `The aspirating smoke detection system is designed to ${basis}${perf.specRef ? ' as required by ' + perf.specRef : ''}. Performance classes used: ${cls.join(', ')}. Design limits — ${lim}.${areas.length ? ' Area/Group overrides: ' + areas.join(', ') + '.' : ''} ${perf.market === 'UL' ? MLP.UL_STATEMENT + '.' : 'Limits are engineer-defined; references are recorded per class.'}${perf.eorName ? ' Engineer of Record: ' + perf.eorName + '.' : ''}`;
+};
+MLP.perfStatement = perf => perf ? (perf.market === 'UL' ? MLP.UL_STATEMENT : `Performance basis: ${perf.basis === 'Other' || perf.basis === 'Custom' ? (perf.basisOther || perf.basis) : (perf.basis || 'not selected')} (engineer-defined limits)`) : '';
 root.MLP = MLP;
 if (typeof module !== 'undefined' && module.exports) module.exports = MLP;
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -957,12 +1146,12 @@ const OUTS = ['out1','out2','out3'];
 const INS = ['in1','in2'];
 const ADDR_RE = /^\d{1,3}:\d{1,3}:\d{1,4}$/;
 
-/* Per-hole sensitivity limits are the Fire 1 (alarm) thresholds from Table 45 (p.112, FM 3230 / NFPA 76).
+/* Per-hole sensitivity limits: FM/UL hole limits, ModuLaser Install Manual 04-4001-501-0803-05, App. A, printed p.113 (strictly less than).
    The VEWFD Alert threshold (0.2 %obs/ft) is a separate, earlier alarm stage and is NOT applied per hole. */
 const TARGETS = {
-  VEWFD:{label:'NFPA 76 — VEWFD (Fire 1 ≤1.0 %obs/ft per hole · ≤60 s)', sens:1.0, tt:60},
-  EWFD: {label:'NFPA 76 — EWFD (Fire 1 ≤1.5 %obs/ft per hole · ≤90 s)',  sens:1.5, tt:90},
-  SFD:  {label:'NFPA 76 — SFD (Fire 1 ≤2.5 %obs/ft per hole · ≤120 s)', sens:2.5, tt:120},
+  VEWFD:{label:'NFPA 76 — VEWFD (holes <1.00 %obs/ft · <60 s)', sens:1.0, tt:60},
+  EWFD: {label:'NFPA 76 — EWFD (holes <1.50 %obs/ft · <90 s)',  sens:1.5, tt:90},
+  SFD:  {label:'NFPA 76 — SFD (holes <2.50 %obs/ft · <120 s)', sens:2.5, tt:120},
   EN_A: {label:'EN 54-20 — Class A (≤120 s)', sens:null, tt:120},
   EN_B: {label:'EN 54-20 — Class B (≤120 s)', sens:null, tt:120},
   EN_C: {label:'EN 54-20 — Class C (≤120 s)', sens:null, tt:120},
@@ -1019,10 +1208,10 @@ const CFG_DET = [
   {k:'dt',       label:'Date & time set?', kind:'yn', score:1},
   {k:'af',       label:'Alarm Factor', kind:'num', req:1, min:0, max:8, rg:'0–8'},
   {k:'alert',    label:'Alert level', kind:'num', req:1},
-  {k:'action',   label:'Action level', kind:'num', req:1},
+  {k:'action',   label:'Prealarm level', kind:'num', req:1},
   {k:'fire1',    label:'Fire 1 level', kind:'num', req:1},
   {k:'fire2',    label:'Fire 2 level (absolute)', kind:'num', req:1},
-  {k:'actionDly',label:'Action delay', kind:'num', min:0, max:90, rg:'0–90 s'},
+  {k:'actionDly',label:'Prealarm delay', kind:'num', min:0, max:90, rg:'0–90 s'},
   {k:'fire1Dly', label:'Fire 1 delay', kind:'num', min:0, max:90, rg:'0–90 s'},
   {k:'cascade',  label:'Cascading alarms enabled?', kind:'yn'},
   {k:'latchF',   label:'Latching faults?', kind:'yn'},
@@ -1168,14 +1357,14 @@ function pcBlock(m){
     ${kv('Fittings', [ok(pc.bends90)?pc.bends90+' × 90°':'', ok(pc.sockets)?pc.sockets+' sockets':'', ok(pc.clips)?pc.clips+' clips':''].filter(Boolean).join(' · ')||'—')}
     ${kv('Design sensitivity', ok(pc.designSens)?fmt(pc.designSens,3)+u('%obs/ft'):'—')}
   </div>`;
-  const vs = h => !ok(h.sens) ? '—' : L.sens==null ? BDs('B') : BDs(h.sens<=L.sens?'P':'F');
+  const vs = h => !ok(h.sens) ? '—' : L.sens==null ? BDs('B') : BDs(h.sens<L.sens?'P':'F');
   const row = (h,tp) => `<tr class="${!tp && (h===P.worst||h===P.maxTT)?'hi':''}"><td class="n">${esc(h.i)}</td><td>${holeFrac(h.size)}${ok(h.size)?` <span class="u">(${fmt(h.size,4)} in)</span>`:''}</td><td>${ok(h.flow)?fmt(h.flow,2):'—'}</td><td>${ok(h.tt)?fmt(h.tt,1):'—'}${!tp&&h===P.maxTT?' <b>max</b>':''}</td><td>${ok(h.sens)?fmt(h.sens,3):'—'}${!tp&&h===P.worst?' <b>worst</b>':''}</td><td>${tp?'<span class="note">test point — excluded</span>':vs(h)}</td></tr>`;
   const holes = (pc.holes||[]).map(h=>row(h,false)).join('');
   const tps = (pc.testPoints||[]).map(h=>row(h,true)).join('');
   const fire1 = L.sens!=null ? `≤ ${L.sens}` : 'no limit';
   const chk = [];
   if(P.worst) chk.push(L.sens==null ? `<span><b>Worst hole sens.:</b> ${fmt(P.worst.sens,3)} %obs/ft (hole ${esc(P.worst.i)}) ${BDs('B')} select a target</span>`
-    : `<span><b>Worst hole sens.:</b> ${P.worst.sens.toFixed(3)} %obs/ft (hole ${esc(P.worst.i)}) vs Fire 1 ${fire1} ${BDs(P.worst.sens<=L.sens?'P':'F')} margin ${fmtM(L.sens-P.worst.sens)} %obs/ft</span>`);
+    : `<span><b>Worst hole sens.:</b> ${P.worst.sens.toFixed(3)} %obs/ft (hole ${esc(P.worst.i)}) vs Fire 1 ${fire1} ${BDs(P.worst.sens<L.sens?'P':'F')} margin ${fmtM(L.sens-P.worst.sens)} %obs/ft</span>`);
   if(P.maxTT) chk.push(L.tt==null ? `<span><b>Max transport:</b> ${fmt(P.maxTT.tt,1)} s (hole ${esc(P.maxTT.i)}) ${BDs('B')} select a target</span>`
     : `<span><b>Max transport:</b> ${P.maxTT.tt.toFixed(2)} s (hole ${esc(P.maxTT.i)}) vs ≤ ${L.tt} s ${BDs(P.maxTT.tt<=L.tt?'P':'F')} margin ${fmtM(L.tt-P.maxTT.tt)} s</span>`);
   return `<div class="blk-h">PipeCAD design data <span class="note" style="text-transform:none;letter-spacing:0;font-weight:500">· ${esc(pc.file||'')}${pc.version?' · PipeCAD '+esc(pc.version):''}</span></div>
@@ -1232,11 +1421,11 @@ function evalModule(m){
     const ch = num(m.perf?.chamber), h = num(m.perf?.holes);
     if(!ok(ch) || !ok(h)) add('perf','Hole sensitivity','B');
     else if(L.sens==null) add('perf','Sensitivity limit','B','enter a custom sensitivity limit for this target');
-    else { const avg = ch*h; add('perf','Hole sensitivity', avg<=L.sens?'P':'F', avg<=L.sens?'':`${fmt(avg,3)} %obs/ft exceeds ${L.sens} limit`); }
+    else { const avg = ch*h; add('perf','Hole sensitivity', avg<L.sens?'P':'F', avg<L.sens?'':`${fmt(avg,3)} %obs/ft exceeds ${L.sens} limit`); }
     const P = pcStats(m.pipecad);
     if(P.worst){
       if(L.sens==null) add('perf','PipeCAD worst-hole sensitivity','B','no Fire 1 sensitivity limit for this target');
-      else add('perf','PipeCAD worst-hole sensitivity', P.worst.sens<=L.sens?'P':'F', P.worst.sens<=L.sens?'':`hole ${P.worst.i}: ${fmt(P.worst.sens,3)} %obs/ft exceeds Fire 1 ${L.sens} limit`);
+      else add('perf','PipeCAD worst-hole sensitivity', P.worst.sens<L.sens?'P':'F', P.worst.sens<L.sens?'':`hole ${P.worst.i}: ${fmt(P.worst.sens,3)} %obs/ft exceeds Fire 1 ${L.sens} limit`);
     }
     // Transport
     const mt = num(m.t?.tt?.meas);
@@ -1498,7 +1687,7 @@ function moduleSheet(m, i){
         ${F('Run 2', b+'.t.smoke.r2', {num:1, unit:'s'})}
         ${F('Run 3', b+'.t.smoke.r3', {num:1, unit:'s'})}
         ${CF('Spread', m.id+'-spread')}
-        ${F('1st alarm level', b+'.t.smoke.level', {opts:['Alert','Action','Fire 1','Fire 2','None']})}
+        ${F('1st alarm level', b+'.t.smoke.level', {opts:['Alert',['Action','Prealarm'],'Fire 1','Fire 2','None']})}
         ${YNF('Verified at FACU?', b+'.t.smoke.facu')}
       </div>${testFoot(b+'.t.smoke')}</div>
     <div class="tc"><div class="tc-h"><span class="id">T3</span>Airflow fault verification<span data-calc="${m.id}-sec-flow"></span></div>
@@ -1796,6 +1985,7 @@ function syncPrint(){
    02.00.000 — app shell, project file, design import, validation, tabs
    ===================================================================== */
 AMENDMENTS.push({ rev: "000", major: "02", minor: "00", date: "261013", desc: "Major version 02.00 per Brent; revision counter restarted at 000. Folds in the unreleased 01.00.005 work (several PipeCAD .pl files at once, plus the standalone PipeCAD merge tool) and the Windows installer (Electron, NSIS). New layout matching the Battery Calculator 02.00: PipeCAD-style dark theme with a one-tap high-contrast light theme; a menu bar (File, Edit, View, Help) and quick-action row; a left sidebar listing every sheet grouped Area/Group → power supply → module with PASS / FAIL / INCOMPLETE status dots and a search box; one sheet at a time with Setup / Configure / Test tabs; a pinned results panel (result stamp, open and failed items, transport-time and battery gauges). ModuLaser project file (.mlproj.json) shared with the Battery Calculator 02.00.001: File → Import project creates or updates every detector, display (Standard, Minimum, Command) and power supply sheet with names, Area/Group, addresses, power supply, fan speed, battery model, Ah and quantity, required Ah and standby hours, and the PipeCAD pipe and hole data; values from the design are marked 'from design', edits are marked, and a re-import shows a diff and never overwrites site results or hand edits unless you tick them. File → Save project writes the site results back into the same file, keeping the calculator's design section unchanged. File → Import PipeCAD .pl now reads one or more files with the shared parser (Area/Group, displays, PSU positions). Check linked file shows a change banner when the project file or a .pl has changed. Alarm levels, flow limits and delays prefill with typical values for the performance class (VEWFD / EWFD / SFD), marked 'typical — confirm on site', and count as incomplete until confirmed. Unused inputs/outputs are hidden. New checks: duplicate SenseNET and FACU addresses, names over 16 characters, measured transport time more than the allowed % over the PipeCAD prediction, and installed battery Ah below the calculator's required Ah. Print / Export dialog with live 8.5 × 11 preview, Summary / Standard / Full detail levels, scope (project, this sheet, open items) and PDF, Word (.docx), HTML and Excel (CAD Schedule + Detail with outline groups) output, with PASS/FAIL stamps, transport-time and battery gauges and hole-sensitivity charts. Mobile: bottom action bar, slide-in sidebar and results sheet, stopwatch that enters times into the test fields, camera photo capture per device, and Go to device by QR scan, name or address. Help, How Do I…, FAQ and this log rewritten." });
+AMENDMENTS.push({ rev: "001", major: "02", minor: "00", date: "261013", desc: "Audit trail and field-change loop (MASD Engineering Toolbox 00.01.000 handoff). Performance Criteria from the Toolbox (design.performance) are printed on the summary page after Section A: UL 268, 7th Edition statement or the selected standards basis, the hole-sensitivity and transport-time limits (strictly less than) with their references, per-Area/Group overrides, the engineer-confirmed narrative, Engineer of Record and specification reference; the Report checks each module against its Area/Group limits; the section is carried unchanged on save. Shared MASD engine 1.0.0 and modulaser-project.js 1.2.0 are identical in the Battery Calculator, this Report and the Toolbox (sync test). Append-only site edit log (who, when, old, new, why; keystrokes in one field within 60 s collapse into one entry); confirmations and replacements of typical values are logged; Saved-by records the technician name. Field changes: every edit to a design-valued field is logged against its design value with why and photo; File → Field changes / As-built (Section J) with technician sign-off and a printable Field Change / As-Built report; changes and approvals (technician → designer → QA/Auditor) travel in the project file. Save project now keeps the imported file's changes, approvals and unknown top-level keys (QA: previously dropped). Design configuration from the Toolbox replaces typical placeholders; values the Toolbox marks typical stay flagged. Shared modulaser-project.js 1.2.0 (identical in all three apps): SHA-256 design hash over the full design plus a separate site hash (FNV kept only as a short design id); metric .pl imports warn that the hole-sensitivity unit is unconfirmed. Citations corrected: FM/UL hole limits are ModuLaser Install Manual 04-4001-501-0803-05, App. A, printed p.113 (there is no Table 45), checked strictly less than (a hole exactly at the limit now FAILS); EN 54-20 table p.112; flow ±20% and flow-fault delay default 120 s (was 60) Table 29 p.76; Table 24 p.71 factors (Alert 10, Prealarm 6, Alarm 8, Alarm 2 = 20); 'Action' renamed Prealarm; unsourced defaults labelled typical – unverified; VEWFD 0.2 per NFPA 76 as summarized in Honeywell ASAG44201 Table 1. QA audit — date 2026-10-13; commit audited 6854f2e (Report v02.00.000); issue: <a href=\"https://github.com/theBMGatKGS/ModuLaser-Commisioning-Report/issues/8\" target=\"_blank\" rel=\"noopener\">Report issue #8</a>; summary: defaults citations FAIL → fixed here; Solano worst-hole rule PASS; audit trail FAIL → fixed here; Quick Start version text FAIL → fixed here. Final verdict: [PENDING RE-CHECK — placeholder]." });
 TYPES.min = 'Minimum Display Module'; TYPE_SHORT.min = 'Min Display';
 const TYPE_FROM_DESIGN = { 'Detector': 'det', 'Standard Display': 'std', 'Minimum Display': 'min', 'Command Display': 'cmd' };
 const TYPE_TO_DESIGN = { det: 'Detector', std: 'Standard Display', min: 'Minimum Display', cmd: 'Command Display', oth: 'Other' };
@@ -1884,11 +2074,11 @@ function evalModule(m){
     const ch = num(m.perf?.chamber), h = num(m.perf?.holes);
     if(!ok(ch) || !ok(h)) add('perf','Hole sensitivity','B');
     else if(L.sens==null) add('perf','Sensitivity limit','B','enter a custom sensitivity limit for this target');
-    else { const avg = ch*h; add('perf','Hole sensitivity', avg<=L.sens?'P':'F', avg<=L.sens?'':`${fmt(avg,3)} %obs/ft exceeds ${L.sens} limit`); }
+    else { const avg = ch*h; add('perf','Hole sensitivity', avg<L.sens?'P':'F', avg<L.sens?'':`${fmt(avg,3)} %obs/ft is not below the ${L.sens} limit`); }
     const P = pcStats(m.pipecad);
     if(P.worst){
       if(L.sens==null) add('perf','PipeCAD worst-hole sensitivity','B','no Fire 1 sensitivity limit for this target');
-      else add('perf','PipeCAD worst-hole sensitivity', P.worst.sens<=L.sens?'P':'F', P.worst.sens<=L.sens?'':`hole ${P.worst.i}: ${fmt(P.worst.sens,3)} %obs/ft exceeds Fire 1 ${L.sens} limit`);
+      else add('perf','PipeCAD worst-hole sensitivity', P.worst.sens<L.sens?'P':'F', P.worst.sens<L.sens?'':`hole ${P.worst.i}: ${fmt(P.worst.sens,3)} %obs/ft is not below the Fire 1 ${L.sens} limit (Table 45: strictly less than)`);
     }
     const mt = num(m.t?.tt?.meas), pc = num(m.t?.tt?.pipecad);
     if(!ok(mt)) add('tt','Measured transport time','B');
@@ -2083,7 +2273,7 @@ function moduleSheet(m, i){
         ${F('Run 2', b+'.t.smoke.r2', {num:1, unit:'s'})}
         ${F('Run 3', b+'.t.smoke.r3', {num:1, unit:'s'})}
         ${CF('Spread', m.id+'-spread')}
-        ${F('1st alarm level', b+'.t.smoke.level', {opts:['Alert','Action','Fire 1','Fire 2','None']})}
+        ${F('1st alarm level', b+'.t.smoke.level', {opts:['Alert',['Action','Prealarm'],'Fire 1','Fire 2','None']})}
         ${YNF('Verified at FACU?', b+'.t.smoke.facu')}
       </div>${testFoot(b+'.t.smoke')}</div>
     <div class="tc"><div class="tc-h"><span class="id">T3</span>Airflow fault verification<span data-calc="${m.id}-sec-flow"></span></div>
@@ -3022,6 +3212,153 @@ document.getElementById('helpOverlay').addEventListener('click', e => { if(e.tar
 state = upgradeState(load());
 applyTheme(); renderAll(); renderRevisionInfo(); renderBanner();
 if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+/* =====================================================================
+   02.00.001 — audit trail and field-change loop
+   · append-only site edit log (state.editLog): path, old, new, by, at, why
+   · confirmations of typical values logged (who/when/which keys)
+   · field changes against design values (state.changes) with why/photo, technician sign-off
+   · project Save keeps changes, approvals and unknown top-level keys from the imported file
+   · design config from the MASD Engineering Toolbox replaces typical placeholders
+   ===================================================================== */
+const FC_TECH_KEY = 'mfr-technician';
+function techName(){ return (sessionStorage.getItem(FC_TECH_KEY) || state.sign?.tech?.name || '').trim(); }
+function setTech(n){ sessionStorage.setItem(FC_TECH_KEY, n || ''); }
+function ensureAudit(){ state.editLog = state.editLog || []; state.changes = state.changes || []; state.approvals = state.approvals || {}; state.carry = state.carry || {}; }
+const LOG_SKIP = /^(ui|link|linkAlert|editLog|changes|approvals|carry)\b/;
+const LOG_COALESCE_MS = 60000;   // keystrokes in one field within 60 s by one person collapse into one entry (old value kept)
+function logEdit(path, oldV, newV, extra){
+  ensureAudit(); const by = techName() || '(name not set)', at = new Date().toISOString();
+  const last = state.editLog[state.editLog.length - 1];
+  if (!extra && last && last.path === path && last.by === by && !last.why && !last.kind && (Date.parse(at) - Date.parse(last.at)) < LOG_COALESCE_MS){ last.new = newV; last.at = at; return last; }
+  const e = Object.assign({ n: state.editLog.length + 1, path, old: oldV, new: newV, by, at, why: '' }, extra || {}); state.editLog.push(e); return e;
+}
+/* design-valued field → field change */
+function fcForEdit(path, newV){
+  const mm = /^(modules|psus)\.(\d+)\.(.+)$/.exec(path); if (!mm) return;
+  const obj = state[mm[1]][+mm[2]]; if (!obj || !obj.design) return;
+  const f = mm[3], dv = obj.design[f]; if (dv === undefined || dv === null || dv === '') return;
+  ensureAudit();
+  const devId = obj.dev || obj.id; let c = state.changes.find(x => x.dev === devId && x.field === f && x.status === 'logged');
+  if (String(newV ?? '') === String(dv)){ if (c) state.changes = state.changes.filter(x => x !== c); return; }
+  const by = techName() || '(name not set)', at = new Date().toISOString();
+  if (!c){ c = { id: MLP.changeId(), dev: devId, devName: obj.desc || obj.label || '', field: f, label: (typeof FIELD_LABEL !== 'undefined' && FIELD_LABEL[f]) || (MLP.CONFIG_FIELDS.find(x => 'cfg.' + x.k === f) || {}).label || f, design: String(dv), value: '', by, at, why: '', photo: '', pipecad: !!MLP.PIPECAD_FIELDS[f], status: 'logged' }; state.changes.push(c); }
+  c.value = String(newV ?? ''); c.by = by; c.at = at; c.devName = obj.desc || obj.label || c.devName;
+}
+(function wrapSetter(){
+  const _s = s;
+  s = function(path, v){ const old = g(path); _s(path, v); if (LOG_SKIP.test(path)) return; if (String(old ?? '') === String(v ?? '')) return; logEdit(path, old ?? '', v); fcForEdit(path, v); };
+  const _ct = confirmTypical;
+  confirmTypical = function(m){ const keys = Object.keys(m.typical || {}); const n = _ct(m); if (n){ const i = state.modules.indexOf(m); logEdit(`modules.${i}.typical`, keys.join(', '), 'confirmed on site', { kind: 'confirm-typical', keys, values: keys.map(k => [k, g(`modules.${i}.${k}`)]) }); } return n; };
+  if (typeof clearTypical === 'function'){ const _cl = clearTypical; clearTypical = function(k){ const mm = /^modules\.(\d+)\.(cfg\.\w+)$/.exec(k); const had = mm && state.modules[+mm[1]]?.typical?.[mm[2]]; _cl(k); if (had) logEdit(k, 'typical', 'replaced on site', { kind: 'typical-replaced' }); }; }
+})();
+
+/* ---------- import: keep file's changes/approvals/unknown keys; consume design config ---------- */
+let LAST_DOC = null;
+(function wrapParse(){ const _p = MLP.parse; MLP.parse = function(t){ const d = _p(t); LAST_DOC = d; return d; }; })();
+const CFG_FROM_DESIGN = ['alert', 'action', 'fire1', 'fire2', 'actionDly', 'fire1Dly', 'flowLow', 'flowHigh', 'flowDly'];
+(function wrapDevFields(){
+  const _df = devFields;
+  devFields = function(d){ const f = _df(d); const c = d.config && d.config.values; if (c && d.kind === 'detector'){ CFG_FROM_DESIGN.forEach(k => { if (c[k] != null && String(c[k]) !== '') f['cfg.' + k] = String(c[k]); }); if (d.config.perfClass) f['perf.target'] = d.config.perfClass; } return f; };
+  const _ap = applyPlan;
+  applyPlan = function(plan){
+    const r = _ap(plan); ensureAudit();
+    (plan.devs || []).forEach(({ d }) => { const src = d.config && d.config.src; if (!src) return; const m = state.modules.find(x => x.dev === d.id); if (!m) return; m.typical = m.typical || {};
+      CFG_FROM_DESIGN.forEach(k => { if (src[k] === 'typical') m.typical['cfg.' + k] = true; else delete m.typical['cfg.' + k]; }); m.cfgSrc = src; });
+    const doc = LAST_DOC;
+    if (doc){
+      const known = Object.keys(MLP.blank()).concat(['format', 'schemaVersion', 'savedAt', 'savedBy']);
+      state.carry.extra = {}; Object.keys(doc).forEach(k => { if (!known.includes(k)) state.carry.extra[k] = doc[k]; });
+      const RANK = { logged: 0, rejected: 1, verified: 1, approved: 2 };
+      (doc.changes || []).forEach(fc => { const i = state.changes.findIndex(x => x.id === fc.id); if (i < 0) state.changes.push(fc); else if ((RANK[fc.status] || 0) >= (RANK[state.changes[i].status] || 0)) state.changes[i] = Object.assign({}, state.changes[i], fc); });
+      const A = doc.approvals || {}; ['designer', 'qa'].forEach(r => { if (A[r]) state.approvals[r] = A[r]; }); if (A.technician && !state.approvals.technician) state.approvals.technician = A.technician;
+    }
+    return r;
+  };
+})();
+
+/* ---------- Save project: pass-through + user name + audit ---------- */
+saveProject = async function(){
+  ensureAudit(); const doc = MLP.blank();
+  Object.entries(state.carry.extra || {}).forEach(([k, v]) => { if (!(k in doc)) doc[k] = v; });
+  doc.project = projectInfoOut(); doc.design = state.design || null; doc.site = siteSection();
+  doc.changes = state.changes; doc.approvals = state.approvals;
+  const name = (state.link && state.link.kind === 'project' && state.link.name) || (fileBase() + MLP.EXT);
+  const text = MLP.stringify(doc, 'ModuLaser MASD Field Report', fullRev(), techName());
+  download(new Blob([text], { type: 'application/json' }), name); setSave('Saved project ' + name); return doc;
+};
+
+/* ---------- Field changes dialog (Section J) ---------- */
+const FC_ST = { logged: 'Logged on site', verified: 'Verified by designer', rejected: 'Rejected by designer', approved: 'QA approved' };
+function fcHtml(){
+  ensureAudit(); const A = state.approvals, t = A.technician || {};
+  const rows = state.changes.map(c => `<tr><td>${esc(c.devName)}</td><td>${esc(c.label || c.field)}${c.pipecad ? ' <span class="src x">PipeCAD</span>' : ''}</td><td>${esc(c.design)}</td><td><b>${esc(c.value)}</b></td><td>${esc(c.by)}<br><small>${esc(new Date(c.at).toLocaleString())}</small></td>
+    <td>${c.status === 'logged' ? `<input data-fc="${c.id}" data-fk="why" value="${esc(c.why || '')}" placeholder="Why was it changed?">` : esc(c.why || '')}</td>
+    <td>${c.photo ? `<img src="${c.photo}" alt="photo" style="max-width:60px;max-height:45px">` : ''}${c.status === 'logged' ? `<label class="pbtn" style="padding:2px 6px">📷<input type="file" accept="image/*" capture="environment" data-fcphoto="${c.id}" hidden></label>` : ''}</td>
+    <td>${esc(FC_ST[c.status] || c.status)}${c.verify ? `<br><small>${esc(c.verify.by || '')} ${esc((c.verify.note || ''))}</small>` : ''}</td></tr>`).join('');
+  const log = (state.editLog || []).slice(-200).reverse().map(e => `<tr><td>${e.n}</td><td>${esc(new Date(e.at).toLocaleString())}</td><td>${esc(e.by)}</td><td><code>${esc(e.path)}</code></td><td>${esc(e.old)}</td><td>${esc(e.new)}</td><td>${esc(e.kind || '')}</td></tr>`).join('');
+  const ap = MLP.APPROVAL_ROLES.map(([r, l]) => { const a = A[r] || {}; return `<tr><td>${esc(l)}</td><td>${esc(a.name || '—')}</td><td>${esc(a.date || '—')}</td><td>${esc(a.status || '—')}</td></tr>`; }).join('');
+  return `<p class="note">Every change to a value that came from the design is logged here with who, when and why. Sign as technician, Save project and send the file back to the designer (MASD Engineering Toolbox → Field changes).</p>
+    <label class="f"><span class="lb">Technician name (this session — recorded on every edit)</span><input id="fcTech" value="${esc(techName())}"></label>
+    ${state.changes.length ? `<div class="scroll"><table class="t"><thead><tr><th>Device</th><th>Field</th><th>Design</th><th>Site</th><th>By / when</th><th>Why</th><th>Photo</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="note">No changes to design values yet.</p>'}
+    <div class="blk-h" style="margin-top:12px">Approval chain</div><table class="t"><thead><tr><th>Role</th><th>Name</th><th>Date</th><th>Status</th></tr></thead><tbody>${ap}</tbody></table>
+    <details style="margin-top:10px"><summary>Site edit log (${(state.editLog || []).length} entries, append-only)</summary><div class="scroll" style="max-height:40vh"><table class="t"><thead><tr><th>#</th><th>When</th><th>Who</th><th>Field</th><th>Old</th><th>New</th><th>Kind</th></tr></thead><tbody>${log}</tbody></table></div></details>`;
+}
+function openFieldChanges(){
+  dlg('Field changes / As-built (Section J)', fcHtml(), [
+    { label: 'Print Field Change / As-Built report', fn: () => { printFcReport(); return false; } },
+    { label: 'Sign as technician', id: 'fcSign', fn: () => { const n = techName(); if (!n){ alert('Enter the technician name first.'); return false; } const miss = state.changes.filter(c => c.status === 'logged' && !String(c.why || '').trim()); if (miss.length && !confirm(`${miss.length} change(s) have no reason. Sign anyway?`)) return false; state.approvals.technician = { name: n, date: new Date().toISOString().slice(0, 10), status: 'submitted' }; logEdit('approvals.technician', '', 'submitted', { kind: 'sign-technician' }); save(); document.getElementById('dlgBody').innerHTML = fcHtml(); return false; } },
+    { label: 'Close', pri: true }]);
+}
+document.addEventListener('change', async e => {
+  const t = e.target;
+  if (t.id === 'fcTech'){ setTech(t.value.trim()); return; }
+  if (t.dataset && t.dataset.fc){ const c = state.changes.find(x => x.id === t.dataset.fc); if (c){ c[t.dataset.fk] = t.value; logEdit(`changes.${c.id}.${t.dataset.fk}`, '', t.value, { kind: 'change-note' }); save(); } return; }
+  if (t.dataset && t.dataset.fcphoto){ const c = state.changes.find(x => x.id === t.dataset.fcphoto); const f = t.files[0]; if (!c || !f) return;
+    const url = await new Promise(res => { const img = new Image(); img.onload = () => { const k = Math.min(1, 800 / Math.max(img.width, img.height)); const cv = document.createElement('canvas'); cv.width = img.width * k; cv.height = img.height * k; cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height); res(cv.toDataURL('image/jpeg', 0.7)); }; img.onerror = () => res(''); img.src = URL.createObjectURL(f); });
+    c.photo = url; logEdit(`changes.${c.id}.photo`, '', f.name, { kind: 'change-photo' }); save(); document.getElementById('dlgBody').innerHTML = fcHtml(); }
+});
+function printFcReport(){
+  ensureAudit(); const P = state.project || {};
+  const tr = r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`;
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>Field Change / As-Built — ${esc(P.site || '')}</title><style>@page{size:letter landscape;margin:.5in}body{font:10pt Arial,sans-serif}h1{background:#102645;color:#fff;padding:8px 12px;font-size:15pt;margin:0;border-bottom:3px solid #0C77BC}h2{font-size:10pt;text-transform:uppercase;color:#102645;border-bottom:2px solid #0C77BC}table{border-collapse:collapse;width:100%;font-size:8.5pt}th,td{border:1px solid #BFC4CA;padding:3px 5px;text-align:left;vertical-align:top}th{background:#F2F2F2}img{max-width:120px}</style></head><body>
+    <h1>Field Change / As-Built Report</h1><p>${esc(P.site || '')} · ${esc(fullRev())} · printed ${esc(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }))} ET</p>
+    <h2>Changes against design</h2><table><thead><tr><th>#</th><th>Device</th><th>Field</th><th>Design</th><th>As-built</th><th>By</th><th>When</th><th>Why</th><th>Photo</th><th>Status</th></tr></thead><tbody>${state.changes.map((c, i) => `<tr><td>${i + 1}</td><td>${esc(c.devName)}</td><td>${esc(c.label || c.field)}</td><td>${esc(c.design)}</td><td>${esc(c.value)}</td><td>${esc(c.by)}</td><td>${esc(new Date(c.at).toLocaleString('en-US', { timeZone: 'America/New_York' }))}</td><td>${esc(c.why)}</td><td>${c.photo ? `<img src="${c.photo}">` : ''}</td><td>${esc(FC_ST[c.status] || c.status)}</td></tr>`).join('') || '<tr><td colspan="10">None</td></tr>'}</tbody></table>
+    <h2>Approval chain</h2><table><thead><tr><th>Role</th><th>Name</th><th>Date</th><th>Status</th></tr></thead><tbody>${MLP.APPROVAL_ROLES.map(([r, l]) => tr([l, (state.approvals[r] || {}).name || '', (state.approvals[r] || {}).date || '', (state.approvals[r] || {}).status || ''])).join('')}</tbody></table>
+    <h2>Site edit log (append-only)</h2><table><thead><tr><th>#</th><th>When</th><th>Who</th><th>Field</th><th>Old</th><th>New</th><th>Kind</th></tr></thead><tbody>${(state.editLog || []).map(e => tr([e.n, new Date(e.at).toLocaleString('en-US', { timeZone: 'America/New_York' }), e.by, e.path, e.old, e.new, e.kind || ''])).join('')}</tbody></table></body></html>`;
+  const f = document.createElement('iframe'); f.style.cssText = 'position:fixed;width:0;height:0;border:0'; document.body.appendChild(f); f.srcdoc = html; f.onload = () => { f.contentWindow.print(); setTimeout(() => f.remove(), 2000); };
+  window.__fcReportHtml = html;
+}
+(function addUi(){
+  const mk = (sel, id, txt, cls) => { const a = document.querySelector(sel); if (!a) return; const b = document.createElement('button'); b.id = id; b.textContent = txt; if (cls) b.className = cls; b.addEventListener('click', openFieldChanges); a.after(b); };
+  mk('#mi-saveproj', 'mi-fieldchanges', 'Field changes / As-built…');
+  mk('#qb-saveproj', 'qb-fieldchanges', 'Field changes', 'qb');
+})();
+ensureAudit();
+
+/* ---------- Performance Criteria from the design (MASD Engineering Toolbox) ---------- */
+function perfOfDesign(){ return state.design && state.design.performance || null; }
+(function wrapPerf(){
+  const _lim = limits;
+  limits = function(m){ const r = _lim(m); const P = perfOfDesign(); const L = P && MLP.perfLimits(P, m.area); const tg = m.perf?.target;
+    if (L && L[tg] && !ok(num(m.perf?.cSens))){ r.sens = Number(L[tg].sens); if (!ok(num(m.perf?.cTime)) && L[tg].tt) r.tt = Number(L[tg].tt); r.basis = MLP.perfStatement(P); }
+    return r; };
+  const _bb = buildBlocks;
+  buildBlocks = function(o){ const B = _bb(o); const P = perfOfDesign(); if (!P) return B;
+    const i = B.findIndex(b => b.t === 'h2' && /^A ·/.test(b.text)); if (i < 0) return B;
+    const L = MLP.perfLimits(P) || {}, iss = MLP.perfIssues(P);
+    B.splice(i + 2, 0, { t: 'h2', text: 'Performance Criteria' }, { t: 'p', text: MLP.perfStatement(P) }, { t: 'kv', rows: [['Engineer of Record', P.eorName || '—'], ['Specification reference', P.specRef || '—']].concat(Object.entries(P.areas || {}).filter(([, o]) => o && o.enabled).map(([a, o]) => ['Override: ' + a, (o.basis || '—') + ' · ' + MLP.PERF_CLASSES.map(c => { const l = (MLP.perfLimits(P, a) || {})[c]; return l ? `${c} <${l.sens}/<${l.tt}s` : c + ' —'; }).join(', ')])) },
+      { t: 'table', head: ['Class', 'Max hole sensitivity (%obs/ft, strictly less than)', 'Max transport (s)', 'Reference'], rows: MLP.PERF_CLASSES.map(c => [c === 'SFD' ? 'SFD / OAP' : c, L[c] && L[c].sens != null ? '<' + L[c].sens : 'not defined', L[c] && L[c].tt != null ? '<' + L[c].tt : 'not defined', (L[c] && L[c].ref) || '']) },
+      { t: 'p', text: 'Performance narrative: ' + (P.narrative || '[NOT DEFINED — required by the design]') });
+    if (iss.length) B.splice(i + 7, 0, { t: 'p', text: 'Performance Criteria incomplete: ' + iss.join('; '), note: 1 });
+    return B; };
+  const _sa = secA;
+  secA = function(){ const h = _sa(); const P = perfOfDesign(); if (!P) return h; const L = MLP.perfLimits(P) || {};
+    const box = `<div class="blk" id="perf-criteria" style="margin-top:10px"><div class="blk-h">Performance Criteria (from the design)</div><p><b>${esc(MLP.perfStatement(P))}</b><br>Engineer of Record: ${esc(P.eorName || '—')} · Spec: ${esc(P.specRef || '—')}</p>
+      <table class="t"><thead><tr><th>Class</th><th>Hole sensitivity</th><th>Transport</th></tr></thead><tbody>${MLP.PERF_CLASSES.map(c => `<tr><td>${c === 'SFD' ? 'SFD / OAP' : c}</td><td>${L[c] ? '&lt;' + esc(L[c].sens) + ' %obs/ft' : 'not defined'}</td><td>${L[c] ? '&lt;' + esc(L[c].tt) + ' s' : 'not defined'}</td></tr>`).join('')}</tbody></table>
+      <p class="note">${esc(P.narrative || 'Performance narrative not defined in the design.')}</p></div>`;
+    const k = h.lastIndexOf('</section>'); return k < 0 ? h + box : h.slice(0, k) + box + h.slice(k); };
+})();
 
 </script>
 </body>
