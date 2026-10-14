@@ -17,7 +17,7 @@ Live site: [masdtools.net](https://masdtools.net) (served from the
 ### Highlights
 - **Append-only edit log** (who, when, old, new, why), typical-value confirmations logged, Saved-by holds the technician name.
 - **Field changes / As-built** (Section J): each change to a design value logged with why and photo; technician sign-off; printable report. Changes and approvals (technician → designer → QA) round-trip with the **MASD Engineering Toolbox 00.01.000**.
-- **Performance Criteria** from the Toolbox printed on the summary page: the referenced standard (NFPA presets with the UL 268, 7th Edition statement; FM DS 5-32/5-48 FM only; BS 5839-1 or Custom), code prescriptions, limits (strictly less than) with references, Area/Group overrides, narrative, Engineer of Record and spec reference.
+- **Performance Criteria** from the Toolbox printed on the summary page: the referenced standard (NFPA presets with the UL 268, 7th Edition statement; FM DS 5-32/5-48 FM only; BS 5839-1 or Custom), code prescriptions, limits (pass at or below, ≤) with references, Area/Group overrides, narrative, Engineer of Record and spec reference.
 - Save keeps unknown keys, changes and approvals. SHA-256 design and site hashes.
 - **Shared MASD engine 1.0.0** and **modulaser-project.js 1.3.0**, identical in the Battery Calculator, this Report and the Toolbox. Harmonization rule: a change to a shared module bumps every app that carries it, with matching notes.
 
@@ -27,9 +27,14 @@ Live site: [masdtools.net](https://masdtools.net) (served from the
 | 2026-10-13 | 6854f2e (v02.00.000) | Defaults citations FAIL → fixed · Solano rule PASS · Audit trail FAIL → fixed · Quick Start version FAIL → fixed | [#8](https://github.com/theBMGatKGS/ModuLaser-Commisioning-Report/issues/8) |
 | 2026-10-13 re-check (8:28–8:45 PM ET) | 786337f | **CONDITIONAL PASS** — fixed after re-check: stable design hash, mis-cited table number removed, UL 268 confirmation required, UL thresholds (≤60/43/43 s), sign-off order enforced, name-gated edits, append-only log, ASAG44201 replaced by NFPA 76-2024 clauses, Quick Start 02.00.001+, legacy Ah checks | [#8](https://github.com/theBMGatKGS/ModuLaser-Commisioning-Report/issues/8) |
 
-**Fixes included:** citations (App. A printed p.113 FM/UL hole limits, strictly less than; EN 54-20 p.112; flow ±20% and 120 s delay Table 29 p.76; ClassiFire factors Table 24 p.71; Prealarm replaces "Action"); unsourced defaults labelled typical – unverified; Save preserves changes, approvals and unknown keys; append-only edit log; SHA-256 hashes; Saved-by name; metric hole-sensitivity warning.
+**Fixes included:** citations (App. A printed p.113 FM/UL hole limits, pass at or below (≤); EN 54-20 p.112; flow ±20% and 120 s delay Table 29 p.76; ClassiFire factors Table 24 p.71; Prealarm replaces "Action"); unsourced defaults labelled typical – unverified; Save preserves changes, approvals and unknown keys; append-only edit log; SHA-256 hashes; Saved-by name; metric hole-sensitivity warning.
 **QA re-check (2026-10-13):** CONDITIONAL PASS; post-re-check fixes listed above and in the revision log.
-**Final verdict:** [PENDING RE-CHECK — placeholder]
+**Final verdict:**
+
+QA audit 2026-10-13, final re-check of commit 0625e4e (clean tree). **PASS with one minor open item.** Tests: test_report 31/31, report_audit_test 22/22. Verified: strict < hole-sensitivity rule, citations to Install Manual 04-4001-501-0803-05 (Table 24 p.71, Table 26, Table 29 p.76, App. A p.113) and NFPA 76-2024 clauses, no "Table 45" references, EWFD/SFD Alert labelled site/design choice, Save keeps changes, approvals and unknown fields, append-only edit log (no overwrite) with who/when, SHA-256 design and site hashes. Open: actions that aren't field edits (e.g. Confirm typical values) can still be logged as "(name not set)". Issue: https://github.com/theBMGatKGS/ModuLaser-Commisioning-Report/issues/8
+
+Post-QA changes (2026-10-13, 9:08–9:10 PM ET; not yet re-checked by QA): Brent changed the sensitivity rule for all apps and the shared module — a hole PASSES at or below (≤) the class maximum, taking the more restrictive of UL and NFPA (supersedes the strict < rule); transport stays ≤. Target values VEWFD 1.0 / EWFD 1.5 / SFD 2.0 %obs/ft are shown in the UI, printouts, narrative and Report. UL projects also show the ModuLaser UL 268 range per class and enforce its lower limit (Install Manual App. A, printed p.113): VEWFD Special Application Range 1 0.05–1.00 %obs/ft, 3–60 s; EWFD Range 2 0.05–2.18 (max 1.5 per NFPA 76), 3–43 s; SFD Open Area 1.70–2.18, 6–43 s (Brent confirmed 9:17 PM ET; final). Both bounds enforced on UL projects; SFD target 2.0. NFPA 318-2025 §11.1.3 cited for the cleanroom (VEWFD – NFPA 76/318) path. Help states that the NFPA presets carry a UL 268 claim and that EWFD 1.5 comes from NFPA 76 (UL Range 2 transport 43 s), recorded per Brent. Technician name now required and logged for Confirm typical values, the stopwatch, photos and imports — closes the QA minor item (no "(name not set)" entries).
+
 
 ---
 
