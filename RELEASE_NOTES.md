@@ -21,7 +21,7 @@ Live site: [masdtools.net](https://masdtools.net) (served from the
 ### QA audit
 | Date | Commit audited | Result | Issue |
 |---|---|---|---|
-| — | pending | QA pending | — |
+| 2026-10-16 | Calculator 951f769 / Toolbox 956e1e1 / Report de287fb | QA 2026-10-16: Calculator 951f769 / Toolbox 956e1e1 / Report de287fb GO | — |
 
 ---
 
