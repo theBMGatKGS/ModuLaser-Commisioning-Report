@@ -2,8 +2,13 @@
 
 An installable, offline-first web app for commissioning Edwards ModuLaser Modular Aspirating Smoke Detector (MASD) installations. No app store, no build step, no server-side code — deploy the static files and it installs like a native app.
 
-**Current revision:** 02.00.001_261013 (local, not yet released); last release **v02.00.000**. "Rev 11" (PipeCAD import) is **v01.00.003**.
+**Current revision:** 02.00.002_261016 (local, not yet released); last release **v02.00.000**. "Rev 11" (PipeCAD import) is **v01.00.003**.
 Full history: in-app **Help → Revision Log** (source of truth), [CHANGELOG.md](CHANGELOG.md) (generated from it) and [RELEASE_NOTES.md](RELEASE_NOTES.md) (per-release summaries).
+
+## What's new in 02.00.002
+
+- **SenseNET networks (G1, modulaser-project.js 1.4.0).** Each module keeps its SenseNET network from the Battery Calculator design (older files → SenseNET 1). The Device Index and Summary show it (*Net*: SN1, SN2…, SA = standalone), and you can edit it under Identity. Duplicate addresses are checked per network. More than 127 modules in total is allowed when every network has 127 or fewer; import is blocked only when one network would exceed 127.
+- Shared **modulaser-project.js 1.4.0** (per-network validator, network in the design diff) is byte-identical in the Battery Calculator 02.00.004, MASD Engineering Toolbox 00.01.002 and this Report (harmonization rule). MASD engine 1.0.0 is unchanged.
 
 ## What's new in 02.00.001
 
