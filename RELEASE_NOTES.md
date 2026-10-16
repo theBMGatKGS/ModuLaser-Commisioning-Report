@@ -10,19 +10,21 @@ Live site: [masdtools.net](https://masdtools.net) (served from the
 
 ---
 
-## v02.00.003 — Revision order and Windows installer (2026-10-16) · not yet released
+## v02.00.003 — Revision order and Windows installer (2026-10-16) · released 2026-10-16
 
 **In-app revision:** 02.00.003_261016
 
 ### Highlights
 - **Revision order fixed.** The in-app revision log listed 02.00.002 before 02.00.001, and the app reads the last entry, so the live site, saved job files and the v02.00.002 installer build showed 02.00.001. The log is in order again; a new regression test (`tests/revision_order.test.js`) fails if it goes out of order or if the page title or offline cache name don't match.
 - **Windows installer attached to the release.** This repo uses immutable releases, so the old workflow's upload after publishing failed (HTTP 422) and v02.00.001 / v02.00.002 have no installer. The workflow now builds `ModuLaser-MASD-Field-Report-Setup-02.00.003.exe`, attaches it to a **draft** release, and the release is published afterwards.
+- **Workflow hardening (QA W1–W3).** Only the release job can write to the repo; manual release runs must come from `main`; if tag `v<rev>` already exists without a release, the run fails instead of attaching the draft to the old commit.
 - No changes to checks, calculations or the project file (modulaser-project.js 1.4.0, MASD engine 1.0.0).
+- The installer is unsigned, so Windows SmartScreen warns on first run (**More info → Run anyway**).
 
 ### QA audit
 | Date | Commit audited | Result | Issue |
 |---|---|---|---|
-| pending | — | pending QA/Auditor | — |
+| 2026-10-16 | Report 2a388de | QA/Auditor PASS, no blockers: root cause reproduced on de287fb and fixed (02.00.003 in title, About, savedBy, site.rev and job filename); older .mlproj/job files import; workflow only creates/updates a draft; installer sha256 matches, version 2.0.3, packaged app files byte-identical to 2a388de; shared modulaser-project.js 1.4.0 identical in all three apps; suites revision_order 10/10, mlp_network 11/11, sens 14/14, sync 2/2, test_report 31/31, save_import 5/5, g1 13/13, empty 17/17. Non-blocking findings W1–W3 fixed before release; F2 (unsigned installer) known. | — |
 
 ---
 

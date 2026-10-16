@@ -22,11 +22,14 @@ on:
         type: string
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
     runs-on: windows-latest
+    outputs:
+      revision: ${{ steps.exe.outputs.revision }}
+      name: ${{ steps.exe.outputs.name }}
     defaults:
       run:
         working-directory: electron
@@ -67,16 +70,32 @@ jobs:
           path: ${{ steps.exe.outputs.path }}
           if-no-files-found: error
 
+  release:
+    # Manual runs only, and only from main. Only this job can write to the repo.
+    needs: build
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Manual releases run from main only
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::Run the release from main (this run is on ${GITHUB_REF})"; exit 1
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.build.outputs.name }}
+          path: dist
+
       - name: Attach installer to a draft release
-        if: github.event_name == 'workflow_dispatch'
         shell: bash
-        working-directory: .
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           INPUT_VERSION: ${{ inputs.version }}
-          REVISION: ${{ steps.exe.outputs.revision }}
-          EXE: ${{ steps.exe.outputs.path }}
+          REVISION: ${{ needs.build.outputs.revision }}
+          EXE: dist/${{ needs.build.outputs.name }}
         run: |
           if [ "$INPUT_VERSION" != "$REVISION" ]; then
             echo "::error::Input version $INPUT_VERSION does not match the revision log ($REVISION)"; exit 1
@@ -86,6 +105,8 @@ jobs:
             if [ "$(cat draft.txt)" != "true" ]; then
               echo "::error::Release $tag is already published; immutable releases can't take new files. Bump the revision."; exit 1
             fi
+          elif gh api "repos/$REPO/git/ref/tags/$tag" --silent 2>/dev/null; then
+            echo "::error::Tag $tag already exists without a release; a draft would attach to that old commit. Delete the tag or bump the revision."; exit 1
           else
             gh release create "$tag" --repo "$REPO" --draft --target "$GITHUB_SHA" \
               --title "$tag" --notes "Draft — installer attached by the Windows installer workflow. Paste the release notes, then publish."
