@@ -10,6 +10,21 @@ Live site: [masdtools.net](https://masdtools.net) (served from the
 
 ---
 
+## v02.00.002 — SenseNET networks (2026-10-16) · not yet released
+
+**In-app revision:** 02.00.002_261016
+
+### Highlights
+- **SenseNET networks (G1, modulaser-project.js 1.4.0).** Each module keeps its SenseNET network from the Battery Calculator design (older files → SenseNET 1). The Device Index and Summary show it (*Net*: SN1, SN2…, SA = standalone), and you can edit it under Identity. Duplicate addresses are checked per network. More than 127 modules in total is allowed when every network has 127 or fewer; import is blocked only when one network would exceed 127.
+- Shared **modulaser-project.js 1.4.0** (per-network validator, network in the design diff) is byte-identical in the Battery Calculator 02.00.004, MASD Engineering Toolbox 00.01.002 and this Report (harmonization rule). MASD engine 1.0.0 is unchanged.
+
+### QA audit
+| Date | Commit audited | Result | Issue |
+|---|---|---|---|
+| — | pending | QA pending | — |
+
+---
+
 ## v02.00.001 — Audit trail, field-change loop and Performance Criteria (2026-10-13) · not yet released
 
 **In-app revision:** 02.00.001_261013
