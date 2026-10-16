@@ -10,6 +10,22 @@ Live site: [masdtools.net](https://masdtools.net) (served from the
 
 ---
 
+## v02.00.003 — Revision order and Windows installer (2026-10-16) · not yet released
+
+**In-app revision:** 02.00.003_261016
+
+### Highlights
+- **Revision order fixed.** The in-app revision log listed 02.00.002 before 02.00.001, and the app reads the last entry, so the live site, saved job files and the v02.00.002 installer build showed 02.00.001. The log is in order again; a new regression test (`tests/revision_order.test.js`) fails if it goes out of order or if the page title or offline cache name don't match.
+- **Windows installer attached to the release.** This repo uses immutable releases, so the old workflow's upload after publishing failed (HTTP 422) and v02.00.001 / v02.00.002 have no installer. The workflow now builds `ModuLaser-MASD-Field-Report-Setup-02.00.003.exe`, attaches it to a **draft** release, and the release is published afterwards.
+- No changes to checks, calculations or the project file (modulaser-project.js 1.4.0, MASD engine 1.0.0).
+
+### QA audit
+| Date | Commit audited | Result | Issue |
+|---|---|---|---|
+| pending | — | pending QA/Auditor | — |
+
+---
+
 ## v02.00.002 — SenseNET networks (2026-10-16) · released 2026-10-16
 
 **In-app revision:** 02.00.002_261016
@@ -25,7 +41,7 @@ Live site: [masdtools.net](https://masdtools.net) (served from the
 
 ---
 
-## v02.00.001 — Audit trail, field-change loop and Performance Criteria (2026-10-13) · not yet released
+## v02.00.001 — Audit trail, field-change loop and Performance Criteria (2026-10-13) · released 2026-10-13
 
 **In-app revision:** 02.00.001_261013
 

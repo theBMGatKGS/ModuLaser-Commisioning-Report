@@ -5,8 +5,14 @@
 
 An installable, offline-first web app for commissioning Edwards ModuLaser Modular Aspirating Smoke Detector (MASD) installations. No app store, no build step, no server-side code — deploy the static files and it installs like a native app.
 
-**Current revision:** 02.00.002_261016, released **v02.00.002** on 2026-10-16. "Rev 11" (PipeCAD import) is **v01.00.003**.
+**Current revision:** 02.00.003_261016 (not yet released). Latest release: **v02.00.002** on 2026-10-16. "Rev 11" (PipeCAD import) is **v01.00.003**.
 Full history: in-app **Help → Revision Log** (source of truth), [CHANGELOG.md](CHANGELOG.md) (generated from it) and [RELEASE_NOTES.md](RELEASE_NOTES.md) (per-release summaries).
+
+## What's new in 02.00.003
+
+- **Revision order fixed.** The in-app revision log listed 02.00.002 before 02.00.001, so the live site, saved job files and the installer showed 02.00.001. The log is in order again, and `tests/revision_order.test.js` fails if it ever isn't (it also checks the page title and offline cache name).
+- **Windows installer on releases.** This repo uses immutable releases, so files can't be added once a release is published (v02.00.001 and v02.00.002 have no installer). The workflow now attaches the installer to a **draft** release, which is published afterwards.
+- No changes to checks, calculations or the project file (modulaser-project.js 1.4.0, MASD engine 1.0.0).
 
 ## What's new in 02.00.002
 
@@ -92,7 +98,7 @@ Open the hosted URL on the device that will use it:
 
 ### Windows installer (.exe)
 
-A Windows desktop build wraps the same `index.html` in Electron (`electron/`). The **Windows installer** GitHub Actions workflow builds `ModuLaser-MASD-Field-Report-Setup-<revision>.exe` on a Windows runner: download it from the workflow run's artifacts, or publish a GitHub release and the workflow attaches it to that release automatically. The installer version comes from the app revision in `index.html`. It is unsigned, so Windows SmartScreen shows "Windows protected your PC" the first time; choose **More info → Run anyway**. Its autosave is separate from the browser PWA's, so move jobs between them with Export job / Import job.
+A Windows desktop build wraps the same `index.html` in Electron (`electron/`). The **Windows installer** GitHub Actions workflow builds `ModuLaser-MASD-Field-Report-Setup-<revision>.exe` on a Windows runner: download it from the workflow run's artifacts. To release, run the workflow by hand (**Actions → Windows installer → Run workflow**) with the revision, e.g. `02.00.003`: it checks that the revision matches the last entry in the in-app revision log, creates the **draft** release `v<revision>` (or reuses an existing draft) and attaches the installer. Then add the release notes and publish the draft. This repo has immutable releases, so a published release can't take new files. The installer name comes from the last entry in the revision log in `index.html`; `node tests/revision_order.test.js` checks the log is in ascending order. It is unsigned, so Windows SmartScreen shows "Windows protected your PC" the first time; choose **More info → Run anyway**. Its autosave is separate from the browser PWA's, so move jobs between them with Export job / Import job.
 
 To build locally on Windows: `cd electron && npm ci && npm run dist` (or `npm start` to run it without installing).
 
