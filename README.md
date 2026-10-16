@@ -1,5 +1,8 @@
 # Edwards ModuLaser MASD — Field Report
 
+![ModuLaser MASD Field Report PWA in its dark theme: blank Project Information sheet with section navigation and project progress panel](docs/screenshot.png)
+
+
 An installable, offline-first web app for commissioning Edwards ModuLaser Modular Aspirating Smoke Detector (MASD) installations. No app store, no build step, no server-side code — deploy the static files and it installs like a native app.
 
 **Current revision:** 02.00.002_261016 (local, not yet released); last release **v02.00.000**. "Rev 11" (PipeCAD import) is **v01.00.003**.
