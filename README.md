@@ -5,7 +5,7 @@
 
 An installable, offline-first web app for commissioning Edwards ModuLaser Modular Aspirating Smoke Detector (MASD) installations. No app store, no build step, no server-side code — deploy the static files and it installs like a native app.
 
-**Current revision:** 02.00.002_261016 (local, not yet released); last release **v02.00.000**. "Rev 11" (PipeCAD import) is **v01.00.003**.
+**Current revision:** 02.00.002_261016, released **v02.00.002** on 2026-10-16. "Rev 11" (PipeCAD import) is **v01.00.003**.
 Full history: in-app **Help → Revision Log** (source of truth), [CHANGELOG.md](CHANGELOG.md) (generated from it) and [RELEASE_NOTES.md](RELEASE_NOTES.md) (per-release summaries).
 
 ## What's new in 02.00.002

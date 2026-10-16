@@ -10,7 +10,7 @@ Live site: [masdtools.net](https://masdtools.net) (served from the
 
 ---
 
-## v02.00.002 — SenseNET networks (2026-10-16) · not yet released
+## v02.00.002 — SenseNET networks (2026-10-16) · released 2026-10-16
 
 **In-app revision:** 02.00.002_261016
 
