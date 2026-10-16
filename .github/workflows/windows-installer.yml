@@ -1,14 +1,25 @@
 name: Windows installer
 
+# This repo uses immutable releases: once a release is published, no file can be
+# added to it (HTTP 422). So the installer is attached to a DRAFT release, and the
+# release is published by hand afterwards (02.00.003).
+#
+# - push / pull_request: build the installer and keep it as a workflow artifact.
+# - workflow_dispatch: build it, then create (or reuse) the DRAFT release
+#   v<revision> and attach the installer. The draft is never published here.
+
 on:
   push:
     branches: [MASD-Commissioning-Report]
-    paths: ['index.html', 'manifest.json', 'sw.js', 'icons/**', 'electron/**', '.github/workflows/windows-installer.yml']
+    paths: ['index.html', 'manifest.json', 'sw.js', 'pl-merge.html', 'icons/**', 'electron/**', 'tests/**', '.github/workflows/windows-installer.yml']
   pull_request:
-    paths: ['index.html', 'manifest.json', 'sw.js', 'icons/**', 'electron/**', '.github/workflows/windows-installer.yml']
-  release:
-    types: [published]
+    paths: ['index.html', 'manifest.json', 'sw.js', 'pl-merge.html', 'icons/**', 'electron/**', 'tests/**', '.github/workflows/windows-installer.yml']
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Revision to release, e.g. 02.00.003 (must match the last entry in the in-app revision log)'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -28,18 +39,27 @@ jobs:
           cache: npm
           cache-dependency-path: electron/package-lock.json
 
+      - name: Revision log is in ascending order
+        working-directory: .
+        run: node tests/revision_order.test.js
+
       - run: npm ci
 
       - name: Build NSIS installer
         run: npm run dist
 
-      - name: Find installer
+      - name: Read revision and find installer
         id: exe
         shell: bash
         run: |
-          f=$(ls dist/*.exe | head -n 1)
-          echo "path=electron/$f" >> "$GITHUB_OUTPUT"
-          echo "name=$(basename "$f")" >> "$GITHUB_OUTPUT"
+          rev=$(node -p "require('./package.json').appRevision")
+          f="dist/ModuLaser-MASD-Field-Report-Setup-${rev}.exe"
+          test -f "$f" || { echo "::error::Installer $f not found"; ls dist; exit 1; }
+          {
+            echo "revision=$rev"
+            echo "path=electron/$f"
+            echo "name=$(basename "$f")"
+          } >> "$GITHUB_OUTPUT"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -47,10 +67,28 @@ jobs:
           path: ${{ steps.exe.outputs.path }}
           if-no-files-found: error
 
-      - name: Attach installer to the release
-        if: github.event_name == 'release'
+      - name: Attach installer to a draft release
+        if: github.event_name == 'workflow_dispatch'
         shell: bash
+        working-directory: .
         env:
           GH_TOKEN: ${{ github.token }}
-        working-directory: .
-        run: gh release upload "${{ github.event.release.tag_name }}" "${{ steps.exe.outputs.path }}" --clobber --repo "${{ github.repository }}"
+          REPO: ${{ github.repository }}
+          INPUT_VERSION: ${{ inputs.version }}
+          REVISION: ${{ steps.exe.outputs.revision }}
+          EXE: ${{ steps.exe.outputs.path }}
+        run: |
+          if [ "$INPUT_VERSION" != "$REVISION" ]; then
+            echo "::error::Input version $INPUT_VERSION does not match the revision log ($REVISION)"; exit 1
+          fi
+          tag="v$REVISION"
+          if gh release view "$tag" --repo "$REPO" --json isDraft -q .isDraft > draft.txt 2>/dev/null; then
+            if [ "$(cat draft.txt)" != "true" ]; then
+              echo "::error::Release $tag is already published; immutable releases can't take new files. Bump the revision."; exit 1
+            fi
+          else
+            gh release create "$tag" --repo "$REPO" --draft --target "$GITHUB_SHA" \
+              --title "$tag" --notes "Draft — installer attached by the Windows installer workflow. Paste the release notes, then publish."
+          fi
+          gh release upload "$tag" "$EXE" --clobber --repo "$REPO"
+          echo "Installer attached to DRAFT release $tag. Publish it by hand when ready." >> "$GITHUB_STEP_SUMMARY"
