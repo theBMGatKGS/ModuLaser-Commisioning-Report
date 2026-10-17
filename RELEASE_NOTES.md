@@ -10,7 +10,7 @@ Live site: [masdtools.net](https://masdtools.net) (served from the
 
 ---
 
-## v02.01.000 — MiniLaser ASD support (2026-10-16) · not yet released
+## v02.01.000 — MiniLaser ASD support (2026-10-16) · released 2026-10-17
 
 - **MiniLaser ASD (FHSD8075-ULF) (Brent 2026-10-16).** New module type, standalone and never addressed (SenseNET checks don't apply). It comes in from the Battery Calculator 02.01.000 / Toolbox 00.02.000 project file, from a PipeCAD .pl (SOLO detectors), or via **+ MiniLaser**.
 - **MiniLaser class from a .pl (Brent-approved):** area override → project standard → SFD (max transport time no longer used). A MiniLaser from a .pl is non-pre-engineered by default (Brent); DIP/Remote advice follows the fan 2/4/7/10 + AF 2/4/6/8 rule; `modulaser-project.js` 1.5.1 (was 1.5.0) (identical in all three apps). A 40 % flow-fault level shows PASS with a warning note (Brent-approved).
@@ -23,7 +23,10 @@ Live site: [masdtools.net](https://masdtools.net) (served from the
 - `modulaser-project.js` 1.5.1. New test: `tests/minilaser_report_test.py` (20), which includes the pl-merge round trip.
 
 ### QA audit
-- Pending.
+- **QA/Auditor verdict: GO** (Delta review 4, 2026-10-17, on Calculator c59a78c / Toolbox e3dfb68 / Report b7cbadb; `qa/qa-report-02.01.000.md`). No blocking findings.
+- **Findings fixed before release:** F1 MiniLaser pipe limits (manual p.66) enforced; F3/F4 test hygiene (fixture tests report SKIPPED, fail with `REQUIRE_FIXTURES=1`; repo-under-test defaults); F5 40% flow wording (PASS with a warning note); F6 print font; F8 Disparate-clusters made a warning only (sheet can pass; nothing withheld); dead A/BPS branch removed; `modulaser-project.js` 1.5.1; side-panel flag vs warning styling; service-worker cache bumps; README versions.
+- **Suites green:** minilaser_report 23/23, revision_order passed (plus toolbox report_audit 31/31 against this Report).
+- **Remaining non-blocking nits:** `mlp_sync_test` silently skips `/workspace/mlp` when it's absent and doesn't compare the engine build source; the Calculator root build registers a `sw.js` that isn't present at the repo root (pwa/ and docs/ builds have one; predates this release).
 
 ---
 

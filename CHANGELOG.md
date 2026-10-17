@@ -12,7 +12,7 @@ this file from it rather than hand-editing both. Per-release summaries are in
 
 ## 02.01 — 2026-10-16
 
-### 02.01.000 — 2026-10-16 (not yet released)
+### 02.01.000 — 2026-10-16 (released 2026-10-17; QA/Auditor GO on b7cbadb)
 - **MiniLaser ASD (FHSD8075-ULF) (Brent 2026-10-16).** New module type, standalone and never addressed (SenseNET checks don't apply). It comes in from the Battery Calculator 02.01.000 / Toolbox 00.02.000 project file, from a PipeCAD .pl (SOLO detectors), or via **+ MiniLaser**.
 - **MiniLaser class from a .pl (Brent-approved):** area override → project standard → SFD (max transport time no longer used). A MiniLaser from a .pl is non-pre-engineered by default (Brent); DIP/Remote advice follows the fan 2/4/7/10 + AF 2/4/6/8 rule; `modulaser-project.js` 1.5.1 (was 1.5.0) (identical in all three apps). A 40 % flow-fault level shows PASS with a warning note (Brent-approved).
 - **QA delta (02.01.000 review).** F1: a new "Holes / pipe length (M p.66)" check fails a MiniLaser with more holes than its application allows (e.g. 20 holes on a VEWFD application, where the max is 10) or a longer pipe than allowed. F5: the 40% flow-fault note reads "UL/FM requires ≤20% (M p.71)" (still a PASS row with a warning). Tests: `minilaser_report_test.py` uses the fixture `/workspace/qa/minilaser/hoistway.mlproj.json` (no /tmp leftovers) and writes everything under `$MLP_TEST_OUT`.
