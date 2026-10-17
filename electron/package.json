@@ -1,8 +1,8 @@
 {
   "name": "masd-field-report",
   "productName": "ModuLaser MASD Field Report",
-  "version": "2.0.3",
-  "appRevision": "02.00.003",
+  "version": "2.1.0",
+  "appRevision": "02.01.000",
   "description": "Offline commissioning worksheet for Edwards ModuLaser Modular Aspirating Smoke Detector installations.",
   "author": "Brent",
   "license": "GPL-3.0",
