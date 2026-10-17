@@ -9,10 +9,7 @@ APP = 'file://' + ROOT + '/index.html'; MERGE = 'file://' + ROOT + '/pl-merge.ht
 PROJ = os.environ.get('ML_PROJECT', '/workspace/qa/minilaser/hoistway.mlproj.json')
 PL = os.environ.get('ML_FIXTURE', '/workspace/qa/minilaser/minilaser.pl')
 _missing = [x for x in (PROJ, PL) if not os.path.exists(x)]
-if _missing:   # Brent: the Hoistway fixtures stay off GitHub, so a clean checkout has none of them
-    print('SKIP minilaser_report_test: fixture(s) not present: ' + ', '.join(_missing))
-    print('     Put Brent\'s Hoistway files at /workspace/qa/minilaser/ (or set ML_PROJECT / ML_FIXTURE) to run it. Nothing was tested.')
-    print('SUMMARY SKIPPED (fixtures absent)'); sys.exit(0)
+REQUIRE = os.environ.get('REQUIRE_FIXTURES') == '1'   # set in release/CI runs: a missing fixture is then a failure
 OTHER = os.environ.get('MERGE_WITH') or (sorted(glob.glob('/workspace/pl-samples/*.pl')) or [''])[0]
 OUT = os.environ.get('MLP_TEST_OUT') or tempfile.mkdtemp(prefix='rpt-ml-'); os.makedirs(OUT, exist_ok=True)
 SHOTS = os.environ.get('SHOTS') or os.path.join(OUT, 'shots'); os.makedirs(SHOTS, exist_ok=True)
@@ -31,6 +28,18 @@ async def main():
     await pg.goto(APP); await pg.evaluate('localStorage.clear()'); await pg.reload(); await pg.wait_for_timeout(600)
     v = await pg.evaluate('[fullRev(), MLP.VERSION, document.title]')
     ok('revision 02.01.000_261016, MLP 1.5.1', v[0] == '02.01.000_261016' and v[1] == '1.5.1' and '02.01.000' in v[2], v)
+    # QA F1 (M p.66 pipe limits) and F5 (40% flow wording)
+    r = await pg.evaluate("""()=>{ const mk=(app,h,fl)=>({type:'ml',desc:'ML',cfg:{app,af:'2',flowLevel:fl},perf:{holes:String(h)},t:{},io:{}});
+      const row=(m,re)=>evalMl(m).it.find(i=>re.test(i.label));
+      return [row(mk('UL 268 Ed.7 SA Range 1',30,'20'),/Holes . pipe/), row(mk('FM 3230 VEWFD',20,'20'),/Holes . pipe/), row(mk('FM 3230 VEWFD',10,'20'),/Holes . pipe/), row(mk('FM 3230 SFD',8,'40'),/Flow fault level on a UL/)]; }""")
+    ok('F1: SA Range 1 with 30 holes → FAIL (max 25, M p.66)', r[0] and r[0]['st'] == 'F' and 'maximum of 25' in r[0]['note'], r[0])
+    ok('F1: FM VEWFD with 20 holes → FAIL (max 10); 10 holes → PASS', r[1] and r[1]['st'] == 'F' and 'maximum of 10' in r[1]['note'] and r[2] and r[2]['st'] == 'P', r[1:3])
+    ok('F5: 40% flow on UL/FM → PASS row with "UL/FM requires ≤20% (M p.71)"', r[3] and r[3]['st'] == 'P' and 'UL/FM requires ≤20% (M p.71)' in r[3]['note'], r[3])
+    if _missing:   # Brent: the Hoistway fixtures stay off GitHub; the fixture-free checks above still ran
+        print('SKIP Hoistway project/.pl checks: fixture(s) not present: ' + ', '.join(_missing) + " (put Brent's files at /workspace/qa/minilaser/ or set ML_PROJECT / ML_FIXTURE)")
+        ok('no page errors', not errs, errs); await b.close()
+        print(f'SUMMARY {sum(R)} / {len(R)} passed, SKIPPED: Hoistway section (fixtures absent)' + (' — REQUIRE_FIXTURES=1, failing' if REQUIRE else ''))
+        sys.exit(1 if (REQUIRE or not all(R)) else 0)
     # ---- Calculator project file
     await pg.evaluate('t=>importProjectText(t, "hoistway.mlproj.json")', open(PROJ).read()); await confirm_dialog(pg)
     x = await ml(pg)
@@ -94,13 +103,6 @@ async def main():
             r = await pg.evaluate("t=>{ const pc=MLP.parsePl(t,'merged.pl'); const all=pc.groups.flatMap(g=>g.detectors); const s=all.filter(d=>d.kind==='minilaser'); return [s.length, s.every(d=>d.fan===6), s.every(d=>d.typeRaw==='SOLO'), all.length]; }", xml)
             ok('pl-merge round trip: every SOLO stays a MiniLaser (fan 6) after merge', r[0] >= 1 and r[1] and r[2] and r[0] == (r[3] if used == 'minilaser-copy.pl' else r[0]), r)
         await mp.close()
-    # QA F1 (M p.66 pipe limits) and F5 (40% flow wording)
-    r = await pg.evaluate("""()=>{ const mk=(app,h,fl)=>({type:'ml',desc:'ML',cfg:{app,af:'2',flowLevel:fl},perf:{holes:String(h)},t:{},io:{}});
-      const row=(m,re)=>evalMl(m).it.find(i=>re.test(i.label));
-      return [row(mk('UL 268 Ed.7 SA Range 1',30,'20'),/Holes . pipe/), row(mk('FM 3230 VEWFD',20,'20'),/Holes . pipe/), row(mk('FM 3230 VEWFD',10,'20'),/Holes . pipe/), row(mk('FM 3230 SFD',8,'40'),/Flow fault level on a UL/)]; }""")
-    ok('F1: SA Range 1 with 30 holes → FAIL (max 25, M p.66)', r[0] and r[0]['st'] == 'F' and 'maximum of 25' in r[0]['note'], r[0])
-    ok('F1: FM VEWFD with 20 holes → FAIL (max 10); 10 holes → PASS', r[1] and r[1]['st'] == 'F' and 'maximum of 10' in r[1]['note'] and r[2] and r[2]['st'] == 'P', r[1:3])
-    ok('F5: 40% flow on UL/FM → PASS row with "UL/FM requires ≤20% (M p.71)"', r[3] and r[3]['st'] == 'P' and 'UL/FM requires ≤20% (M p.71)' in r[3]['note'], r[3])
     ok('no page errors', not errs, errs)
     await b.close()
   print(f'SUMMARY {sum(R)} / {len(R)}'); sys.exit(0 if all(R) else 1)
