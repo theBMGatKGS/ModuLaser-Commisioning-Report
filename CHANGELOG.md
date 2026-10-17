@@ -10,6 +10,15 @@ log (`AMENDMENTS` / `LEGACY` in `index.html`) is the source of truth; regenerate
 this file from it rather than hand-editing both. Per-release summaries are in
 [RELEASE_NOTES.md](RELEASE_NOTES.md).
 
+## 02.01 — 2026-10-16
+
+### 02.01.000 — 2026-10-16 (not yet released)
+- **MiniLaser ASD (FHSD8075-ULF) (Brent 2026-10-16).** New module type, standalone and never addressed (SenseNET checks don't apply). It comes in from the Battery Calculator 02.01.000 / Toolbox 00.02.000 project file, from a PipeCAD .pl (SOLO detectors), or via **+ MiniLaser**.
+- **Setup:** R1 Fault relay (fixed, fail-safe), R2 Relay output 1 (Prealarm), R3 Relay output 2 (Fire Alarm), IN1 (15 kΩ supervised). Each I/O Expansion Module (9-30521, 0–2) adds X1/X2 OUT1–5 (latched relays, 2 A @ 30 VDC) and IN1–2.
+- **Configure:** fan speed and Alarm Factor come from the design. Application (Table 35), configuration method, alarm delay and flow-fault level/delay start blank, with no numeric prefills. A blank fan speed shows INCOMPLETE ⚠ in amber.
+- **Checks:** hole sensitivity (Fire 1 for the alarm factor × holes) and measured transport time are checked against Table 35 for the selected application. A 40% flow fault on a UL/FM application is a warning only. Tests cover transport, smoke, airflow fault and relays/inputs. Print/Word/Excel exports include the MiniLaser sheet.
+- `modulaser-project.js` 1.5.0. New test: `tests/minilaser_report_test.py` (20), which includes the pl-merge round trip.
+
 ## 02.00 — 2026-10-13
 
 - **02.00.003** (2026-10-16, released 2026-10-16, QA/Auditor PASS): Per Brent (2026-10-16). Revision order and Windows installer. The revision log had 02.00.002 listed before 02.00.001, and the app and installer read the last entry, so the live site, saved job files and the installer showed 02.00.001 instead of 02.00.002. The log is back in ascending order, and a regression test (tests/revision_order.test.js) fails if it ever goes out of order, or if the page title or offline cache name don't match the latest revision. Windows installer workflow: this repo uses immutable releases, so a file can't be added to a release once it is published (that is why v02.00.001 and v02.00.002 have no installer). The installer is now built from the revision log, attached to a draft release, and the release is published only after that. Workflow hardening (QA W1–W3): only the release job has write access, manual release runs must come from main, and an existing tag without a release fails the run. No changes to checks, calculations or the project file (modulaser-project.js 1.4.0, MASD engine 1.0.0 unchanged).

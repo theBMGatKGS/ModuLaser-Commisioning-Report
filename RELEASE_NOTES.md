@@ -10,6 +10,19 @@ Live site: [masdtools.net](https://masdtools.net) (served from the
 
 ---
 
+## v02.01.000 — MiniLaser ASD support (2026-10-16) · not yet released
+
+- **MiniLaser ASD (FHSD8075-ULF) (Brent 2026-10-16).** New module type, standalone and never addressed (SenseNET checks don't apply). It comes in from the Battery Calculator 02.01.000 / Toolbox 00.02.000 project file, from a PipeCAD .pl (SOLO detectors), or via **+ MiniLaser**.
+- **Setup:** R1 Fault relay (fixed, fail-safe), R2 Relay output 1 (Prealarm), R3 Relay output 2 (Fire Alarm), IN1 (15 kΩ supervised). Each I/O Expansion Module (9-30521, 0–2) adds X1/X2 OUT1–5 (latched relays, 2 A @ 30 VDC) and IN1–2.
+- **Configure:** fan speed and Alarm Factor come from the design. Application (Table 35), configuration method, alarm delay and flow-fault level/delay start blank, with no numeric prefills. A blank fan speed shows INCOMPLETE ⚠ in amber.
+- **Checks:** hole sensitivity (Fire 1 for the alarm factor × holes) and measured transport time are checked against Table 35 for the selected application. A 40% flow fault on a UL/FM application is a warning only. Tests cover transport, smoke, airflow fault and relays/inputs. Print/Word/Excel exports include the MiniLaser sheet.
+- `modulaser-project.js` 1.5.0. New test: `tests/minilaser_report_test.py` (20), which includes the pl-merge round trip.
+
+### QA audit
+- Pending.
+
+---
+
 ## v02.00.003 — Revision order and Windows installer (2026-10-16) · released 2026-10-16
 
 **In-app revision:** 02.00.003_261016
