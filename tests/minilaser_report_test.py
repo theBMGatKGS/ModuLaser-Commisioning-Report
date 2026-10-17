@@ -1,13 +1,17 @@
 """Report 02.01.000 — MiniLaser ASD (FHSD8075-ULF). Real data: Brent's Example Shaft .pl and a Calculator 02.01.000 project file built from it.
-Run: python3 tests/minilaser_report_test.py   (ML_PROJECT=<.mlproj.json from the Calculator> ML_FIXTURE=<.pl> SHOTS=<dir>; MERGE_WITH=<second .pl for the pl-merge round trip>)"""
+Run: python3 tests/minilaser_report_test.py   (ML_PROJECT=<.mlproj.json from the Calculator> ML_FIXTURE=<.pl> SHOTS=<dir>; MERGE_WITH=<second .pl for the pl-merge round trip>)
+Fixtures (Brent's project data, kept outside the repo): /workspace/qa/minilaser/minilaser.pl and hoistway.mlproj.json (written by the Calculator's
+tests/minilaser_test.py into $MLP_TEST_OUT). All output goes to $MLP_TEST_OUT (or a fresh temp dir); nothing is written to fixed names in the system temp dir."""
 import asyncio, glob, json, os, sys, tempfile
 from playwright.async_api import async_playwright
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP = 'file://' + ROOT + '/index.html'; MERGE = 'file://' + ROOT + '/pl-merge.html'
-PROJ = os.environ.get('ML_PROJECT', '/tmp/mlout/hoistway.mlproj.json')
+PROJ = os.environ.get('ML_PROJECT', '/workspace/qa/minilaser/hoistway.mlproj.json')
 PL = os.environ.get('ML_FIXTURE', '/workspace/qa/minilaser/minilaser.pl')
+if not os.path.exists(PROJ) or not os.path.exists(PL): sys.exit(f'missing fixture: {PROJ if not os.path.exists(PROJ) else PL} (see docstring)')
 OTHER = os.environ.get('MERGE_WITH') or (sorted(glob.glob('/workspace/pl-samples/*.pl')) or [''])[0]
-SHOTS = os.environ.get('SHOTS') or tempfile.mkdtemp(prefix='rpt-ml-'); os.makedirs(SHOTS, exist_ok=True)
+OUT = os.environ.get('MLP_TEST_OUT') or tempfile.mkdtemp(prefix='rpt-ml-'); os.makedirs(OUT, exist_ok=True)
+SHOTS = os.environ.get('SHOTS') or os.path.join(OUT, 'shots'); os.makedirs(SHOTS, exist_ok=True)
 R = []
 def ok(n, c, i=''): R.append(bool(c)); print('PASS' if c else 'FAIL', n, str(i)[:300])
 async def confirm_dialog(pg):
@@ -74,7 +78,7 @@ async def main():
     if OTHER:
         mp = await ctx.new_page(); mp.on('pageerror', lambda e: errs.append('merge: ' + str(e)))
         cands = [OTHER] + [x for x in sorted(glob.glob('/workspace/pl-samples/*.pl')) if x != OTHER]
-        cp = os.path.join(tempfile.gettempdir(), 'minilaser-copy.pl'); open(cp, 'w').write(open(PL).read()); cands.append(cp)
+        cp = os.path.join(OUT, 'minilaser-copy.pl'); open(cp, 'w').write(open(PL).read()); cands.append(cp)
         xml = None; used = None
         for c in cands:
             await mp.goto(MERGE); await mp.set_input_files('#pick', [c, PL]); await mp.wait_for_timeout(800)
@@ -82,10 +86,17 @@ async def main():
             if xml: used = os.path.basename(c); break
         ok('pl-merge: merged file produced', bool(xml), used)
         if xml:
-            out = os.path.join(SHOTS, '..', 'merged-hoistway.pl') if False else os.path.join(tempfile.gettempdir(), 'merged-hoistway.pl'); open(out, 'w').write(xml)
+            out = os.path.join(OUT, 'merged-hoistway.pl'); open(out, 'w').write(xml)
             r = await pg.evaluate("t=>{ const pc=MLP.parsePl(t,'merged.pl'); const all=pc.groups.flatMap(g=>g.detectors); const s=all.filter(d=>d.kind==='minilaser'); return [s.length, s.every(d=>d.fan===6), s.every(d=>d.typeRaw==='SOLO'), all.length]; }", xml)
             ok('pl-merge round trip: every SOLO stays a MiniLaser (fan 6) after merge', r[0] >= 1 and r[1] and r[2] and r[0] == (r[3] if used == 'minilaser-copy.pl' else r[0]), r)
         await mp.close()
+    # QA F1 (M p.66 pipe limits) and F5 (40% flow wording)
+    r = await pg.evaluate("""()=>{ const mk=(app,h,fl)=>({type:'ml',desc:'ML',cfg:{app,af:'2',flowLevel:fl},perf:{holes:String(h)},t:{},io:{}});
+      const row=(m,re)=>evalMl(m).it.find(i=>re.test(i.label));
+      return [row(mk('UL 268 Ed.7 SA Range 1',30,'20'),/Holes \/ pipe/), row(mk('FM 3230 VEWFD',20,'20'),/Holes \/ pipe/), row(mk('FM 3230 VEWFD',10,'20'),/Holes \/ pipe/), row(mk('FM 3230 SFD',8,'40'),/Flow fault level on a UL/)]; }""")
+    ok('F1: SA Range 1 with 30 holes → FAIL (max 25, M p.66)', r[0] and r[0]['st'] == 'F' and 'maximum of 25' in r[0]['note'], r[0])
+    ok('F1: FM VEWFD with 20 holes → FAIL (max 10); 10 holes → PASS', r[1] and r[1]['st'] == 'F' and 'maximum of 10' in r[1]['note'] and r[2] and r[2]['st'] == 'P', r[1:3])
+    ok('F5: 40% flow on UL/FM → PASS row with "UL/FM requires ≤20% (M p.71)"', r[3] and r[3]['st'] == 'P' and 'UL/FM requires ≤20% (M p.71)' in r[3]['note'], r[3])
     ok('no page errors', not errs, errs)
     await b.close()
   print(f'SUMMARY {sum(R)} / {len(R)}'); sys.exit(0 if all(R) else 1)
