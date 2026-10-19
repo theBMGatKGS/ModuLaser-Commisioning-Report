@@ -12,6 +12,12 @@ Live site: [masdtools.net](https://masdtools.net) (served from the
 
 ## v02.02.000 — Brands, ASD-160 and printable Quick Start (2026-10-19) · released 2026-10-19
 
+### Download / Open
+- **Web / PWA (live):** https://thebmgatkgs.github.io/ModuLaser-Commisioning-Report/ — open in a browser, or install it (Chrome/Edge install icon; iPhone/iPad Safari → Share → Add to Home Screen). Works offline after the first visit.
+- **Windows installer:** **ModuLaser-MASD-Field-Report-Setup-02.02.000.exe** — Windows x64 NSIS installer (unsigned; SmartScreen may prompt: More info → Run anyway)
+  - Direct: https://github.com/theBMGatKGS/ModuLaser-Commisioning-Report/releases/download/v02.02.000/ModuLaser-MASD-Field-Report-Setup-02.02.000.exe
+  - SHA-256: `cf4f2ae11aa8e1300ccb3d3cd78cbad0975bb982d535c066bfcf8063189c5ea2`
+
 ### Recent improvements
 - **Unidentified power source rolls fully to ⚠ Incomplete**: blank “Power source identified” item on every power supply sheet, amber banner with Identify power source…, carried from design.psus[].powerSource on import.
 - **Help, How do I and FAQ topics**: brand, part-number basis, ASD-160 commissioning, FACU power source. **About** lists Edwards and Kidde Commercial, MiniLaser and ASD-160.
