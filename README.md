@@ -138,3 +138,7 @@ Internal tool — not for redistribution outside its intended use.
 ## What's new in 02.02.000
 
 Edwards and Kidde Commercial brands, ASD-160 (Micra25 / Senator 25) support, AUX/ribbon rules (max 4 AUX per supply; max 4 detectors + 1 display per ribbon run). See RELEASE_NOTES.md.
+
+## Build
+
+`index.html` is the source of truth and is patched in place. The old assembler (`/workspace/mlp/report/assemble.py`, outside this repo) stopped at 02.00.001 and is retired. `src/rp-0202.js` is an exact copy of the inline `<script id="rp-0202">` block, kept for review; a test checks they match.

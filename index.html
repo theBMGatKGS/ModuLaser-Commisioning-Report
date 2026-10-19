@@ -1661,7 +1661,8 @@ MLP.asd160Evaluate = function (rec, perf, area, opts){
   const sens = pipe.designSens;
   const plAf = pipe.af, activated = String(pipe.afActivatedRaw || '').toLowerCase() === 'true';
   let af;
-  if (activated && plAf != null) af = { af: plAf, src: '.pl', fire1: MLP.MINILASER.afFire1[plAf], fail: lim.sens != null && MLP.MINILASER.afFire1[plAf] * n > lim.sens + 1e-12 };
+  if (o.af != null && MLP.MINILASER.afFire1[o.af] != null) af = { af: +o.af, src: 'manual', fire1: MLP.MINILASER.afFire1[o.af], fail: lim.sens != null && MLP.MINILASER.afFire1[o.af] * n > lim.sens + 1e-12 };   // 02.02.000: a manual AF on the row is what gets validated
+  else if (activated && plAf != null) af = { af: plAf, src: '.pl', fire1: MLP.MINILASER.afFire1[plAf], fail: lim.sens != null && MLP.MINILASER.afFire1[plAf] * n > lim.sens + 1e-12 };
   else { const d = MLP.asd160DeriveAf(sens, n, lim.sens); af = Object.assign(d, { src: 'derived per Brent rule' }); }
   const len = pipe.lengthFt != null ? pipe.lengthFt : null;
   const tt = transport.target;
@@ -1674,7 +1675,7 @@ MLP.asd160Evaluate = function (rec, perf, area, opts){
     if (counts.all > A.ulHoles){ const m = `${counts.all} holes incl. end cap exceeds the UL maximum of 10 (Senator 25 Handbook p11)`; issues.push({ level: 'error', msg: m }); rafs.push(['ul', m]); }
     if (len != null && len > A.ulLengthFt){ const m = `pipe length ${r2(len)} ft exceeds the UL 160 ft test length`; issues.push({ level: 'error', msg: m }); rafs.push(['ul', m]); }
     if (tt != null && tt > lim.tt + 1e-9){ const m = `transport ${r2(tt)} s exceeds ${ttName}`; issues.push({ level: 'error', msg: m }); rafs.push([lim.ttBy, m]); }
-    if (af.fail){ const m = `even AF 0 (${MLP.MINILASER.afFire1[0]} × ${n} holes) exceeds ${r2(lim.sens)} %obs/ft — use fewer holes or redesign`; issues.push({ level: 'error', msg: m }); rafs.push([lim.sensBy, m]); }
+    if (af.fail){ const m = af.src === 'manual' ? `alarm factor ${af.af} (${af.fire1} × ${n} holes) exceeds ${r2(lim.sens)} %obs/ft — lower the alarm factor` : `even AF 0 (${MLP.MINILASER.afFire1[0]} × ${n} holes) exceeds ${r2(lim.sens)} %obs/ft — use fewer holes or redesign`; issues.push({ level: 'error', msg: m }); rafs.push([lim.sensBy, m]); }
     const h = MLP.asd160DescHint(pipe.description);
     if (h.standard && h.standard !== 'UL 268') rafs.push(['ul', `the .pl Description points to ${h.standard}`]);
     rafs.forEach(([by, m]) => issues.push({ level: 'warn', msg: `This project is set to UL 268 7th edition, but this ASD-160 does not meet ${gov(by)} (Senator 25 Handbook p.vii): ${m}. Redesign, or set the project standard to the one the design follows.` }));
@@ -1686,7 +1687,7 @@ MLP.asd160Evaluate = function (rec, perf, area, opts){
     else if (lim.sens == null) issues.push({ level: 'incomplete', msg: `No ${cls.cls} limits entered for ${lim.standard || 'this standard'} — enter and confirm them` });
     if (lim.sens != null && worst != null && worst > lim.sens + 1e-12) issues.push({ level: 'error', msg: `worst hole ${r2(worst)} %obs/ft exceeds ${lim.fm ? 'FM' : lim.standard} ${cls.cls} ${r2(lim.sens)} %obs/ft` });
     if (lim.tt != null && tt != null && tt > lim.tt + 1e-9) issues.push({ level: 'error', msg: `transport ${r2(tt)} s exceeds ${lim.fm ? 'FM' : lim.standard} ${cls.cls} ${lim.tt} s` });
-    if (af.fail) issues.push({ level: 'error', msg: `even AF 0 exceeds the ${cls.cls} limit ${r2(lim.sens)} %obs/ft — use fewer holes or redesign` });
+    if (af.fail) issues.push({ level: 'error', msg: af.src === 'manual' ? `alarm factor ${af.af} (${af.fire1} × ${n} holes) exceeds the ${cls.cls} limit ${r2(lim.sens)} %obs/ft — lower the alarm factor` : `even AF 0 exceeds the ${cls.cls} limit ${r2(lim.sens)} %obs/ft — use fewer holes or redesign` });
     if (len != null && len > A.maxLengthFt) issues.push({ level: 'warn', msg: `pipe length ${r2(len)} ft exceeds the ASD-160 general maximum 165 ft (still air, Senator 25 Handbook p3)` });
     if (counts.all > A.ulHoles){ const v = MLP.asd160PipecadValid(rec, lim);
       if (v.ok) issues.push({ level: 'advisory', msg: `${counts.all} holes on one pipe run — Senator 25 Handbook p11 says each pipe run 'should not have more than 10 holes (including the end cap hole)'; accepted because the PipeCAD design validates` });
@@ -2786,7 +2787,7 @@ AMENDMENTS.push({ rev: "001", major: "02", minor: "00", date: "261013", desc: "A
 AMENDMENTS.push({ rev: "002", major: "02", minor: "00", date: "261016", desc: "Per Brent (G1). <b>SenseNET networks — modulaser-project.js 1.4.0.</b> Each device carries its SenseNET network (design.devices[].network; older files → network 1; standalone supplies → standalone:true). The Report keeps it per module (Identity → <i>SenseNET network</i>), shows it in the Device Index and Summary (<i>Net</i>: SN1, SN2…; SA = standalone), checks duplicate addresses per network (the same address on SN1 and SN2 is fine), and allows more than 127 modules in total as long as each network has 127 or fewer — an import is blocked only when one network would exceed 127 (the message names it). New modules go on the first network with room. Shared module bumped 1.3.0 → 1.4.0 (per-network validator, network in the design diff), byte-identical in the Battery Calculator 02.00.004, MASD Engineering Toolbox 00.01.002 and this Report (harmonization rule). Engine unchanged (MASD engine 1.0.0)." });
 AMENDMENTS.push({ rev: "003", major: "02", minor: "00", date: "261016", desc: "Per Brent (2026-10-16). <b>Revision order and Windows installer.</b> The revision log had 02.00.002 listed before 02.00.001, and the app and installer read the last entry, so the live site, saved job files and the installer showed 02.00.001 instead of 02.00.002. The log is back in ascending order, and a regression test (tests/revision_order.test.js) fails if it ever goes out of order, or if the page title or offline cache name don't match the latest revision. Windows installer workflow: this repo uses immutable releases, so a file can't be added to a release once it is published (that is why v02.00.001 and v02.00.002 have no installer). The installer is now built from the revision log, attached to a <i>draft</i> release, and the release is published only after that. No changes to checks, calculations or the project file (modulaser-project.js 1.4.0, MASD engine 1.0.0 unchanged)." });
 AMENDMENTS.push({ rev: "000", major: "02", minor: "01", date: "261016", desc: "Per Brent (2026-10-16). <b>MiniLaser ASD (FHSD8075-ULF).</b> New module type MiniLaser (standalone: never addressed, no SenseNET checks), from the Battery Calculator 02.01.000 / Toolbox 00.02.000 project file, a PipeCAD .pl (SOLO detectors) or + MiniLaser. Setup: R1 Fault relay (fixed, fail-safe), R2 Relay output 1 (Prealarm), R3 Relay output 2 (Fire Alarm), IN1 supervised input, and per I/O Expansion Module (9-30521, 0–2) X1/X2 OUT1–5 (latched relays, 2 A @ 30 VDC) and IN1–2 (15 kΩ). Configure: fan speed and alarm factor from the design; application (Table 35), configuration method, alarm delay and flow-fault level/delay with no prefilled values. Checks: hole sensitivity (Fire 1 × holes for the alarm factor) and transport time against Table 35 for the selected application; 40% flow fault on a UL/FM application is a warning only. Tests: transport, smoke, airflow fault, relay/input. modulaser-project.js 1.5.1. <b>QA delta:</b> MiniLaser Holes / pipe length check (manual p.66); the 40% flow note reads “UL/FM requires ≤20% (M p.71)”. <b>Final:</b> modulaser-project.js 1.5.1." });
-AMENDMENTS.push({ rev: "000", major: "02", minor: "02", date: "261019", desc: "Harmonized with Battery Calculator 02.02.000; Report: part-number basis dialog on brand mismatch, ASD-160 sheet (PipeCAD limits, Remote config levels, transport +20 %, benchmark test point), FACU checkbox under the FACU field. <b>Brand selector (Edwards | Kidde Commercial)</b> — project-level, first in Project information; part numbers, supply labels, BOM, logos and report titles follow the brand; the remembered default seeds new projects. Per-sheet supply <b>variant</b> (120 V / 220–230 V / ULC), tamper and seismic accessories, and <b>FACU powers these ASDs</b> with a power-source prompt (in-house / third-party / unidentified; unidentified makes the sheet Incomplete). <b>ASD-160 (Micra25 / Senator 25)</b> rows in the ASD table: 250 mA, dedicated AUX circuit, networked address 1–127, PipeCAD .pl import (MICRA25), Remote configuration, UL/non-UL alarm-factor rules (1.28 cap on UL SFD/OAP, R-AF7). Battery 12V6A5 (7.2 Ah) is manual-only with a too-small advisory. AUX/ribbon rules: max 4 AUX per power supply; each ribbon run holds max 4 detectors + 1 display; a detector-started run counts that detector; hybrid clusters may have any number of runs; own-AUX modules are not runs. Help revised with current screenshots; new printable Quick Start (Help ▸ Print Quick Start). MLP 1.6.0, engine 1.2.0." });
+AMENDMENTS.push({ rev: "000", major: "02", minor: "02", date: "261019", desc: "Harmonized with Battery Calculator 02.02.000; Report: part-number basis dialog on brand mismatch, ASD-160 sheet (PipeCAD limits, Remote config levels, transport +20 %, benchmark test point), FACU checkbox under the FACU field. <b>Brand selector (Edwards | Kidde Commercial)</b> — project-level, first in Project information; part numbers, supply labels, BOM, logos and report titles follow the brand; the remembered default seeds new projects. Per-sheet supply <b>variant</b> (120 V / 220–230 V / ULC), tamper and seismic accessories, and <b>FACU powers these ASDs</b> with a power-source prompt (in-house / third-party / unidentified; unidentified makes the sheet Incomplete). <b>ASD-160 (Micra25 / Senator 25)</b> rows in the ASD table: 250 mA, dedicated AUX circuit, networked address 1–127, PipeCAD .pl import (MICRA25), Remote configuration, UL/non-UL alarm-factor rules (1.28 cap on UL SFD/OAP, R-AF7). Battery 12V6A5 (7.2 Ah) is manual-only with a too-small advisory. AUX/ribbon rules: max 4 AUX per power supply; each ribbon run holds max 4 detectors + 1 display; a detector-started run counts that detector; hybrid clusters may have any number of runs; own-AUX modules are not runs. Help revised with current screenshots; new printable Quick Start (Help ▸ Print Quick Start). MLP 1.6.0, engine 1.2.0. Unidentified power source rolls fully to ⚠ Incomplete: blank “Power source identified” item on every power supply sheet, amber banner with Identify power source…, carried from design.psus[].powerSource on import. Help, How do I and FAQ topics: brand, part-number basis, ASD-160 commissioning, FACU power source. About lists Edwards and Kidde Commercial, MiniLaser and ASD-160. `src/rp-0202.js` is an exact copy of the inline layer (tested); the old assembler is retired. Unidentified power source rolls fully to ⚠ Incomplete: blank “Power source identified” item on every power supply sheet, amber banner with Identify power source…, carried from design.psus[].powerSource on import. Help, How do I and FAQ topics: brand, part-number basis, ASD-160 commissioning, FACU power source. About lists Edwards and Kidde Commercial, MiniLaser and ASD-160. `src/rp-0202.js` is an exact copy of the inline layer (tested); the old assembler is retired." });
 TYPES.min = 'Minimum Display Module'; TYPE_SHORT.min = 'Min Display';
 const TYPE_FROM_DESIGN = { 'Detector': 'det', 'Standard Display': 'std', 'Minimum Display': 'min', 'Command Display': 'cmd', 'MiniLaser': 'ml' };
 const TYPE_TO_DESIGN = { det: 'Detector', std: 'Standard Display', min: 'Minimum Display', cmd: 'Command Display', oth: 'Other', ml: 'MiniLaser' };
@@ -4420,6 +4421,54 @@ function asdSheet(m, i){
   const _bl = blank; blank = function (){ const st = _bl.apply(this, arguments); try { const b = MLP.brandOf(localStorage.getItem(RP_BRAND_KEY)); if (b !== 'edwards'){ st.project = st.project || {}; st.project.brand = b; } } catch (e){} return st; };
 })();
 rpPaintBrand(); if (typeof renderAll === 'function') renderAll();
+
+/* ===================== 02.02.000 completion (Brent 10-19 1:55 PM) ===================== */
+/* (d3) Unidentified power source rolls fully to ⚠ Incomplete: every power supply sheet gets a blank item, so device, section,
+   summary and print status all read INCOMPLETE until the source is identified. Imported designs carry it from design.psus[].powerSource. */
+function rpPowerUnidentified(){ return !!(state.project && state.project.powerSource === 'unidentified'); }
+(function rpPowerRollup(){
+  const _e = evalPsu;
+  evalPsu = function (p){ const r = _e.apply(this, arguments); if (!r || !rpPowerUnidentified()) return r;
+    r.it.push({ sec: 'id', label: 'Power source identified', st: 'B', note: '⚠ Incomplete — FACU unticked and the power source is not identified' });
+    if (r.secs.id !== 'F') r.secs.id = 'B';
+    const vals = Object.values(r.secs); r.auto = vals.includes('F') ? 'FAIL' : vals.includes('B') ? 'INCOMPLETE' : 'PASS';
+    if (!r.overridden) r.final = r.auto; else r.overridden = r.final !== r.auto;
+    return r; };
+  if (typeof applyPlan === 'function'){ const _ap = applyPlan; applyPlan = function (){ const r = _ap.apply(this, arguments);
+    const ps = (state.design && state.design.psus) || [];
+    if (ps.some(p => p.powerSource === 'unidentified') && !(state.project && state.project.powerSource && state.project.powerSource !== 'unidentified')){ state.project = state.project || {}; state.project.powerSource = 'unidentified'; }
+    return r; }; }
+  if (typeof renderBanner === 'function'){ const _rb = renderBanner; renderBanner = function (){ const r = _rb.apply(this, arguments);
+    let b = document.getElementById('psrcBanner');
+    if (rpPowerUnidentified()){ if (!b){ b = document.createElement('div'); b.id = 'psrcBanner'; b.className = 'banner warn'; b.style.cssText = 'background:#3a2c0a;color:#ffd27a;border:1px solid #b07a10;padding:8px 12px;margin:6px 0;border-radius:4px';
+        const host = document.getElementById('brandBanner') || document.getElementById('app'); if (host && host.parentNode) host.parentNode.insertBefore(b, host); }
+      b.innerHTML = '\u26A0 Incomplete — the ASD power source is not identified. <a href="#" id="psrcFix">Identify power source…</a>'; b.hidden = false;
+      const a = document.getElementById('psrcFix'); if (a) a.onclick = e => { e.preventDefault(); rpAskPowerSource(); };
+    } else if (b) b.hidden = true;
+    return r; }; }
+})();
+/* (c) About text + Help / How do I / FAQ topics (brand, part-number basis, ASD-160, FACU power source). */
+(function rpHelp0202(){
+  const steps = document.querySelector('#help-qs') || document.querySelector('.hstep') && document.querySelector('.hstep').parentNode;
+  const last = Array.from(document.querySelectorAll('.hstep')).pop();
+  const S = [['Brand (Edwards | Kidde Commercial)', 'Brand is the first field in Project information. Titles, the header logo, the print band and part numbers follow it. If an imported project file uses the other brand, a banner offers the <b>part-number basis</b> dialog: keep the file’s part numbers or translate them to this brand.'],
+    ['ASD-160 (Micra25 / Senator 25)', 'An ASD-160 sheet covers identity and SenseNET network, PipeCAD limits, Remote configuration levels, transport time (+20 % allowance) and the benchmark test point (end cap), smoke and flow tests, and Fire/Fault relays with the relay card.'],
+    ['FACU powers the ASDs', 'The checkbox under the FACU field starts ticked when the design says the FACU powers the ASDs. Unticking it asks what powers them; until the source is identified every power supply sheet and the summary read ⚠ Incomplete.']];
+  if (last && !document.getElementById('rp-hstep-0202')){ let n = +((last.querySelector('.hn') || {}).textContent || 10); let at = last;
+    S.forEach(([t, b], i) => { const d = document.createElement('div'); d.className = 'hstep'; if (!i) d.id = 'rp-hstep-0202'; d.innerHTML = `<span class="hn">${++n}</span><div><div class="ht">${t}</div><p>${b}</p></div>`; at.after(d); at = d; }); }
+  const hd = document.getElementById('help-howdoi'), fq = document.getElementById('help-faq');
+  const H = [['…change the brand?', 'Project information → Brand. Confirm the switch; the title, logo and part numbers update. For an imported file with a different brand, choose the part-number basis in the banner dialog.'],
+    ['…commission an ASD-160?', 'Open its sheet (Area/Group → ASD-160). Fill identity and network, check the PipeCAD limits and Remote configuration levels, record transport time at the benchmark test point, then the smoke, flow and relay tests.'],
+    ['…clear “power source not identified”?', 'Tick “FACU powers the ASDs”, or click Identify power source… in the banner and pick In-house or Third-party.']];
+  const F = [['Why does the Report ask for a part-number basis?', 'The project file was made with the other brand. The design is the same; only part numbers differ. Pick the file’s numbers or this brand’s; your choice is stored with the job.'],
+    ['Why is an ASD-160 transport time allowed 20 % over PipeCAD?', 'The Report applies the same +20 % measured-vs-PipeCAD allowance to every detector, ASD-160 included (Senator 25 Handbook p.34 quoted as context).'],
+    ['Why is everything ⚠ Incomplete after unticking FACU?', 'Without a known power source the batteries cannot be checked, so each power supply sheet gets a blank “Power source identified” item until you identify it.']];
+  const add = (host, list, id) => { if (!host || document.getElementById(id)) return; const h3 = host.querySelector('h3'); let at = h3;
+    list.forEach(([q, a], i) => { const d = document.createElement('div'); d.className = 'hq'; if (!i) d.id = id; d.innerHTML = `<dt>${q}</dt><dd>${a}</dd>`; at.after(d); at = d; }); };
+  add(hd, H, 'rp-howdoi-0202'); add(fq, F, 'rp-faq-0202');
+  const idc = document.querySelector('.idcard'); if (idc && !document.getElementById('rp-about-0202')){ const r = document.createElement('div'); r.className = 'row'; r.id = 'rp-about-0202';
+    r.innerHTML = '<span class="k">Covers</span><span class="v">Edwards and Kidde Commercial ModuLaser MASD, MiniLaser (FHSD8075-ULF) and ASD-160 (Micra25 / Senator 25); shared project file modulaser-project.js ' + MLP.VERSION + '</span>'; idc.appendChild(r); }
+})();
 
 </script><!--RP0202-END-->
 </body>

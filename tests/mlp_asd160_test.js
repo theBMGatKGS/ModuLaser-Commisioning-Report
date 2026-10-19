@@ -93,5 +93,8 @@ t('FM: hole 8.0 above range fails', M.asd160Evaluate(syn(H(8, 8.0, 50)), fm).iss
 t('FM: transport 131 s fails', M.asd160Evaluate(syn(H(8, 1.0, 131)), fm).issues.some(x => /131 s exceeds the ASD-160 maximum/.test(x.msg)));
 t('FM: 170 ft warns only', (() => { const e = M.asd160Evaluate(syn(H(8, 1.0, 50), { lengthFt: 170 }), fm); return !e.issues.some(x => x.level === 'error') && e.issues.some(x => x.level === 'warn'); })());
 t('non-standard maxTransit 42 → pick-a-class (incomplete)', M.asd160Evaluate(syn(H(8, 1.0, 30), { maxTransit: 42 }), fm).issues.some(x => x.level === 'incomplete' && /pick one/.test(x.msg)));
+t('manual AF is validated: AF 8 on 8 holes (2.0) fails UL 1.28 with lower-the-AF text', (() => { const e = M.asd160Evaluate(syn(H(8, 0.5, 50)), null, null, { af: 8 }); return e.af.src === 'manual' && e.af.af === 8 && e.issues.some(x => x.level === 'error' && /alarm factor 8/.test(x.msg)); })());
+t('manual AF within limit passes: AF 2 on 8 holes (0.16)', (() => { const e = M.asd160Evaluate(syn(H(8, 0.5, 50)), null, null, { af: 2 }); return e.af.src === 'manual' && !e.issues.some(x => x.level === 'error'); })());
+t('no manual AF → derived (unchanged)', M.asd160Evaluate(syn(H(8, 0.5, 50)), null).af.src === 'derived per Brent rule');
 t('ModuLaser FM_LIMITS untouched (2.50)', M.FM_LIMITS.SFD.sens === 2.5 && M.MINILASER.afThresholds.SFD === 2.0);
 console.log(`\n${pass}/${pass + fail} passed${skipped ? ', ' + skipped + ' skipped (fixture absent)' : ''}`); process.exit(fail ? 1 : 0);

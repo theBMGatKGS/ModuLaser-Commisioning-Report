@@ -13,6 +13,9 @@ this file from it rather than hand-editing both. Per-release summaries are in
 ## 02.02 — 2026-10-19
 
 ### 02.02.000 — 2026-10-19 (local build, not released)
+- **Unidentified power source rolls fully to ⚠ Incomplete**: blank “Power source identified” item on every power supply sheet, amber banner with Identify power source…, carried from design.psus[].powerSource on import.
+- **Help, How do I and FAQ topics**: brand, part-number basis, ASD-160 commissioning, FACU power source. **About** lists Edwards and Kidde Commercial, MiniLaser and ASD-160.
+- `src/rp-0202.js` is an exact copy of the inline layer (tested); the old assembler is retired.
 - Harmonized with Battery Calculator 02.02.000.
 - **Brand** first in Project information, brand header logo/chip and print title; brand-switch confirmation; **part-number basis dialog** and mismatch banner when the project file brand differs.
 - **ASD-160 sheet**: identity/network, PipeCAD limits, Remote config levels, transport +20 %, benchmark test point, relays Fire/Fault + card.
