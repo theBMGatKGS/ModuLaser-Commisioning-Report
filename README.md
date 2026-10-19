@@ -134,3 +134,7 @@ Once installed, the app opens and works with **no signal or Wi-Fi** — the serv
 ## License
 
 Internal tool — not for redistribution outside its intended use.
+
+## What's new in 02.02.000
+
+Edwards and Kidde Commercial brands, ASD-160 (Micra25 / Senator 25) support, AUX/ribbon rules (max 4 AUX per supply; max 4 detectors + 1 display per ribbon run). See RELEASE_NOTES.md.

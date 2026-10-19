@@ -10,6 +10,19 @@ log (`AMENDMENTS` / `LEGACY` in `index.html`) is the source of truth; regenerate
 this file from it rather than hand-editing both. Per-release summaries are in
 [RELEASE_NOTES.md](RELEASE_NOTES.md).
 
+## 02.02 — 2026-10-19
+
+### 02.02.000 — 2026-10-19 (local build, not released)
+- Harmonized with Battery Calculator 02.02.000.
+- **Brand** first in Project information, brand header logo/chip and print title; brand-switch confirmation; **part-number basis dialog** and mismatch banner when the project file brand differs.
+- **ASD-160 sheet**: identity/network, PipeCAD limits, Remote config levels, transport +20 %, benchmark test point, relays Fire/Fault + card.
+- **FACU powers the ASDs** checkbox under the FACU field (pre-ticked from the design).
+- **Brand selector (Edwards | Kidde Commercial).** First field in Project Settings; part numbers, supply labels, BOM, logos and report titles follow the brand; the last choice is remembered for new projects.
+- **Per-sheet supply variant** (120 V / 220–230 V / ULC), tamper and seismic accessories, and **FACU powers these ASDs** with a power-source prompt (in-house / third-party / unidentified — unidentified keeps the sheet Incomplete).
+- **ASD-160 (Micra25 / Senator 25).** + Add ASD-160 and PipeCAD .pl import (MICRA25): 250 mA, dedicated AUX circuit, Remote configuration, networked address 1–127; UL scopes cap SFD/OAP at 1.28 %obs/ft with R-AF7.
+- Shared modules: modulaser-project.js 1.6.0, MASD engine 1.2.0. Hash policy: new fields at their defaults are stripped, so unchanged 02.01.000 files keep their hash.
+- Service-worker cache bumped to `masd-field-report-02-02-000`.
+
 ## 02.01 — 2026-10-16
 
 ### 02.01.000 — 2026-10-16 (released 2026-10-17; QA/Auditor GO on b7cbadb)

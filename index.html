@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Edwards ModuLaser MASD — Field Report 02.01.000</title>
+<title>ModuLaser MASD — Field Report 02.02.000</title>
 <meta name="description" content="Offline commissioning worksheet for Edwards ModuLaser Modular Aspirating Smoke Detector installations.">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0b0e12">
@@ -638,7 +638,7 @@ body.light .src.d{color:#003a8c;background:#e3eefc;border-color:#003a8c}
 <div class="hq"><dt>Why did 02.00.002 show as 02.00.001?</dt><dd>The revision log had the two entries out of order, and the app reads the last one. Fixed in 02.00.003: the log is in order and a test checks it. Job files saved with 02.00.002 that say 02.00.001 open normally; only the recorded revision label was wrong.</dd></div><div class="hq"><dt>Where do addresses come from?</dt><dd>SenseNET addresses are set in the Battery Calculator and imported. Confirm each one on the display (Setup tab → <i>Address confirmed on display</i>). Duplicate SenseNET and FACU addresses fail.</dd></div><div class="hq"><dt>What exactly does autosave cover, and what doesn't it cover?</dt><dd>Autosave writes the full job (project info, every module and PSU sheet, wiring segments, checklists, sign-off) to this browser's local storage about ¼ second after each change. It's scoped to one browser on one device — it does not sync between devices or browsers, and clearing that browser's site data removes it. For anything that needs to move between machines, survive a browser reset, or be archived long-term, use <b>Export job</b>.</dd></div><div class="hq"><dt>What's the difference between Export/Import and Print/PDF?</dt><dd>Export/Import moves the underlying data (a <code>.json</code> job file) so work can continue on another machine or be archived and re-opened later in this same tool. Print/PDF produces a static, formatted document of the current state for signatures, submittal, or the owner's records — it can't be re-imported and edited.</dd></div><div class="hq"><dt>Why do some configuration items have a dot (●) and others don't?</dt><dd>The dot marks an item that's scored toward the module's automatic PASS/FAIL/INCOMPLETE result. Un-dotted items (e.g. cascading alarms, latching behavior, Day/Night settings) are recorded for the record but don't drive the automatic result on their own — they still surface in the deficiencies list if they fail a bound (e.g. flow limits over 20%).</dd></div><div class="hq"><dt>How does the override mechanism work, and why does it need a reason?</dt><dd>A device's automatic result can be overridden (e.g. a technician judges a borderline reading acceptable) only when <i>both</i> an override result and a non-blank reason are entered — a result with no reason is not applied, and the sheet shows a warning until one is added. This keeps every override traceable to a documented justification, both on the device sheet and in the auto-collected deficiencies list.</dd></div><div class="hq"><dt>What triggers a SenseNET address error vs. a FACU address error?</dt><dd>SenseNET addresses (module/PSU network addresses) must be a whole number 1–127 and unique — out-of-range or duplicate addresses fail immediately. FACU addresses (the point label programmed at the fire alarm control unit for a given input/output/monitoring point) must match the <code>PPP:CCC:DDDD</code> panel/circuit/device pattern — anything else is flagged as a format error, separate from the SenseNET check.</dd></div><div class="hq"><dt>What populates the "Outstanding items / deficiencies" list in Section G?</dt><dd>It's built automatically, not typed in: every "N" answer in Section B or G, every failed item on any module or PSU sheet, every wiring segment marked Fail, and every applied result override (with its reason) are collected there in one place so nothing needs to be re-transcribed by hand.</dd></div><div class="hq"><dt>What's the difference between PASS, FAIL, and INCOMPLETE?</dt><dd>FAIL means at least one scored/required item failed its check. INCOMPLETE means no item has failed but at least one required item is still blank. PASS means every scored/required item passed. See "Known discrepancies" above for the EN 54-20 targets, where the built-in pass/fail limits are worth double-checking against your specific listing before relying on an automatic PASS. (The VEWFD sensitivity figure was corrected in Rev 11; from 02.00.001 the limits are cited to App. A, printed p.113 — FM/UL hole limits, pass at or below (≤).)</dd></div></section><section class="hsec hpane" id="help-rev">
         <h3>Revision Log</h3>
         <div class="idcard">
-          <div class="row"><span class="k">Application</span><span class="v">Edwards ModuLaser MASD — Field Report</span></div>
+          <div class="row"><span class="k">Application</span><span class="v rp-app-name">Edwards ModuLaser MASD — Field Report</span></div>
           <div class="row"><span class="k">Revision</span><span class="v mono" id="revLogFull">—</span></div>
           <div class="row"><span class="k">Authored by</span><span class="v">Brent Wilkins</span></div>
         </div>
@@ -667,13 +667,13 @@ body.light .src.d{color:#003a8c;background:#e3eefc;border-color:#003a8c}
 (function (root) {
 'use strict';
 const MLP = {};
-MLP.VERSION = '1.5.1';   // 1.5.1: MiniLaser pipe limits (M p.66) — miniLaserPipeLimits / miniLaserPipeCheck
+MLP.VERSION = '1.6.0';   // 1.6.0: brand catalog (Edwards | Kidde Commercial), ASD-160 kind (MICRA25), hash defaults. 1.5.1: MiniLaser pipe limits (M p.66)
 MLP.FORMAT = 'modulaser-project';
 MLP.SCHEMA_VERSION = 1;
 MLP.EXT = '.mlproj.json';
 MLP.NAME_MAX = 16;                 // ModuLaser display shows 16 characters, spaces included
 MLP.M_TO_FT = 3.28084;
-MLP.DETECTOR_TYPES = { MULTISENSE: 'Detector', MODULASER_DETECTOR: 'Detector' };
+MLP.DETECTOR_TYPES = { MULTISENSE: 'Detector', MODULASER_DETECTOR: 'Detector', MICRA25: 'ASD-160' };
 MLP.DISPLAY_PARTS = { '0': 'Standard Display', '1': 'Minimum Display', '2': 'Command Display' };
 MLP.DISPLAY_MODELS = { 'Standard Display': 'FHSD8310', 'Minimum Display': 'FHSD8300', 'Command Display': 'FHSD8320' };
 MLP.TT_TO_CLASS = { 60: 'VEWFD', 90: 'EWFD', 120: 'SFD' };
@@ -778,8 +778,9 @@ MLP.parsePl = function (text, fileName){
       if (seen[key]) key += '~' + (++seen[key]); else seen[key] = 1;
       const fanN = parseInt(txt(d, 'aspiratorSpeed'), 10);
       const isML = typeRaw === 'SOLO';   // 1.5.0: MiniLaser FHSD8075-ULF — standalone, never addressed (Brent Q1/Q2)
-      const rec = { key, ord: di, kind: isML ? 'minilaser' : 'detector', origName: name, typeRaw, type: MLP.DETECTOR_TYPES[typeRaw],
-        fan: (fanN >= 1 && fanN <= (isML ? 10 : 16)) ? fanN : null, address: isML ? '' : txt(d, 'address'), partNumber: txt(d, 'partNumber'),
+      const isASD = typeRaw === 'MICRA25' || txt(d, 'DetectorType') === 'MICRA25';   // 1.6.0: ASD-160 / Micra25 / Senator 25
+      const rec = { key, ord: di, kind: isML ? 'minilaser' : isASD ? 'asd160' : 'detector', origName: name, typeRaw, type: MLP.DETECTOR_TYPES[typeRaw],
+        fan: isASD ? null : (fanN >= 1 && fanN <= (isML ? 10 : 16)) ? fanN : null, address: isML ? '' : txt(d, 'address'), partNumber: txt(d, 'partNumber'),
         x: num0(d, 'startX') * scale, y: num0(d, 'startY') * scale, z: num0(d, 'startZ') * scale };
       rec.fp = fnv([rec.origName, rec.typeRaw, rec.fan, rec.x.toFixed(2), rec.y.toFixed(2)].join('|'));
       if (!rec.type){ out.skipped.push(`${gname}: “${name}” has unknown type “${typeRaw || 'blank'}” — skipped`); return; }
@@ -790,7 +791,7 @@ MLP.parsePl = function (text, fileName){
         const c = ['X', 'Y', 'Z'].map(a => [num(pp, 'start' + a), num(pp, 'end' + a)]);
         if (c.every(([a, b]) => a != null && b != null)) len += Math.hypot(...c.map(([a, b]) => b - a));
         kids(kid(pp, 'holeDatabase'), 'Hole').forEach(h => {
-          const o = { i: txt(h, 'index'), size: num(h, 'holeSize'), flow: num(h, 'holeFlowRate'), tt: num(h, 'transitTime'), sens: num(h, 'holeSensitivity') == null ? null : num(h, 'holeSensitivity') * sensScale };
+          const o = { i: txt(h, 'index'), endcap: /Endcap/i.test(h.getAttribute('xsi:type') || h.getAttribute('type') || ''), name: txt(h, 'name'), size: num(h, 'holeSize'), flow: num(h, 'holeFlowRate'), tt: num(h, 'transitTime'), sens: num(h, 'holeSensitivity') == null ? null : num(h, 'holeSensitivity') * sensScale };
           (txt(h, 'isTestPoint') === 'true' ? testPoints : holes).push(o);
         });
       }));
@@ -807,6 +808,7 @@ MLP.parsePl = function (text, fileName){
         bends90: sd ? first(sd, 'bends90') : null, sockets: sd ? first(sd, 'sockets') : null, clips: sd ? first(sd, 'clips') : null,
         hasResults: !!sd, holes, testPoints
       };
+      if (isASD){ rec.pipe.resultsValid = sd ? txt(sd, 'resultsValid') : ''; rec.pipe.balanceMinLimit = num(d, 'balanceMinLimit') != null ? num(d, 'balanceMinLimit') : num(rootEl, 'balanceMinLimit'); rec.pipe.afActivatedRaw = txt(d, 'alarmFactorActivated'); rec.pipe.description = txt(props, 'Description'); }
       if (isML){   // 1.5.0: raw flags for the alarm-factor rule (Brent Q20) and DIP/Remote advice (Q22)
         const ints = tag => { const a = sd && kid(sd, tag); return a ? Array.from(a.children).map(c => Number(c.textContent) || 0) : null; };
         const b90 = ints('bends90'), b45 = ints('bends45');
@@ -931,7 +933,7 @@ MLP.verifyChangesAgainstPl = function (changes, parsed, devices){
 /* ---------------- project document ---------------- */
 MLP.blank = function (){
   return { format: MLP.FORMAT, schemaVersion: MLP.SCHEMA_VERSION, savedAt: '', savedBy: null,
-    project: { name: '', location: '', designer: '', company: '', building: '', networkNumber: '', preparedBy: '', date: '' },
+    project: { name: '', location: '', designer: '', company: '', building: '', networkNumber: '', preparedBy: '', date: '', brand: '' },
     design: null, site: null, changes: [], approvals: {} };
 };
 MLP.isProject = o => !!(o && o.format === MLP.FORMAT && typeof o.schemaVersion === 'number');
@@ -950,7 +952,16 @@ MLP.stringify = function (doc, app, rev, user){
 /* SHA-256 over canonical JSON of the whole design (volatile keys excluded): tamper-evident.
    design.id keeps the old 32-bit FNV identity hash as a short display id only. */
 MLP.HASH_DROP = ['hash', 'id', 'updatedAt', 'importedAt'];
-MLP.designHash = function (design){ return design ? 'sha256:' + sha256hex(canon(design, MLP.HASH_DROP)) : ''; };
+/* 1.6.0 (B3a): new fields at their defaults are stripped before hashing, so an unchanged 02.01.000 file keeps its hash. */
+MLP.HASH_DEFAULTS = { brand: 'edwards', variant: '120', accessories: [], facuSource: false, ulOptIn: false, psVariant: '120', psTamper: false, psSeismic: false, cabinetUserSet: false, tpFacuSource: false, tpFacuUserSet: false };
+function stripDefaults(v){
+  if (Array.isArray(v)) return v.map(stripDefaults);
+  if (v && typeof v === 'object'){ const o = {}; Object.keys(v).forEach(k => { const d = MLP.HASH_DEFAULTS[k], x = v[k];
+    if (d !== undefined && (Array.isArray(d) ? Array.isArray(x) && !x.length : x === d)) return; if (k === 'powerSource' || k === 'tpPowerSource') { if (x == null || x === '') return; } o[k] = stripDefaults(x); }); return o; }
+  return v;
+}
+MLP.stripDefaults = stripDefaults;
+MLP.designHash = function (design){ return design ? 'sha256:' + sha256hex(canon(stripDefaults(design), MLP.HASH_DROP)) : ''; };
 MLP.siteHash = function (site){ return site ? 'sha256:' + sha256hex(canon(site, ['hash', 'updatedAt'])) : ''; };
 MLP.designId = function (design){
   if (!design) return '';
@@ -975,13 +986,15 @@ MLP.designFromPl = function (parsedList, links, perf){
 };
 MLP.deviceFromPl = function (d, area, link, extra, perf){
   const dev = { id: (link ? link.id : 'pl') + '|' + d.key, kind: d.kind, type: d.type, partNumber: d.partNumber || '',
-    model: d.kind === 'display' ? MLP.DISPLAY_MODELS[d.type] || '' : d.kind === 'minilaser' ? MLP.MINILASER.model : 'FHSD8330',
+    model: d.kind === 'display' ? MLP.DISPLAY_MODELS[d.type] || '' : d.kind === 'minilaser' ? MLP.MINILASER.model : d.kind === 'asd160' ? MLP.partFor('edwards', 'asd160') : 'FHSD8330',
     name: d.origName, plName: d.origName, area, address: '', psuId: '', fan: d.fan || null, cluster: '',
     pos: { x: +(d.x || 0).toFixed(2), y: +(d.y || 0).toFixed(2), z: +(d.z || 0).toFixed(2) },
     pl: link ? { link: link.id, file: link.name, key: d.key, fp: d.fp } : null, pipe: d.pipe || null };
   if (d.kind === 'minilaser'){ const ml = MLP.miniLaserFromPl(d, extra && extra.perfClass ? extra.perfClass : MLP.miniLaserClass(perf, area));
     Object.assign(dev, { standalone: true, network: null, ioModules: 0, minilaser: { alarmFactor: ml.alarmFactor, alarmFactorSrc: ml.alarmFactorSrc, perfClass: ml.perfClass, perfClassSrc: ml.perfClassSrc,
       holes: ml.holes, configMethod: ml.configMethod, advice: ml.advice.text, derivation: ml.derivation, expansionInPl: ml.expansionInPl } }); }
+  if (d.kind === 'asd160'){ const ev = MLP.asd160Evaluate(d, perf, area); Object.assign(dev, { standalone: false, network: 1, relayCard: false,
+    asd160: { alarmFactor: ev.af.af, alarmFactorSrc: ev.af.src, perfClass: ev.cls.cls, perfClassSrc: ev.cls.src, ul: ev.ul, holes: ev.counts.sampling, holesAll: ev.counts.all, worstHole: ev.worst, transport: ev.transport, issues: ev.issues } }); }
   return Object.assign(dev, extra || {});
 };
 MLP.linkFromParsed = function (pc, sha, size, lastModified){
@@ -1005,6 +1018,8 @@ MLP.validateDesign = function (design){
   (design.devices || []).forEach(d => {
     if (!MLP.nameOk(d.name)) issues.push({ id: d.id, level: 'error', msg: `“${d.name}” is ${MLP.nameLen(d.name)} characters — the ModuLaser display shows ${MLP.NAME_MAX}.` });
     if (d.kind && !MLP.KNOWN_KINDS.includes(d.kind)){ issues.push({ id: d.id, level: 'warn', msg: `${d.name}: unknown device kind “${d.kind}” — this app version cannot check it.` }); return; }
+    if (d.kind === 'asd160' && d.standalone && String(d.address || '').trim()) issues.push({ id: d.id, level: 'error', msg: `${d.name}: a stand-alone ASD-160 is never addressed (address ${d.address} must be cleared).` });
+    if (d.kind === 'asd160' && d.asd160 && d.asd160.issues) d.asd160.issues.forEach(x => issues.push({ id: d.id, level: x.level, msg: `${d.name}: ${x.msg}` }));
     if (d.kind === 'minilaser'){ const m = d.minilaser || {};   // 1.5.0: never addressed; fan and alarm factor checks
       if (String(d.address || '').trim()) issues.push({ id: d.id, level: 'error', msg: `${d.name}: MiniLasers are never addressed (address ${d.address} must be cleared).` });
       if (!(d.fan >= 1 && d.fan <= 10)) issues.push({ id: d.id, level: 'incomplete', msg: `⚠ ${d.name}: MiniLaser fan speed not set (1–10).` });
@@ -1051,7 +1066,7 @@ MLP.diffDesign = function (oldD, newD){
   return { project, devices, psus, count };
 };
 MLP.diffProject = function (oldP, newP){
-  const keys = ['name', 'location', 'designer', 'company', 'building', 'networkNumber'];
+  const keys = ['name', 'location', 'designer', 'company', 'building', 'networkNumber', 'brand'];
   return keys.filter(k => (newP || {})[k] && String((oldP || {})[k] || '') !== String(newP[k])).map(k => ({ f: k, old: (oldP || {})[k] || '', new: newP[k] }));
 };
 MLP.diffHtml = function (diff, esc){
@@ -1158,7 +1173,7 @@ MLP.perfPresetLimits = function (id){
   MLP.PERF_CLASSES.forEach(c => { out[c] = p && p.family === 'FM' ? { sens: MLP.FM_LIMITS[c].sens, tt: MLP.FM_LIMITS[c].tt, target: MLP.SENS_TARGETS[c], ref: MLP.FM_REF, confirmed: false, src: 'prefill' } : MLP.perfLimitBlank(); });
   return out;
 };
-MLP.perfScopeInit = (o, id) => { o.standard = id; o.ulConfirmed = false; o.limits = MLP.perfPresetLimits(id); o.codeReqs = MLP.perfCodeReqs(id); return o; };
+MLP.perfScopeInit = (o, id) => { o.standard = id; o.ulConfirmed = false; delete o.ulOptIn; o.limits = MLP.perfPresetLimits(id); o.codeReqs = MLP.perfCodeReqs(id); return o; };
 MLP.perfBlank = () => Object.assign(MLP.perfScopeInit({ standardOther: '', areas: {}, narrative: '', narrativeDraft: '', eorName: '', specRef: '', definedBy: '', definedAt: '' }, 'SFD/OAP – NFPA 72'), { statement: '', market: 'UL' });
 /* migrate 1.2.0 drafts (market/basis) to presets */
 MLP.perfMigrate = function (perf){
@@ -1215,7 +1230,7 @@ MLP.perfStatement = perf => { if (!perf) return ''; MLP.perfMigrate(perf); const
    Sources: MiniLaser Installation Manual 3103175-EN Rev 001 ("M p.N" = printed page), I/O module datasheet
    K85001-1064 ("DS p.N"), Brent 2026-10-16 decisions (plan-02.01.000-minilaser.md §2, §2.2). Real data only. */
 MLP.DETECTOR_TYPES.SOLO = 'MiniLaser';
-MLP.KNOWN_KINDS = ['detector', 'display', 'command', 'minilaser'];
+MLP.KNOWN_KINDS = ['detector', 'display', 'command', 'minilaser', 'asd160'];
 MLP.MINILASER = {
   model: 'FHSD8075-ULF',                                   // Brent Q11: this part number only, everywhere
   fanMa: { 1: 120, 2: 134, 3: 157, 4: 180, 5: 200, 6: 230, 7: 255, 8: 285, 9: 320, 10: 365 },   // M p.65 at 24 VDC; standby = alarm (Brent)
@@ -1452,14 +1467,272 @@ MLP.miniLaserFromPl = function (rec, cls){
   return { fan: rec.fan, alarmFactor: af, alarmFactorSrc: afSrc, derivation, perfClass: useCls, perfClassSrc: clsSrc, holes, advice, pipeCheck,
     configMethod: advice.method, expansionInPl: !!p.expansionInPl };
 };
+
+/* ======================= 1.6.0: brand catalog (plan rev 4.23b §B3/B4/B5) ======================= */
+MLP.BRAND_DEFAULT = 'edwards';
+MLP.BRANDS = {
+  'edwards': { id: 'edwards', label: 'Edwards', manufacturer: 'Edwards', supplyLabel: 'Edwards A/BPS',
+    reportTitle: 'Edwards ModuLaser MASD — Field Report', chip: 'EDWARDS', cabinetDefault: 'edwards' },
+  'kidde-commercial': { id: 'kidde-commercial', label: 'Kidde Commercial', manufacturer: 'Kidde Commercial', supplyLabel: 'Kidde Commercial APS/EBPS',
+    reportTitle: 'Kidde Commercial ModuLaser MASD — Field Report', chip: 'KIDDE COMMERCIAL', cabinetDefault: 'spaceage' }
+};
+MLP.brandOf = b => (b && MLP.BRANDS[b]) ? b : MLP.BRAND_DEFAULT;      // missing/unknown → Edwards (old files)
+MLP.PARTS = {
+  minDisplay: { edwards: 'FHSD8300-ULF', 'kidde-commercial': '9-30780-KID-ULF', desc: 'Minimum Display' },
+  stdDisplay: { edwards: 'FHSD8310-ULF', 'kidde-commercial': '9-30781-KID-ULF', desc: 'Standard Display' },
+  cmdDisplay: { edwards: 'FHSD8320-ULF', 'kidde-commercial': '9-30782-KID-ULF', desc: 'Command Display' },
+  detector:   { edwards: 'FHSD8330-ULF', 'kidde-commercial': '9-30783-KID-ULF', desc: 'Detector Module' },
+  minilaser:  { edwards: 'FHSD8075-ULF', 'kidde-commercial': '9-30501-KID-ULF', desc: 'MiniLaser aspirating smoke detector' },
+  asd160:     { edwards: 'FHSD8025-7-ULF', 'kidde-commercial': '9-30671-7-KID-ULF', desc: 'ASD-160 aspirating smoke detector (Micra25 / Senator 25)' },
+  mlHousing:  { both: '9-30520', desc: 'MiniLaser expansion housing', fixedMfr: '—' },
+  mlIo:       { both: '9-30521', desc: 'MiniLaser I/O module', fixedMfr: '—' },
+  asdRelay:   { both: '33-30436A', desc: 'ASD-160 relay card (Pre-Alarm, Aux, Fire 2)' },
+  tamper:     { both: '3-TAMP', desc: 'Tamper switch' },
+  apsEq:      { both: 'APSEQ', desc: 'Seismic kit (APS)' },
+  bpsEq:      { both: 'BPSEQ', desc: 'Seismic kit (BPS)' },
+  bc1Eq:      { both: 'BC-1EQ', desc: 'Seismic kit (BC-1)' },
+  bc1:        { both: 'BC-1', desc: 'Battery cabinet (2 batteries up to 40 Ah)' },
+  bc2:        { both: 'BC-2', desc: 'Battery cabinet (up to 17 Ah)' },
+  ssu00507:   { both: 'SSU00507', desc: 'Battery cabinet', fixedMfr: 'Space Age Electronics' },
+  rcc7r:      { both: '3-RCC7R', desc: 'Battery cabinet', fixedMfr: 'Edwards' },
+  bats:       { both: '3-BATS', desc: 'Battery shelf', fixedMfr: 'Edwards' },
+  // catalog only — never in a BOM (B3)
+  grommets: { both: '9-30794', catalogOnly: true }, angled: { both: '9-30795', catalogOnly: true }, straight: { both: '9-30796', catalogOnly: true },
+  filter6: { both: '9-30699N-P', catalogOnly: true }, bpsCvr: { both: 'BPS-CVR', catalogOnly: true }, mnBrkt: { both: 'MN-BRKT3F', catalogOnly: true }
+};
+MLP.MODULE_PART_KEY = { 'Minimum Display': 'minDisplay', 'Standard Display': 'stdDisplay', 'Command Display': 'cmdDisplay', 'Detector': 'detector' };
+MLP.partFor = function (brand, key){ const p = MLP.PARTS[key]; if (!p) return ''; return p.both || p[MLP.brandOf(brand)]; };
+MLP.manufacturerFor = function (brand, key){ const p = MLP.PARTS[key]; if (p && p.fixedMfr) return p.fixedMfr; return MLP.BRANDS[MLP.brandOf(brand)].manufacturer; };
+/* Translate any brand-catalog P/N to the other brand (used on brand switch and by the Report's part-number basis). */
+MLP.translatePart = function (pn, toBrand){
+  const s = String(pn || '').trim(); if (!s) return s;
+  for (const k of Object.keys(MLP.PARTS)){ const p = MLP.PARTS[k]; if (p.both) continue;
+    if (p.edwards === s || p['kidde-commercial'] === s) return p[MLP.brandOf(toBrand)]; }
+  for (const fam of ['APS', 'BPS']) for (const a of [6, 10]) for (const v of MLP.SUPPLY_VARIANTS){
+    for (const b of Object.keys(MLP.BRANDS)) if (MLP.supplyPart(b, fam, a, v).pn === s) return MLP.supplyPart(toBrand, fam, a, v).pn; }
+  return s;
+};
+MLP.SUPPLY_VARIANTS = ['120', '220', 'ulc'];
+MLP.SUPPLY_VARIANT_LABELS = { '120': '120V', '220': '220V', 'ulc': 'ULC' };
+/* B4 table. Explicit lookup — replaces supply.replace('6A','10A'). */
+MLP.supplyPart = function (brand, family, amps, variant){
+  const b = MLP.brandOf(brand), a = Number(amps) === 10 ? 10 : 6, v = MLP.SUPPLY_VARIANTS.indexOf(variant) >= 0 ? variant : '120';
+  const fam = String(family || 'BPS').toUpperCase().indexOf('APS') >= 0 ? 'APS' : 'BPS';
+  let pn, note = '';
+  if (fam === 'APS'){ pn = v === '220' ? `APS${a}A/230` : `APS${a}A`; if (v === 'ulc') note = 'No ULC variant listed'; }
+  else pn = v === '220' ? `BPS${a}A/230` : v === 'ulc' ? `BPS${a}AC` : (b === 'kidde-commercial' ? `EBPS${a}A` : `BPS${a}A`);
+  return { pn, note, family: fam, amps: a, variant: v, desc: `Power supply (${a} A)` + (v === '120' ? '' : ' ' + MLP.SUPPLY_VARIANT_LABELS[v]) };
+};
+MLP.supplyCapacityLabel = (brand, amps, variant) => `${MLP.supplyPart(brand, 'APS', amps, variant).pn} / ${MLP.supplyPart(brand, 'BPS', amps, variant).pn}`;
+/* Batteries (two per supply). Ah from the catalog, never parsed from the P/N (C5). 12V6A5 manual-only (C1 #58). */
+MLP.BATTERIES = {
+  '12V6A5': { ah: 7.2, family: 'BPS', fit: 'supply', manualOnly: true },
+  '12V10A': { ah: 10.5, family: 'BPS', fit: 'supply' },
+  '12V17A': { ah: 18, family: 'APS', fit: 'supply' },
+  '12V24A': { ah: 26, family: 'APS', fit: 'supply' },
+  '12V40A': { ah: 40, family: 'BPS', fit: 'bc1' },
+  '12V50A': { ah: 50, family: 'BPS', fit: 'cabinet' },
+  '12V65A': { ah: 65, family: 'BPS', fit: 'cabinet' }
+};
+MLP.batteries = MLP.BATTERIES;
+MLP.BATTERY_SMALL_ADVISORY = '12V6A5 is likely too small for ASD projects';
+MLP.KIDDE_DM_NOTICE = 'Ordering requires authorization from the Kidde District Manager first.';
+MLP.FACU_ADVISORY = 'FACU powers the ASDs — confirm the FACU power supply and batteries carry this load (not sized here).';
+/* Enclosure for a battery: in-supply / BC-1 / cabinet (SSU00507 or 3-RCC7R[+3-BATS]); cabinet default by brand. */
+MLP.enclosureFor = function (brand, model, cabinet){
+  const bt = MLP.BATTERIES[model]; if (!bt) return null;
+  if (bt.fit === 'supply') return { key: null, label: 'None — fits in supply enclosure', parts: [] };
+  if (bt.fit === 'bc1') return { key: 'bc1', label: 'BC-1', parts: ['bc1'] };
+  const c = cabinet === 'edwards' || cabinet === 'spaceage' ? cabinet : MLP.BRANDS[MLP.brandOf(brand)].cabinetDefault;
+  if (c === 'spaceage') return { key: 'spaceage', label: 'SSU00507', parts: ['ssu00507'] };
+  return model === '12V65A' ? { key: 'edwards', label: '3-RCC7R + 3-BATS (battery shelf)', parts: ['rcc7r', 'bats'], kiddeDm: MLP.brandOf(brand) === 'kidde-commercial' }
+                            : { key: 'edwards', label: '3-RCC7R', parts: ['rcc7r'], kiddeDm: MLP.brandOf(brand) === 'kidde-commercial' };
+};
+/* Per-supply BOM lines (B5). opts: { brand, battery, amps, family, variant, cabinet, tamper, seismic, supplies } */
+MLP.supplyBom = function (o){
+  const brand = MLP.brandOf(o.brand), n = o.supplies || 1, out = [], mf = MLP.BRANDS[brand].manufacturer;
+  const bt = MLP.BATTERIES[o.battery];
+  const fam = o.family || (bt ? bt.family : 'BPS');
+  const sp = MLP.supplyPart(brand, fam, o.amps, o.variant);
+  out.push({ qty: n, manufacturer: mf, partNumber: sp.pn, description: sp.desc, note: sp.note });
+  const enc = bt ? MLP.enclosureFor(brand, o.battery, o.cabinet) : null;
+  if (enc) enc.parts.forEach(k => out.push({ qty: n, manufacturer: MLP.manufacturerFor(brand, k), partNumber: MLP.partFor(brand, k), description: MLP.PARTS[k].desc }));
+  if (bt) out.push({ qty: 2 * n, manufacturer: mf, partNumber: o.battery, description: `Standby battery, 12 VDC, ${bt.ah} Ah` });
+  if (o.tamper) out.push({ qty: n, manufacturer: mf, partNumber: '3-TAMP', description: MLP.PARTS.tamper.desc });
+  if (o.seismic){ out.push({ qty: n, manufacturer: mf, partNumber: sp.family === 'APS' ? 'APSEQ' : 'BPSEQ', description: MLP.PARTS[sp.family === 'APS' ? 'apsEq' : 'bpsEq'].desc });
+    if (enc && enc.key === 'bc1') out.push({ qty: n, manufacturer: mf, partNumber: 'BC-1EQ', description: MLP.PARTS.bc1Eq.desc }); }
+  return out;
+};
+/* B4a price rule BPS6A + BC-2 → APS6A: ships OFF, prices blank (C1 #52). */
+MLP.PRICES = {};
+MLP.priceRuleBps6aBc2 = function (){ return null; };
+
+/* ======================= 1.6.0: ASD-160 (Micra25 / Senator 25), kind 'asd160' ======================= */
+MLP.ASD160 = { model: 'ASD-160', aliases: ['ASD-160', 'ASD160', 'Micra25', 'MICRA25', 'Senator 25'], ma: 250, voltsMin: 21.6, voltsMax: 26.4,
+  ulSens: 1.28, ulTt: 120, ulHoles: 10, ulLengthFt: 160, maxLengthFt: 165, maxTt: 120,
+  rangeMin: 0.00914, rangeMax: 7.62, tol: 0.00023, ref: 'Senator 25 Installers Handbook 10-3511-505-SN25-10 REV 010',
+  relayBase: ['Fire', 'Fault'], relayCard: ['Pre-Alarm', 'Aux', 'Fire 2'] };
+MLP.isAsd160Label = s => /^(asd-?160|micra ?25|senator ?25)$/i.test(String(s || '').trim());
+MLP.ASD160_FM_LIMITS = { VEWFD: { sens: 1.00, tt: 60 }, EWFD: { sens: 1.50, tt: 90 }, SFD: { sens: 3.5, tt: 120 } };
+MLP.ASD160_LEVELS = [
+  { key: 'alert', label: 'Aux', setting: 'E17', list: [10, 9, 8, 7, 6, 5, 4, 3, 2], def: 2 },
+  { key: 'action', label: 'Pre-Alarm', setting: 'E16', list: [8, 7, 6, 5, 4, 3], def: 5 },
+  { key: 'fire1', label: 'Fire', setting: 'E15', list: [10, 9, 8], def: 10 },
+  { key: 'fire2', label: 'Fire 2', setting: null, list: null, def: null }
+];
+MLP.ASD160_WORKSHEET = "Brent's Alarm Factor Calculator (af-table.xlsx) H12/H13";
+MLP.asd160ToM = v => v / 0.3048;
+MLP.asd160InRange = v => v != null && isFinite(v) && v >= MLP.ASD160.rangeMin - MLP.ASD160.tol - 1e-12 && v <= MLP.ASD160.rangeMax + MLP.ASD160.tol + 1e-12;
+/* §7b trigger (C1 #28/#29): NFPA-family preset, or FM/Custom with ulOptIn. No perf → perfBlank (SFD/OAP – NFPA 72, C1 #30). */
+MLP.asd160Scope = function (perf, area){
+  const p = perf || MLP.perfBlank(); const s = MLP.perfScope(p, area);
+  return { standard: s.standard, ulOptIn: !!s.ulOptIn, limits: s.limits || null, isDefault: !perf, preset: MLP.perfPreset(s.standard) || null };
+};
+MLP.asd160IsUl = function (perf, area){
+  const sc = MLP.asd160Scope(perf, area);
+  if (MLP.perfIsUl(sc.standard)) return true;
+  const fam = sc.preset && sc.preset.family;
+  return !!sc.ulOptIn && (fam === 'FM' || fam === 'Custom');
+};
+const ASD_CLS_FROM_PRESET = id => /VEWFD/.test(id) ? 'VEWFD' : /EWFD/.test(id) ? 'EWFD' : /SFD|OAP/.test(id) ? 'SFD' : null;
+/* Description token (suggestion only) */
+MLP.asd160DescHint = function (desc){
+  const d = String(desc || '').toUpperCase(), r = {};
+  if (/UL ?268/.test(d)) r.standard = 'UL 268'; else if (/FM ?3230/.test(d)) r.standard = 'FM 3230'; else if (/ULC-?S529/.test(d)) r.standard = 'ULC-S529';
+  if (/VEWFD/.test(d)) r.cls = 'VEWFD'; else if (/EWFD/.test(d)) r.cls = 'EWFD'; else if (/SFD|STANDARD FIRE|OAP/.test(d)) r.cls = 'SFD';
+  return r;
+};
+/* Class source order (C1 #50): maxTransitTime (exact 60/90/120) → Description hint → user pick. */
+MLP.asd160Class = function (pipe, userCls){
+  if (userCls) return { cls: userCls, src: 'user' };
+  const t = pipe && pipe.maxTransit; const c = (t === 60 || t === 90 || t === 120) ? MLP.TT_TO_CLASS[t] : null;
+  if (c) return { cls: c === 'OAP' ? 'SFD' : c, src: `maxTransitTime ${t} s` };
+  const h = MLP.asd160DescHint(pipe && pipe.description);
+  if (h.cls) return { cls: h.cls, src: 'Description (suggestion)' };
+  return { cls: null, src: 'none' };
+};
+/* R-AF4 / G6a hole counts */
+MLP.asd160Holes = function (pipe){
+  const holes = (pipe && pipe.holes) || [], tps = (pipe && pipe.testPoints) || [];
+  const isTp = h => /test ?point/i.test(h.name || '');
+  const sampling = holes.filter(h => !(h.size === 0) && !isTp(h));
+  const tpAll = tps.concat(holes.filter(isTp)).filter(h => h.size !== 0);
+  return { sampling, testPoints: tpAll, all: holes.length + tps.length };
+};
+/* §8a transport: field target = longest sampling hole; benchmark = slowest test point (else the field target hole) */
+MLP.asd160Transport = function (pipe){
+  const h = MLP.asd160Holes(pipe), mx = arr => arr.filter(x => x.tt != null).reduce((a, x) => (!a || x.tt > a.tt) ? x : a, null);
+  const tgt = mx(h.sampling), bench = mx(h.testPoints) || tgt;
+  return { target: tgt ? tgt.tt : (pipe && pipe.tt != null ? pipe.tt : null), targetHole: tgt ? tgt.i : '', bench: bench ? bench.tt : null, benchHole: bench ? bench.i : '' };
+};
+/* Limits for this unit's scope (§7b table) */
+MLP.asd160Limits = function (perf, area, cls){
+  const A = MLP.ASD160, ul = MLP.asd160IsUl(perf, area), sc = MLP.asd160Scope(perf, area);
+  if (ul){
+    if (MLP.perfIsUl(sc.standard)){ const c = ASD_CLS_FROM_PRESET(sc.standard) || 'SFD', n = MLP.NFPA_LIMITS[c] || {};
+      const sens = n.sens != null ? Math.min(A.ulSens, n.sens) : A.ulSens, tt = n.tt != null ? Math.min(A.ulTt, n.tt) : A.ulTt;
+      return { ul: true, cls: c, sens, tt, sensBy: sens < A.ulSens ? 'nfpa' : 'ul', ttBy: tt < A.ulTt ? 'nfpa' : 'ul', nfpaRef: c === 'SFD' ? 'NFPA 72' : 'NFPA 76', nfpaCite: n.ref, standard: sc.standard, isDefault: sc.isDefault }; }
+    return { ul: true, cls: cls || null, sens: A.ulSens, tt: A.ulTt, sensBy: 'ul', ttBy: 'ul', optIn: true, standard: sc.standard, isDefault: sc.isDefault };
+  }
+  const fam = sc.preset && sc.preset.family;
+  if (fam === 'FM'){ const l = cls && MLP.ASD160_FM_LIMITS[cls]; return { ul: false, fm: true, cls, sens: l ? l.sens : null, tt: l ? l.tt : null, standard: sc.standard }; }
+  const ul2 = sc.limits && cls && sc.limits[cls];
+  return { ul: false, cls, sens: ul2 && ul2.sens != null ? ul2.sens : null, tt: ul2 && ul2.tt != null ? ul2.tt : null, custom: true, standard: sc.standard };
+};
+/* R-AF2/R-AF3: AF nearest the .pl sensitivity without exceeding it, then step down until AF × sampling holes ≤ cap. */
+MLP.asd160DeriveAf = function (sens, nHoles, cap){
+  const t = MLP.MINILASER.afFire1; let af = null;
+  for (let a = 8; a >= 0; a--) if (sens == null || t[a] <= sens + 1e-12){ af = a; break; }
+  if (af == null) af = 0;
+  if (cap != null) while (af > 0 && t[af] * nHoles > cap + 1e-12) af--;
+  const fail = cap != null && t[af] * nHoles > cap + 1e-12;
+  return { af, fire1: t[af], holeSens: +(t[af] * nHoles).toFixed(4), fail };
+};
+const r2 = v => v == null ? '—' : (+v).toFixed(v < 0.1 ? 4 : 2).replace(/0+$/, '').replace(/\.$/, '');
+/* Full evaluation of one ASD-160 (rec from parsePl, or a device with .pipe). Issues: level 'error' | 'warn' | 'advisory' | 'incomplete'. */
+MLP.asd160Evaluate = function (rec, perf, area, opts){
+  const A = MLP.ASD160, o = opts || {}, pipe = rec.pipe || {}, issues = [];
+  const counts = MLP.asd160Holes(pipe), n = counts.sampling.length;
+  const worstH = counts.sampling.filter(h => h.sens != null).reduce((a, h) => (!a || h.sens > a.sens) ? h : a, null);
+  const worst = worstH ? worstH.sens : null;
+  const cls = MLP.asd160Class(pipe, o.cls);
+  const lim = MLP.asd160Limits(perf, area, cls.cls);
+  const transport = MLP.asd160Transport(pipe);
+  const sens = pipe.designSens;
+  const plAf = pipe.af, activated = String(pipe.afActivatedRaw || '').toLowerCase() === 'true';
+  let af;
+  if (activated && plAf != null) af = { af: plAf, src: '.pl', fire1: MLP.MINILASER.afFire1[plAf], fail: lim.sens != null && MLP.MINILASER.afFire1[plAf] * n > lim.sens + 1e-12 };
+  else { const d = MLP.asd160DeriveAf(sens, n, lim.sens); af = Object.assign(d, { src: 'derived per Brent rule' }); }
+  const len = pipe.lengthFt != null ? pipe.lengthFt : null;
+  const tt = transport.target;
+  const gov = by => by === 'nfpa' ? `UL 268 7th edition / ${lim.nfpaRef}` : 'UL 268 7th edition';
+  const rafs = [];
+  if (lim.ul){
+    const sensName = lim.sensBy === 'nfpa' ? `${lim.nfpaRef} ${lim.cls} ${r2(lim.sens)} %obs/ft` : 'UL 268 7th edition 1.28 %obs/ft';
+    const ttName = lim.ttBy === 'nfpa' ? `${lim.nfpaRef} ${lim.cls} ${lim.tt} s` : 'UL 268 7th edition 120 s';
+    if (worst != null && worst > lim.sens + 1e-12){ const m = `worst hole ${r2(worst)} %obs/ft exceeds ${sensName}`; issues.push({ level: 'error', msg: m }); rafs.push([lim.sensBy, m]); }
+    if (counts.all > A.ulHoles){ const m = `${counts.all} holes incl. end cap exceeds the UL maximum of 10 (Senator 25 Handbook p11)`; issues.push({ level: 'error', msg: m }); rafs.push(['ul', m]); }
+    if (len != null && len > A.ulLengthFt){ const m = `pipe length ${r2(len)} ft exceeds the UL 160 ft test length`; issues.push({ level: 'error', msg: m }); rafs.push(['ul', m]); }
+    if (tt != null && tt > lim.tt + 1e-9){ const m = `transport ${r2(tt)} s exceeds ${ttName}`; issues.push({ level: 'error', msg: m }); rafs.push([lim.ttBy, m]); }
+    if (af.fail){ const m = `even AF 0 (${MLP.MINILASER.afFire1[0]} × ${n} holes) exceeds ${r2(lim.sens)} %obs/ft — use fewer holes or redesign`; issues.push({ level: 'error', msg: m }); rafs.push([lim.sensBy, m]); }
+    const h = MLP.asd160DescHint(pipe.description);
+    if (h.standard && h.standard !== 'UL 268') rafs.push(['ul', `the .pl Description points to ${h.standard}`]);
+    rafs.forEach(([by, m]) => issues.push({ level: 'warn', msg: `This project is set to UL 268 7th edition, but this ASD-160 does not meet ${gov(by)} (Senator 25 Handbook p.vii): ${m}. Redesign, or set the project standard to the one the design follows.` }));
+  } else {
+    if (sens != null && !MLP.asd160InRange(sens)) issues.push({ level: 'error', msg: `Detector sensitivity ${r2(sens)} %obs/ft (${r2(MLP.asd160ToM(sens))} %obs/m) is outside the ASD-160 range 0.00914–7.62 %obs/ft (Senator 25 Handbook p3)` });
+    counts.sampling.forEach(hh => { if (hh.sens != null && hh.sens > A.rangeMax + A.tol + 1e-12) issues.push({ level: 'error', msg: `Hole ${hh.i} sensitivity ${r2(hh.sens)} %obs/ft is above the ASD-160 range 7.62 %obs/ft (Senator 25 Handbook p3)` }); });
+    if (tt != null && tt > A.maxTt + 1e-9) issues.push({ level: 'error', msg: `transport ${r2(tt)} s exceeds the ASD-160 maximum 120 s (Senator 25 Handbook p11)` });
+    if (!cls.cls) issues.push({ level: 'incomplete', msg: 'Class not stated in the .pl — pick one' });
+    else if (lim.sens == null) issues.push({ level: 'incomplete', msg: `No ${cls.cls} limits entered for ${lim.standard || 'this standard'} — enter and confirm them` });
+    if (lim.sens != null && worst != null && worst > lim.sens + 1e-12) issues.push({ level: 'error', msg: `worst hole ${r2(worst)} %obs/ft exceeds ${lim.fm ? 'FM' : lim.standard} ${cls.cls} ${r2(lim.sens)} %obs/ft` });
+    if (lim.tt != null && tt != null && tt > lim.tt + 1e-9) issues.push({ level: 'error', msg: `transport ${r2(tt)} s exceeds ${lim.fm ? 'FM' : lim.standard} ${cls.cls} ${lim.tt} s` });
+    if (af.fail) issues.push({ level: 'error', msg: `even AF 0 exceeds the ${cls.cls} limit ${r2(lim.sens)} %obs/ft — use fewer holes or redesign` });
+    if (len != null && len > A.maxLengthFt) issues.push({ level: 'warn', msg: `pipe length ${r2(len)} ft exceeds the ASD-160 general maximum 165 ft (still air, Senator 25 Handbook p3)` });
+    if (counts.all > A.ulHoles){ const v = MLP.asd160PipecadValid(rec, lim);
+      if (v.ok) issues.push({ level: 'advisory', msg: `${counts.all} holes on one pipe run — Senator 25 Handbook p11 says each pipe run 'should not have more than 10 holes (including the end cap hole)'; accepted because the PipeCAD design validates` });
+      else issues.push({ level: 'error', msg: `${counts.all} holes on one pipe run and the PipeCAD design does not validate (${v.reason}) — Senator 25 Handbook p11` }); }
+  }
+  return { af, cls, ul: lim.ul, limits: lim, counts: { sampling: n, all: counts.all }, worst, worstHole: worstH ? worstH.i : '', transport, issues };
+};
+/* C1 #35 "PipeCAD proves validity" — criteria (1)–(5) */
+MLP.asd160PipecadValid = function (rec, lim){
+  const p = rec.pipe || {}, h = MLP.asd160Holes(p), tr = MLP.asd160Transport(p);
+  if (String(p.resultsValid).toLowerCase() !== 'true') return { ok: false, reason: 'resultsValid is not true' };
+  if (!p.hasResults) return { ok: false, reason: 'no PipeCAD results for this detector' };
+  if (p.balance == null || p.balanceMinLimit == null || p.balance < p.balanceMinLimit) return { ok: false, reason: 'hole balance below balanceMinLimit' };
+  if (h.sampling.some(x => x.sens != null && ((lim && lim.sens != null && x.sens > lim.sens + 1e-12) || !MLP.asd160InRange(x.sens)))) return { ok: false, reason: 'a hole sensitivity exceeds the class limit or detector range' };
+  if (tr.target != null && ((p.maxTransit != null && tr.target > p.maxTransit) || (lim && lim.tt != null && tr.target > lim.tt))) return { ok: false, reason: 'transport exceeds maxTransitTime or the class limit' };
+  return { ok: true };
+};
+/* §7d level prefill and checks (Aux/Pre-Alarm/Fire/Fire 2 — detector levels, %obs/ft) */
+MLP.asd160ConfigSeed = function (af, settings){
+  const s = Object.assign({ fire1: 10, action: 5, alert: 2 }, settings || {}), f1 = MLP.MINILASER.afFire1[af == null ? 0 : af];
+  const T = MLP.TYPICAL_DEFAULTS || {}, pick = k => (T[k] != null ? T[k] : (MLP.CONFIG_FIELDS.find(f => f.k === k || f.key === k) || {}).def);
+  return { fire1: f1, action: +((s.action / s.fire1) * f1).toFixed(5), alert: +((s.alert / s.fire1) * f1).toFixed(5), fire2: null,
+    actionDly: pick('actionDly') != null ? pick('actionDly') : 5, fire1Dly: pick('fire1Dly') != null ? pick('fire1Dly') : 5,
+    flowLow: 20, flowHigh: 20, flowDly: 120, seeded: 'worksheet default — verify (' + MLP.ASD160_WORKSHEET + ')' };
+};
+MLP.asd160ConfigIssues = function (v){
+  const out = [], num = x => (x === '' || x == null) ? null : +x;
+  const a = num(v.alert), p = num(v.action), f1 = num(v.fire1), f2 = num(v.fire2);
+  const seq = [['Aux', a], ['Pre-Alarm', p], ['Fire', f1], ['Fire 2', f2]].filter(x => x[1] != null);
+  for (let i = 1; i < seq.length; i++) if (!(seq[i][1] > seq[i - 1][1])) out.push({ level: 'error', msg: `${seq[i][0]} (${seq[i][1]}) must be above ${seq[i - 1][0]} (${seq[i - 1][1]}) — Aux < Pre-Alarm < Fire < Fire 2` });
+  if (f2 == null) out.push({ level: 'incomplete', msg: 'Fire 2 not set — enter it (detector level, %obs/ft)' });
+  else if (!MLP.asd160InRange(f2)) out.push({ level: 'error', msg: `ASD-160 Fire 2 ${f2} %obs/ft is outside the detector range 0.00914–7.62 (D4 Table 1 p3)` });
+  [['actionDly', 'Pre-Alarm delay', 0, 90], ['fire1Dly', 'Fire delay', 0, 90], ['flowLow', 'Flow low', 0, 20], ['flowHigh', 'Flow high', 0, 20], ['flowLow2', 'Flow low 2', 0, 30], ['flowHigh2', 'Flow high 2', 0, 30], ['flowDly', 'Flow fault delay', 0, 240]]
+    .forEach(([k, l, lo, hi]) => { const x = num(v[k]); if (x != null && (x < lo || x > hi)) out.push({ level: 'error', msg: `${l} ${x} is outside ${lo}–${hi}` }); });
+  return out;
+};
+
 root.MLP = MLP;
 if (typeof module !== 'undefined' && module.exports) module.exports = MLP;
 })(typeof window !== 'undefined' ? window : globalThis);
+
 </script>
 <script>
 "use strict";
 /* =====================================================================
-   Edwards ModuLaser MASD Field Report — Rev 11
+   ModuLaser MASD Field Report (Edwards | Kidde Commercial) — Rev 11
    Single-file, offline. Data autosaves in this browser; Export/Import
    a .json job file to hand off or archive.
    ===================================================================== */
@@ -1471,7 +1744,7 @@ const STORE_KEY = 'modulaser-masd-field-report-r10';
    rrr: auto-increments per distinct logical change, one row per change below.
    Each entry snapshots its own minor/major so a later bump never relabels history. */
 const APP_MAJOR = "02";
-const APP_MINOR = "01";
+const APP_MINOR = "02";
 const AMENDMENTS = [
   { rev: "000", major: "01", date: "260930", desc: "Baseline — the Rev 10 feature set at the start of formal revision tracking (before the 001 Help menu). A — Project Information (site, job, address, commissioning date, applicable standard, installing company, installer, commissioning engineer, system designer, owner contact, PipeCAD reference, FACU, SLC panel quantity, notes). B — 17-item Pre-Power-Up Inspection (Y / N / N/A with notes and a live rollup). C — Module & Power Supply Index — detector, standard display, command display and other modules kept in SenseNET address order (1–127, duplicates flagged), power supplies, and a shared Test setup block. D — per-module sheets — identity and location, IN1/IN2/OUT1–OUT3 FACU programming with PPP:CCC:DDDD address validation (display OUT1 fixed to General Fault), configuration (alarm levels, Alarm Factor 0–8, fan speed 1–16, flow limits ≤20%, delays, Day/Night, FastLearn, Demo Mode, access codes, baseline, filter); detector page 2 with performance target (NFPA 76 VEWFD/EWFD/SFD, EN 54-20 Class A/B/C, Custom), average hole sensitivity = chamber sensitivity × holes, T1 transport time vs PipeCAD with variance, T2 three-run smoke test with spread, T3 airflow fault, T4 input/output test. E — power supply sheets (identity, battery, AC-fail and trouble monitoring points, battery/standby test vs required hours). F — SenseNET / SNET+ node-to-node wiring verification (continuity, isolation, capacitance with total nF). G — 22-item Final Commissioning Checklist with auto-collected deficiencies. H — Module Test Summary. I — acceptance status and three-party sign-off. Automatic PASS / FAIL / INCOMPLETE per section and device, with an override applied only when a reason is entered. Autosave to the browser, Export / Import job (.json), New job, and Print / PDF on Portrait Letter with running headers, footers and Page X of Y." },
   { rev: "001", major: "01", date: "260930", desc: "Migrated from the legacy single-integer “Rev 10” scheme to formal MM.mm.rrr_YYMMDD revision tracking (patch counter restarted at 001 per document owner). Prior r1–r10 history: iterative development of the module/PSU index, per-device sheets, automatic PASS/FAIL/INCOMPLETE evaluation, wiring verification, auto-collected deficiencies, module test summary, and sign-off — through Rev 10’s current single-page, autosaving, print-ready form. Added the 4-section Help menu (How to Use This Field Report, Standards and Formulas, FAQs, Revision Log) and this amendments table." },
@@ -2490,7 +2763,7 @@ function updatePageStyle(){
   const right = [p.site, p.job?('Job '+p.job):'', fmtDate(p.date)].filter(Boolean).join(' · ') || 'Site not entered';
   document.getElementById('pageStyle').textContent =
 `@page{size:letter portrait;margin:.5in .5in .5in .5in;
- @top-left{content:"Edwards ModuLaser MASD Field Report · Rev ${revShort()}";font-size:7.5pt;color:#556;font-family:Arial,sans-serif}
+ @top-left{content:"${typeof rpBrandTitle === 'function' ? cssStr(rpBrandTitle()) : 'Edwards ModuLaser MASD — Field Report'} · Rev ${revShort()}";font-size:7.5pt;color:#556;font-family:Arial,sans-serif}
  @top-right{content:"${cssStr(right)}";font-size:7.5pt;color:#556;font-family:Arial,sans-serif}
  @bottom-left{content:"${cssStr(p.site||'')}";font-size:7.5pt;color:#556;font-family:Arial,sans-serif}
  @bottom-right{content:"Page " counter(page) " of " counter(pages);font-size:7.5pt;color:#556;font-family:Arial,sans-serif}}`;
@@ -2513,6 +2786,7 @@ AMENDMENTS.push({ rev: "001", major: "02", minor: "00", date: "261013", desc: "A
 AMENDMENTS.push({ rev: "002", major: "02", minor: "00", date: "261016", desc: "Per Brent (G1). <b>SenseNET networks — modulaser-project.js 1.4.0.</b> Each device carries its SenseNET network (design.devices[].network; older files → network 1; standalone supplies → standalone:true). The Report keeps it per module (Identity → <i>SenseNET network</i>), shows it in the Device Index and Summary (<i>Net</i>: SN1, SN2…; SA = standalone), checks duplicate addresses per network (the same address on SN1 and SN2 is fine), and allows more than 127 modules in total as long as each network has 127 or fewer — an import is blocked only when one network would exceed 127 (the message names it). New modules go on the first network with room. Shared module bumped 1.3.0 → 1.4.0 (per-network validator, network in the design diff), byte-identical in the Battery Calculator 02.00.004, MASD Engineering Toolbox 00.01.002 and this Report (harmonization rule). Engine unchanged (MASD engine 1.0.0)." });
 AMENDMENTS.push({ rev: "003", major: "02", minor: "00", date: "261016", desc: "Per Brent (2026-10-16). <b>Revision order and Windows installer.</b> The revision log had 02.00.002 listed before 02.00.001, and the app and installer read the last entry, so the live site, saved job files and the installer showed 02.00.001 instead of 02.00.002. The log is back in ascending order, and a regression test (tests/revision_order.test.js) fails if it ever goes out of order, or if the page title or offline cache name don't match the latest revision. Windows installer workflow: this repo uses immutable releases, so a file can't be added to a release once it is published (that is why v02.00.001 and v02.00.002 have no installer). The installer is now built from the revision log, attached to a <i>draft</i> release, and the release is published only after that. No changes to checks, calculations or the project file (modulaser-project.js 1.4.0, MASD engine 1.0.0 unchanged)." });
 AMENDMENTS.push({ rev: "000", major: "02", minor: "01", date: "261016", desc: "Per Brent (2026-10-16). <b>MiniLaser ASD (FHSD8075-ULF).</b> New module type MiniLaser (standalone: never addressed, no SenseNET checks), from the Battery Calculator 02.01.000 / Toolbox 00.02.000 project file, a PipeCAD .pl (SOLO detectors) or + MiniLaser. Setup: R1 Fault relay (fixed, fail-safe), R2 Relay output 1 (Prealarm), R3 Relay output 2 (Fire Alarm), IN1 supervised input, and per I/O Expansion Module (9-30521, 0–2) X1/X2 OUT1–5 (latched relays, 2 A @ 30 VDC) and IN1–2 (15 kΩ). Configure: fan speed and alarm factor from the design; application (Table 35), configuration method, alarm delay and flow-fault level/delay with no prefilled values. Checks: hole sensitivity (Fire 1 × holes for the alarm factor) and transport time against Table 35 for the selected application; 40% flow fault on a UL/FM application is a warning only. Tests: transport, smoke, airflow fault, relay/input. modulaser-project.js 1.5.1. <b>QA delta:</b> MiniLaser Holes / pipe length check (manual p.66); the 40% flow note reads “UL/FM requires ≤20% (M p.71)”. <b>Final:</b> modulaser-project.js 1.5.1." });
+AMENDMENTS.push({ rev: "000", major: "02", minor: "02", date: "261019", desc: "Harmonized with Battery Calculator 02.02.000; Report: part-number basis dialog on brand mismatch, ASD-160 sheet (PipeCAD limits, Remote config levels, transport +20 %, benchmark test point), FACU checkbox under the FACU field. <b>Brand selector (Edwards | Kidde Commercial)</b> — project-level, first in Project information; part numbers, supply labels, BOM, logos and report titles follow the brand; the remembered default seeds new projects. Per-sheet supply <b>variant</b> (120 V / 220–230 V / ULC), tamper and seismic accessories, and <b>FACU powers these ASDs</b> with a power-source prompt (in-house / third-party / unidentified; unidentified makes the sheet Incomplete). <b>ASD-160 (Micra25 / Senator 25)</b> rows in the ASD table: 250 mA, dedicated AUX circuit, networked address 1–127, PipeCAD .pl import (MICRA25), Remote configuration, UL/non-UL alarm-factor rules (1.28 cap on UL SFD/OAP, R-AF7). Battery 12V6A5 (7.2 Ah) is manual-only with a too-small advisory. AUX/ribbon rules: max 4 AUX per power supply; each ribbon run holds max 4 detectors + 1 display; a detector-started run counts that detector; hybrid clusters may have any number of runs; own-AUX modules are not runs. Help revised with current screenshots; new printable Quick Start (Help ▸ Print Quick Start). MLP 1.6.0, engine 1.2.0." });
 TYPES.min = 'Minimum Display Module'; TYPE_SHORT.min = 'Min Display';
 const TYPE_FROM_DESIGN = { 'Detector': 'det', 'Standard Display': 'std', 'Minimum Display': 'min', 'Command Display': 'cmd', 'MiniLaser': 'ml' };
 const TYPE_TO_DESIGN = { det: 'Detector', std: 'Standard Display', min: 'Minimum Display', cmd: 'Command Display', oth: 'Other', ml: 'MiniLaser' };
@@ -3949,5 +4223,204 @@ document.addEventListener('click', e => {
 (function wrapSw(){ const u = document.getElementById('swUse'); if (u) u.addEventListener('click', () => { const k = document.getElementById('swTarget').value; if (k && techName()) logEdit(k + '.stopwatch', '', swNow().toFixed(1), { kind: 'stopwatch' }); }, true); })();
 
 </script>
+<!--LOGOS-BEGIN--><script id="brand-logos">
+/* 02.02.000 (B2a): brand logos as data URIs, generated from assets/brand/ — app-level, outside the synced MLP. */
+const APP_BRAND_LOGOS = {"edwards-white": "data:image/png;base64,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", "kidde-commercial-white": "data:image/png;base64,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", "edwards-gray": "data:image/png;base64,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", "kidde-commercial-color": "data:image/png;base64,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"};
+</script><!--LOGOS-END-->
+<!--RP0202-BEGIN--><script id="rp-0202">
+/* 02.02.000 Commissioning Report layer — brand selector, logos/title, linked-design brand mismatch + part-number basis,
+   ASD-160 device sheet, §8a benchmark test point fields (all detectors, additive), FACU powers the ASDs. Plan rev 4.23b B9/§4/§8a/B4b/B4c. */
+const RP_BRAND_KEY = 'mlBrandDefault';
+function rpBrand(){ return MLP.brandOf(state && state.project && state.project.brand); }
+function rpBrandTitle(){ return MLP.BRANDS[rpBrand()].reportTitle; }
+function rpDesignBrand(){ return MLP.brandOf(state && state.design && state.design.brand); }
+function rpLogo(print){ const b = rpBrand(); const id = print ? (b === 'kidde-commercial' ? 'kidde-commercial-color' : 'edwards-gray') : (b === 'kidde-commercial' ? 'kidde-commercial-white' : 'edwards-white');
+  const src = typeof APP_BRAND_LOGOS !== 'undefined' && APP_BRAND_LOGOS[id]; return src ? `<img class="br-logo" src="${src}" alt="${MLP.BRANDS[b].label}">` : ''; }
+(function rpStyle(){ const st = document.createElement('style'); st.id = 'rp-0202-css';
+  st.textContent = `.seg{display:inline-flex;border:1px solid var(--line,#2a3441);border-radius:6px;overflow:hidden}.seg button{background:transparent;color:var(--muted,#8b98a8);border:0;border-right:1px solid var(--line,#2a3441);padding:5px 11px;font:inherit;font-size:12.5px;cursor:pointer}
+.seg button:last-child{border-right:0}.seg button[aria-pressed="true"]{background:var(--accent,#0c77bc);color:#fff;font-weight:600}.seg button:focus-visible{outline:2px solid var(--accent,#0c77bc);outline-offset:-2px}
+.br-logo{height:22px;width:auto;display:block}.rp-chip{display:inline-block;margin-left:8px;padding:1px 7px;border:1px solid currentColor;border-radius:4px;font:600 10px/1.6 ui-monospace,monospace;letter-spacing:.06em;opacity:.85}
+#brandBanner{margin:6px 0}.rp-amber{color:#f0b429}.rp-bench td,.rp-bench th{padding:3px 6px}
+@media print{.rp-chip,#brandBanner .qb{display:none}}`; document.head.appendChild(st); })();
+/* ---- header, title, print running header ---- */
+function rpPaintBrand(){
+  const b = MLP.BRANDS[rpBrand()];
+  document.title = `${b.reportTitle} ${typeof revShort === 'function' ? revShort() : ''}`.trim();
+  const md = document.querySelector('meta[name="description"]'); if (md) md.content = `Offline commissioning worksheet for ${b.label} ModuLaser Modular Aspirating Smoke Detector installations.`;
+  const br = document.querySelector('header.top .brand'); if (br){ const mk = br.querySelector('.mark, .br-logo-wrap'); if (mk){ const w = document.createElement('span'); w.className = 'br-logo-wrap'; w.innerHTML = rpLogo(false) || 'ML'; mk.replaceWith(w); }
+    let chip = br.querySelector('.rp-chip'); if (!chip){ chip = document.createElement('span'); chip.className = 'rp-chip noprint'; br.appendChild(chip); } chip.textContent = b.chip; }
+  document.querySelectorAll('.rp-app-name').forEach(e => { e.textContent = b.reportTitle; });
+  if (typeof updatePageStyle === 'function') updatePageStyle();
+}
+/* ---- Job sheet: brand control is the first field (B2) ---- */
+(function rpHookSecA(){
+  const _a = secA;
+  secA = function (){ const h = _a.apply(this, arguments); const cur = rpBrand();
+    const seg = `<div class="f s3 rp-brand-f"><span class="lb">Brand</span><div class="seg rp-brand-seg" role="group" aria-label="Brand">${Object.values(MLP.BRANDS).map(x => `<button type="button" data-brand="${x.id}" aria-pressed="${x.id === cur}">${x.label}</button>`).join('')}</div></div>`;
+    const facu = !!(state.project && state.project.facuPowersAsds);
+    const facuF = `<div class="f s3 rp-facu-f"><label><input type="checkbox" class="rp-facu"${facu ? ' checked' : ''}> FACU powers the ASDs</label>${facu ? `<div class="warnline">\u26A0 FACU powers these ASDs — do the battery calculation in that manufacturer's approved battery calculator; this tool does not account for non-ASD components.</div>` : ''}${state.project && state.project.powerSource === 'unidentified' ? '<div class="warnline">\u26A0 Incomplete — power source not identified. <a href="#" class="rp-psrc">Identify power source…</a></div>' : ''}</div>`;
+    return h.replace('<div class="g3">', '<div class="g3">' + seg).replace(/(FACU manufacturer \/ model[\s\S]*?<\/div>)/, '$1' + facuF); };
+  { const e = (typeof SEC_VIEWS !== 'undefined') && SEC_VIEWS.find(v => v[0] === 'A'); if (e) e[2] = secA; }
+})();
+document.addEventListener('click', e => {
+  const bb = e.target.closest('.rp-brand-seg button'); if (bb){ rpSwitchBrand(bb.dataset.brand); return; }
+  const ps = e.target.closest('.rp-psrc'); if (ps){ e.preventDefault(); rpAskPowerSource(); return; }
+  const basis = e.target.closest('[data-rp-basis]'); if (basis){ rpSetBasis(basis.dataset.rpBasis); return; }
+  if (e.target.closest('[data-rp-change]')) { rpAskBasis(); }
+});
+document.addEventListener('change', e => { const f = e.target.closest('.rp-facu'); if (!f) return; state.project = state.project || {}; state.project.facuPowersAsds = f.checked; state.project.facuUserSet = true;
+  if (f.checked) delete state.project.powerSource; save(); if (!f.checked) rpAskPowerSource(); else renderAll(); });
+function rpSwitchBrand(b){
+  b = MLP.brandOf(b); if (b === rpBrand()) return;
+  const go = () => { state.project = state.project || {}; state.project.brand = b; try { localStorage.setItem(RP_BRAND_KEY, b); } catch (e){}
+    save(); rpPaintBrand(); renderAll(); if (state.design && rpDesignBrand() !== b) rpAskBasis(); else if (state.brandAck){ rpSetBasis(null, true); } };
+  dlg('Switch brand', `<p>Set this report to <b>${MLP.BRANDS[b].label}</b>? Titles, logos and part numbers on this Report's own sheets follow the brand. The linked design file is not changed.</p>`, [{ label: 'Cancel' }, { label: 'Switch', pri: true, fn: go }]);
+}
+/* ---- part-number basis (F5) ---- */
+function rpAskBasis(){
+  const db = rpDesignBrand(), pb = rpBrand(), cur = (state.brandAck && state.brandAck.pnBasis) || db;
+  const n = b => (state.modules || []).filter(m => m.model && MLP.translatePart(m.model, b) !== m.model).length + (state.psus || []).filter(p => p.model && MLP.translatePart(p.model, b) !== p.model).length;
+  dlg('Part numbers on this Report', `<p>The linked design was built under <b>${MLP.BRANDS[db].label}</b>; this Report is set to <b>${MLP.BRANDS[pb].label}</b>. Show part numbers on this Report as:</p><p>The linked design file will not be changed. Sheets whose part numbers change: Edwards ${n('edwards')} · Kidde Commercial ${n('kidde-commercial')}. Models not in the catalog (third-party, free text) stay as entered.</p>`,
+    Object.values(MLP.BRANDS).map(x => ({ label: x.label + (x.id === cur ? ' (current)' : ''), pri: x.id === pb, fn: () => rpSetBasis(x.id) })));
+}
+function rpSetBasis(b, clear){
+  if (clear || !b){ delete state.brandAck; save(); renderAll(); return; }
+  (state.modules || []).forEach(m => { if (m.model) m.model = MLP.translatePart(m.model, b); });
+  (state.psus || []).forEach(p => { if (p.model) p.model = MLP.translatePart(p.model, b); });
+  const d = state.design || {}; state.brandAck = { designBrand: rpDesignBrand(), projectBrand: rpBrand(), pnBasis: b, designId: d.id || '', designHash: d.hash || (state.design ? MLP.designHash(state.design) : ''), plFile: (state.link && state.link.name) || '', at: new Date().toISOString(), by: (state.project && state.project.commEng) || '' };
+  save(); renderAll();
+}
+(function rpHookBanner(){
+  const _b = renderBanner;
+  renderBanner = function (){ const r = _b.apply(this, arguments);
+    let el = document.getElementById('brandBanner'); const lb = document.getElementById('linkBanner');
+    if (!el && lb){ el = document.createElement('div'); el.id = 'brandBanner'; lb.after(el); }
+    if (!el) return r;
+    const db = rpDesignBrand(), pb = rpBrand(), ack = state.brandAck, d = state.design;
+    if (!d || db === pb){ el.hidden = true; if (ack && d && db === pb){ delete state.brandAck; } return r; }
+    const h = d.hash || MLP.designHash(d), fresh = ack && ack.designHash === h && ack.projectBrand === pb && ack.designBrand === db;
+    el.hidden = false; el.className = 'banner';
+    el.innerHTML = fresh ? `Showing <b>${MLP.BRANDS[ack.pnBasis].label}</b> part numbers · linked design built under ${MLP.BRANDS[db].label} · <button class="qb" data-rp-change="1">Change…</button>`
+      : `\u26A0 Linked design was built under <b>${MLP.BRANDS[db].label}</b>; this report is set to <b>${MLP.BRANDS[pb].label}</b>. Part numbers may differ. Show part numbers as: ${Object.values(MLP.BRANDS).map(x => `<button class="qb" data-rp-basis="${x.id}">${x.label}</button>`).join('')} <button class="qb" data-act="checklink">Check linked file…</button>`;
+    return r; };
+})();
+/* ---- FACU untick → identify the power source (B4c) ---- */
+function rpAskPowerSource(){
+  const set = v => { state.project = state.project || {}; state.project.powerSource = v; save(); renderAll(); };
+  dlg('What powers these ASDs?', `<p>Pick the power source so the batteries can be checked, or dismiss — the Report stays ⚠ Incomplete until it is identified.</p>`,
+    [{ label: 'Dismiss', fn: () => set('unidentified') }, { label: 'Third-party (non-FACU)', fn: () => set('third-party') }, { label: `In-house supply (${MLP.BRANDS[rpBrand()].supplyLabel})`, pri: true, fn: () => set('in-house') }]);
+}
+/* ---- ASD-160 device sheet + §8a benchmark fields ---- */
+TYPES.asd = 'ASD-160 (Micra25 / Senator 25)';
+TYPE_FROM_DESIGN['ASD-160'] = 'asd';
+function rpBench(pipe){ if (!pipe) return {}; const tr = MLP.asd160Transport(pipe); return tr; }
+(function rpHookDevFields(){
+  const _f = devFields;
+  devFields = function (d){ const f = _f.apply(this, arguments); const p = d.pipe || {};
+    if (d.pipe){ const tr = rpBench(p); if (tr.benchHole !== '' && tr.bench != null){ f['t.tt.benchHole'] = String(tr.benchHole); f['t.tt.benchPipecad'] = (+tr.bench).toFixed(1); } }
+    if (d.kind === 'asd160'){ const a = d.asd160 || {}; f.type = 'asd'; f.sn = d.standalone ? '' : (d.address ? String(+d.address) : ''); f.net = d.standalone ? 'S' : String(MLP.devNetwork(d) || 1);
+      f['cfg.af'] = a.alarmFactor != null ? String(a.alarmFactor) : ''; f['perf.holes'] = a.holes != null ? String(a.holes) : ''; f['perf.target'] = a.perfClass || '';
+      const tr = rpBench(p); f['t.tt.pipecad'] = tr.target != null ? (+tr.target).toFixed(1) : (p.tt != null ? (+p.tt).toFixed(1) : ''); f.relayCard = d.relayCard ? 'Y' : 'N'; }
+    if (state && state.brandAck && f.model) f.model = MLP.translatePart(f.model, state.brandAck.pnBasis);
+    return f; };
+})();
+FIELD_LABEL['t.tt.benchHole'] = 'Benchmark test point'; FIELD_LABEL['t.tt.benchPipecad'] = 'Benchmark PipeCAD time (s)'; FIELD_LABEL.relayCard = 'Relay card';
+function rpAsdPipe(m){ const d = m.dev && state.design && (state.design.devices || []).find(x => x.id === m.dev); return d && d.pipe ? d.pipe : null; }
+function rpAsdEval(m){ const p = rpAsdPipe(m); if (!p) return null; return MLP.asd160Evaluate({ kind: 'asd160', pipe: p }, state.design && state.design.performance || null, m.area || '', { cls: m.perf && m.perf.target || null }); }
+function rpTtItems(m, add){
+  const lim = ttVarLimit(); const chk = (label, meas, pc) => { const mt = num(meas), p = num(pc); if (!ok(p)) return; if (!ok(mt)){ add('tt', label, 'B'); return; }
+    const v = (mt - p) / p * 100; add('tt', label, v <= lim ? 'P' : 'F', v <= lim ? '' : `${fmt(mt, 1)} s is ${fmt(v, 1)}% over the PipeCAD ${fmt(p, 1)} s (allowed +${lim}%)`); };
+  chk('Benchmark test point measured vs PipeCAD', m.t?.tt?.benchMeas, m.t?.tt?.benchPipecad);
+  if ((m.t?.tt?.ahjHole || '').trim()) chk('Owner/AHJ test hole measured vs PipeCAD', m.t?.tt?.ahjMeas, m.t?.tt?.ahjPipecad);
+}
+function evalAsd(m){
+  const it = []; const add = (sec, label, st, note = '') => it.push({ sec, label, st, note });
+  const net = mNet(m);
+  if (net === 'S') add('net', 'SenseNET address', String(m.sn || '').trim() ? 'F' : 'NA', String(m.sn || '').trim() ? 'a stand-alone ASD-160 is never addressed — clear the address' : 'stand-alone — not addressed');
+  else { const sn = num(m.sn); if (sn === null) add('net', 'SenseNET address', 'B'); else if (!(sn >= 1 && sn <= 127) || !Number.isInteger(sn)) add('net', 'SenseNET address', 'F', 'must be 1–127'); else if (state.modules.filter(x => num(x.sn) === sn && sameScope(x, m)).length > 1) add('net', 'SenseNET address', 'F', 'duplicate address on SenseNET ' + net); else add('net', 'SenseNET address', 'P'); }
+  if (!m.desc) add('net', 'Module name (descriptor)', 'B'); else add('net', 'Module name (descriptor)', String(m.desc).length > MLP.NAME_MAX ? 'F' : 'P');
+  add('net', 'Serial number', m.serial ? 'P' : 'B');
+  const ev = rpAsdEval(m);
+  if (!ev) add('perf', 'PipeCAD design (ASD-160 rules)', 'B', 'link the PipeCAD design to check the ASD-160 limits');
+  else { const errs = ev.issues.filter(x => x.level === 'error'); add('perf', `ASD-160 limits (${ev.ul ? 'UL 268 7th edition' : 'chosen standard'})`, errs.length ? 'F' : ev.issues.some(x => x.level === 'incomplete') ? 'B' : 'P', errs.map(x => x.msg).concat(ev.issues.filter(x => x.level !== 'error').map(x => '\u26A0 ' + x.msg)).join('; ')); }
+  const cfg = MLP.asd160ConfigIssues(m.cfg || {});
+  if (!['alert', 'action', 'fire1'].some(k => (m.cfg || {})[k] != null && (m.cfg || {})[k] !== '')) add('cfg', 'Alarm levels (Aux < Pre-Alarm < Fire < Fire 2)', 'B', 'enter the levels set with Remote');
+  else add('cfg', 'Alarm levels (Aux < Pre-Alarm < Fire < Fire 2)', cfg.some(x => x.level === 'error') ? 'F' : cfg.some(x => x.level === 'incomplete') ? 'B' : 'P', cfg.map(x => x.msg).join('; '));
+  const mt = num(m.t?.tt?.meas), pc = num(m.t?.tt?.pipecad);
+  if (!ok(mt)) add('tt', 'Measured transport time (field target)', 'B');
+  else { const lim = ev ? ev.limits.tt : MLP.ASD160.maxTt; add('tt', 'Measured transport time (field target)', lim != null && mt > lim + 1e-9 ? 'F' : 'P', lim != null && mt > lim + 1e-9 ? `${fmt(mt, 1)} s exceeds ${lim} s` : '');
+    if (ok(pc) && pc > 0){ const v = (mt - pc) / pc * 100, L = ttVarLimit(); add('tt', 'Measured vs PipeCAD transport', v <= L ? 'P' : 'F', v <= L ? '' : `${fmt(mt, 1)} s is ${fmt(v, 1)}% over the PipeCAD ${fmt(pc, 1)} s (allowed +${L}%)`); } }
+  rpTtItems(m, add);
+  add('smoke', 'Smoke test — Fire relay operated', ynSt(m.t?.smoke?.fire)); add('smoke', 'FACU verified', ynSt(m.t?.smoke?.facu));
+  add('flow', 'Flow fault', ynSt(m.t?.flow?.low)); add('flow', 'Faults cleared', ynSt(m.t?.flow?.clear));
+  rpAsdRelays(m).forEach(r => add('out', `${r} relay test`, selSt(m.t?.out?.[r.replace(/\W/g, '').toLowerCase()])));
+  const secs = {}; SECS.forEach(S => { const xs = it.filter(i => i.sec === S.k); secs[S.k] = !xs.length || xs.every(i => i.st === 'NA') ? 'NA' : xs.some(i => i.st === 'F') ? 'F' : xs.some(i => i.st === 'B') ? 'B' : 'P'; });
+  const vals = Object.values(secs); const auto = vals.includes('F') ? 'FAIL' : vals.includes('B') ? 'INCOMPLETE' : 'PASS';
+  const ov = m.ovr?.res || '', rs = (m.ovr?.reason || '').trim(); const applied = !!(ov && rs);
+  return { it, secs, auto, final: applied ? ov : auto, overridden: applied && ov !== auto, ovPending: !!(ov && !rs), asd: ev };
+}
+function rpAsdRelays(m){ return MLP.ASD160.relayBase.concat(m.relayCard === 'Y' ? MLP.ASD160.relayCard : []); }
+function rpBenchBlock(m, b){
+  return `<div class="tc rp-bench-tc"><div class="tc-h"><span class="id">T1b</span>Benchmark test point &amp; Owner/AHJ hole (periodic tests)</div>
+    <p class="note">Field transport target = longest sampling-hole time in PipeCAD (test point excluded). The benchmark test point time is the permitted transport test for all future periodic tests unless the Owner or AHJ requires a specific hole (usually the furthest, slowest sampling point). Pass at ≤ PipeCAD + ${ttVarLimit()} %.</p>
+    <div class="g6">${F('Benchmark test point', b + '.t.tt.benchHole')}${F('Benchmark PipeCAD time', b + '.t.tt.benchPipecad', { num: 1, unit: 's' })}${F('Benchmark measured', b + '.t.tt.benchMeas', { num: 1, unit: 's' })}
+    ${F('Owner/AHJ test hole', b + '.t.tt.ahjHole', { ph: 'optional — hole no.' })}${F('PipeCAD time', b + '.t.tt.ahjPipecad', { num: 1, unit: 's' })}${F('Measured', b + '.t.tt.ahjMeas', { num: 1, unit: 's' })}</div></div>`;
+}
+function asdSheet(m, i){
+  const b = `modules.${i}`, psus = state.psus.map((p, j) => [p.id, psuName(p, j)]), e = evalAsd(m), ev = e.asd;
+  const relays = rpAsdRelays(m);
+  const ident = `<div class="blk"><div class="blk-h">1 · Identity &amp; network <span data-calc="${m.id}-sec-net"></span></div>
+    <p class="note">ASD-160 (Micra25 / Senator 25) — ${mNet(m) === 'S' ? 'stand-alone: never addressed, not on SenseNET' : 'networked: addressed on SenseNET (DIP 1–127)'}; own dedicated AUX circuit; 250 mA; configured with Remote.</p>
+    <div class="g4">${F('Module type', b + '.type', { opts: Object.entries(TYPES) })}${F('Model / part number', b + '.model')}${F('Module name (descriptor)', b + '.desc')}${F('Area / Group', b + '.area')}
+      ${F('SenseNET network', b + '.net', { opts: [['S', 'Stand-alone'], ['1', 'SenseNET 1'], ['2', 'SenseNET 2'], ['3', 'SenseNET 3']] })}${F('DIP address', b + '.sn', { num: 1 })}${F('Relay card 33-30436A', b + '.relayCard', { opts: [['N', 'No'], ['Y', 'Yes']] })}${F('Supplying power supply', b + '.psu', { opts: psus })}
+      ${F('Location / room', b + '.loc')}${F('Serial number', b + '.serial')}</div></div>`;
+  const perf = `<div class="blk"><div class="blk-h">2 · PipeCAD design — ASD-160 limits <span data-calc="${m.id}-sec-perf"></span></div>
+    ${ev ? `<div class="g6"><div class="f"><span class="lb">Alarm factor</span><span class="calc">AF ${ev.af.af} (${esc(ev.af.src)})</span></div><div class="f"><span class="lb">Class</span><span class="calc">${esc(ev.cls.cls || '—')} (${esc(ev.cls.src)})</span></div>
+      <div class="f"><span class="lb">Sampling holes / all incl. end cap</span><span class="calc">${ev.counts.sampling} / ${ev.counts.all}</span></div><div class="f"><span class="lb">Worst hole</span><span class="calc">${ev.worst == null ? '—' : fmt(ev.worst, 4) + ' %obs/ft'}</span></div>
+      <div class="f"><span class="lb">Limits</span><span class="calc">${ev.limits.sens == null ? '—' : '≤ ' + ev.limits.sens + ' %obs/ft'} · ${ev.limits.tt == null ? '—' : '≤ ' + ev.limits.tt + ' s'}${ev.ul ? ' · UL 268 7th ed.' : ''}</span></div><div class="f"><span class="lb">Field target / benchmark</span><span class="calc">${ev.transport.target == null ? '—' : fmt(ev.transport.target, 1) + ' s'} / ${ev.transport.bench == null ? '—' : fmt(ev.transport.bench, 1) + ' s'}</span></div></div>
+      ${ev.issues.map(x => `<div class="warnline">${x.level === 'error' ? '' : '\u26A0 '}${esc(x.msg)}</div>`).join('')}` : '<p class="note">Link the PipeCAD design (.pl or project file) to check the ASD-160 limits.</p>'}</div>`;
+  const lv = MLP.ASD160_LEVELS.map(L => F(`${L.label} level`, b + '.cfg.' + L.key, { num: 1, unit: '%obs/ft' })).join('');
+  const cfg = `<div class="blk"><div class="blk-h">3 · Configuration (Remote) <span data-calc="${m.id}-sec-cfg"></span></div>
+    <p class="note">Detector levels in %obs/ft. Fire = the alarm factor's Fire 1; Pre-Alarm and Aux use the Alarm Factor worksheet (defaults 0.5× and 0.2× Fire, verify); Fire 2 must be entered (0.00914–7.62). Strict order Aux &lt; Pre-Alarm &lt; Fire &lt; Fire 2. Delays 0–90 s; flow limits per the ModuLaser allowances.</p>
+    <div class="g4">${lv}${F('Pre-Alarm delay', b + '.cfg.actionDly', { num: 1, unit: 's' })}${F('Fire delay', b + '.cfg.fire1Dly', { num: 1, unit: 's' })}${F('Flow low', b + '.cfg.flowLow', { num: 1, unit: '%' })}${F('Flow high', b + '.cfg.flowHigh', { num: 1, unit: '%' })}${F('Flow fault delay', b + '.cfg.flowDly', { num: 1, unit: 's' })}</div></div>`;
+  const tests = `<div class="tc"><div class="tc-h"><span class="id">T1</span>Transport time<span data-calc="${m.id}-sec-tt"></span></div>
+      <div class="g5">${F('Field transport target (PipeCAD, longest sampling hole)', b + '.t.tt.pipecad', { num: 1, unit: 's' })}${F('Measured transport time', b + '.t.tt.meas', { num: 1, unit: 's' })}</div>
+      <p class="note">Senator 25 Handbook p34: measured transport time less than the calculated time is acceptable (context — the Report passes at ≤ PipeCAD + ${ttVarLimit()} %).</p>${testFoot(b + '.t.tt')}</div>
+    ${rpBenchBlock(m, b)}
+    <div class="tc"><div class="tc-h"><span class="id">T2</span>Smoke &amp; flow<span data-calc="${m.id}-sec-smoke"></span></div>
+      <div class="g6">${YNF('Fire relay operated on smoke?', b + '.t.smoke.fire')}${YNF('Verified at FACU?', b + '.t.smoke.facu')}${YNF('Flow fault?', b + '.t.flow.low')}${YNF('Faults clear?', b + '.t.flow.clear')}</div>${testFoot(b + '.t.smoke')}</div>
+    <div class="tc"><div class="tc-h"><span class="id">T3</span>Relay test (${relays.join(', ')})<span data-calc="${m.id}-sec-out"></span></div>
+      <p class="note">Base unit: Fire (N/O, closes on Fire 1) and Fault (N/C, fail-safe), 500 mA @ 30 VDC.${m.relayCard === 'Y' ? ' Relay card 33-30436A adds Pre-Alarm, Aux and Fire 2.' : ''}</p>
+      <div class="g6">${relays.map(r => F(r, b + '.t.out.' + r.replace(/\W/g, '').toLowerCase(), { opts: ['Pass', 'Fail', 'N/A'] })).join('')}</div>${testFoot(b + '.t.out')}</div>`;
+  const result = `<div class="tc" style="border-width:2px;border-color:var(--accent2)"><div class="tc-h">Module result<span data-calc="${m.id}-st2"></span></div><div data-calc="${m.id}-secrow" style="margin-bottom:8px"></div>
+    <div class="g4">${F('Override result', b + '.ovr.res', { opts: ['PASS', 'FAIL'] })}${F('Override reason (required to apply)', b + '.ovr.reason', { cls: 's3', ph: 'Reason, authorized by…' })}</div><div class="warnline" data-calc="${m.id}-ovwarn"></div></div>`;
+  return `<div class="sheet" id="mod-${m.id}"><div class="sheet-h"><div><div class="kick">ASD-160 sheet${m.area ? ' · ' + esc(m.area) : ''}</div><h3>ASD-160 — ${esc(m.desc || m.model || '')}</h3><div class="sub" data-calc="${m.id}-sub"></div></div>
+    <div class="right"><span class="lbl">Module result</span><span data-calc="${m.id}-st"></span></div></div>
+    ${tabBar(m.id, [['setup', 'Setup'], ['config', 'Configure'], ['test', 'Test']])}${pane(m.id, 'setup', ident + photosBlock(b, m))}${pane(m.id, 'config', perf + cfg)}${pane(m.id, 'test', tests + result)}${navRow()}</div>`;
+}
+(function rpHookSheets(){
+  const _s = moduleSheet, _e = evalModule;
+  moduleSheet = function (m, i){ if (m.type === 'asd') return asdSheet(m, i); let h = _s.apply(this, arguments);
+    if (m.type === 'det' || m.type === 'ml'){ const blk = rpBenchBlock(m, `modules.${i}`); const k = h.lastIndexOf('<div class="tc" style="border-width:2px'); h = k > 0 ? h.slice(0, k) + blk + h.slice(k) : h; }
+    return h; };
+  evalModule = function (m){ if (m.type === 'asd') return evalAsd(m); const e = _e.apply(this, arguments);
+    if (m.type === 'det' || m.type === 'ml'){ const add = (sec, label, st, note = '') => e.it.push({ sec, label, st, note }); const n0 = e.it.length; rpTtItems(m, add);
+      if (e.it.length > n0){ const xs = e.it.filter(i => i.sec === 'tt'); e.secs.tt = xs.some(i => i.st === 'F') ? 'F' : xs.some(i => i.st === 'B') ? 'B' : 'P';
+        const vals = Object.values(e.secs); e.auto = vals.includes('F') ? 'FAIL' : vals.includes('B') ? 'INCOMPLETE' : 'PASS'; const ov = m.ovr?.res || '', rs = (m.ovr?.reason || '').trim(); e.final = ov && rs ? ov : e.auto; e.overridden = !!(ov && rs) && ov !== e.auto; } }
+    return e; };
+})();
+/* project file: project.brand survives (projectInfoOut); new jobs use the remembered default; FACU pre-tick from design.psus[].facuSource */
+(function rpHookProject(){
+  const _o = projectInfoOut;
+  projectInfoOut = function (){ const p = _o.apply(this, arguments); const b = rpBrand(); if (b !== 'edwards') p.brand = b; else delete p.brand; return p; };
+  if (typeof applyPlan === 'function'){ const _ap = applyPlan; applyPlan = function (plan){ const r = _ap.apply(this, arguments);
+    if (state.design && (state.design.psus || []).some(p => p.facuSource) && !(state.project && state.project.facuUserSet)){ state.project = state.project || {}; state.project.facuPowersAsds = true; }
+    if (state.link && state.link.project && state.link.project.brand && !(state.project && state.project.brand)){ state.project.brand = MLP.brandOf(state.link.project.brand); }
+    rpPaintBrand(); return r; }; }
+  const _bl = blank; blank = function (){ const st = _bl.apply(this, arguments); try { const b = MLP.brandOf(localStorage.getItem(RP_BRAND_KEY)); if (b !== 'edwards'){ st.project = st.project || {}; st.project.brand = b; } } catch (e){} return st; };
+})();
+rpPaintBrand(); if (typeof renderAll === 'function') renderAll();
+
+</script><!--RP0202-END-->
 </body>
 </html>

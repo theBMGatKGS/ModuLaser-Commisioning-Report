@@ -10,6 +10,18 @@ Live site: [masdtools.net](https://masdtools.net) (served from the
 
 ---
 
+## v02.02.000 — Brands, ASD-160 and printable Quick Start (2026-10-19) · not released
+
+### Recent improvements
+- Harmonized with Battery Calculator 02.02.000.
+- **Brand** first in Project information, brand header logo/chip and print title; brand-switch confirmation; **part-number basis dialog** and mismatch banner when the project file brand differs.
+- **ASD-160 sheet**: identity/network, PipeCAD limits, Remote config levels, transport +20 %, benchmark test point, relays Fire/Fault + card.
+- **FACU powers the ASDs** checkbox under the FACU field (pre-ticked from the design).
+- **Brand selector (Edwards | Kidde Commercial).** First field in Project Settings; part numbers, supply labels, BOM, logos and report titles follow the brand; the last choice is remembered for new projects.
+- **Per-sheet supply variant** (120 V / 220–230 V / ULC), tamper and seismic accessories, and **FACU powers these ASDs** with a power-source prompt (in-house / third-party / unidentified — unidentified keeps the sheet Incomplete).
+- **ASD-160 (Micra25 / Senator 25).** + Add ASD-160 and PipeCAD .pl import (MICRA25): 250 mA, dedicated AUX circuit, Remote configuration, networked address 1–127; UL scopes cap SFD/OAP at 1.28 %obs/ft with R-AF7.
+- Shared modules: modulaser-project.js 1.6.0, MASD engine 1.2.0. Hash policy: new fields at their defaults are stripped, so unchanged 02.01.000 files keep their hash.
+
 ## v02.01.000 — MiniLaser ASD support (2026-10-16) · released 2026-10-17
 
 - **MiniLaser ASD (FHSD8075-ULF) (Brent 2026-10-16).** New module type, standalone and never addressed (SenseNET checks don't apply). It comes in from the Battery Calculator 02.01.000 / Toolbox 00.02.000 project file, from a PipeCAD .pl (SOLO detectors), or via **+ MiniLaser**.
