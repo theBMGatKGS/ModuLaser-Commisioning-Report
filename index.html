@@ -294,6 +294,8 @@ body{--sb:250px;--rp:310px}
 .mmenu button:hover,.mmenu button:focus{background:#0c77bc;outline:none}
 .mmenu hr{border:0;border-top:1px solid #2a3441;margin:4px 2px}
 .mmenu .kbd{opacity:.6;font-size:11.5px}
+.mmenu .mi-check{display:inline-block;width:14px;margin-right:6px;text-align:center;color:#7fd17f;font-weight:700}
+.mmenu [aria-checked=false] .mi-check{visibility:hidden}
 .revcells{display:flex;gap:6px;font-size:11.5px;color:#cfd8e3}
 .revcells span{border:1px solid #2a3441;border-radius:4px;padding:1px 7px;font-variant-numeric:tabular-nums}
 .revcells em{font-style:normal;opacity:.65;margin-right:4px}
@@ -470,8 +472,8 @@ body.light .src.d{color:#003a8c;background:#e3eefc;border-color:#003a8c}
         </div></div>
       <div class="mi"><button class="mtop" id="menu-view" aria-haspopup="true" aria-expanded="false">View</button>
         <div class="mmenu" role="menu" hidden>
-          <button data-act="togglesb" id="mi-togglesb">Show / hide sidebar</button>
-          <button data-act="togglerp" id="mi-togglerp">Show / hide results panel</button>
+          <button data-act="togglesb" id="mi-togglesb" role="menuitemcheckbox" aria-checked="true"><span><span class="mi-check" aria-hidden="true">✓</span>Sidebar</span></button>
+          <button data-act="togglerp" id="mi-togglerp" role="menuitemcheckbox" aria-checked="true"><span><span class="mi-check" aria-hidden="true">✓</span>Results panel</span></button>
           <button data-act="toggleio" id="mi-toggleio">Show all I/O ports</button>
           <button data-act="theme" id="mi-theme">High-contrast light / Dark theme</button>
           <hr>
@@ -3133,7 +3135,7 @@ document.addEventListener('click', e=>{
     save(); refresh(); return;
   }
   const mt = e.target.closest('.mtop');
-  if(mt){ const menu = mt.nextElementSibling; const open = menu.hidden; closeMenus(); menu.hidden = !open; mt.setAttribute('aria-expanded', String(open)); if(open) menu.querySelector('button')?.focus(); return; }
+  if(mt){ const menu = mt.nextElementSibling; const open = menu.hidden; closeMenus(); menu.hidden = !open; mt.setAttribute('aria-expanded', String(open)); if(open) syncViewChecks(); if(open) menu.querySelector('button')?.focus(); return; }
   if(!e.target.closest('.mmenu')) closeMenus();
   const a = e.target.closest('[data-act]'); if(!a) return;
   if(a.closest('.mmenu')) closeMenus();
@@ -3176,6 +3178,10 @@ document.addEventListener('click', e=>{
 });
 document.addEventListener('input', e=>{ if(e.target.id==='sbsearch'){ sbFilter = e.target.value; const pos=e.target.selectionStart; renderSidebar(); const s2=document.getElementById('sbsearch'); s2.focus(); s2.setSelectionRange(pos,pos); } });
 document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => document.getElementById(b.dataset.close).classList.remove('show')));
+// 02.02.000 (Brent 10-19 12:35 PM CT): View menu checks show whether the sidebar / results panel are on.
+function syncViewChecks(){ const mob = innerWidth<=900, B=document.body.classList;
+  const set=(id,on)=>{ const b=document.getElementById(id); if(b) b.setAttribute('aria-checked', String(!!on)); };
+  set('mi-togglesb', mob ? B.contains('sbopen') : !B.contains('nosb')); set('mi-togglerp', mob ? B.contains('rpopen') : !B.contains('norp')); }
 function closeMenus(){ document.querySelectorAll('.mmenu').forEach(m=>m.hidden=true); document.querySelectorAll('.mtop').forEach(m=>m.setAttribute('aria-expanded','false')); }
 document.addEventListener('keydown', e=>{
   if(e.key==='Escape'){ closeMenus(); document.querySelectorAll('.dlg.show').forEach(d=>d.classList.remove('show')); document.body.classList.remove('sbopen','rpopen'); }
