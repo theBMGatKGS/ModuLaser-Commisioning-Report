@@ -10,7 +10,7 @@ Live site: [masdtools.net](https://masdtools.net) (served from the
 
 ---
 
-## v02.02.000 — Brands, ASD-160 and printable Quick Start (2026-10-19) · not released
+## v02.02.000 — Brands, ASD-160 and printable Quick Start (2026-10-19) · released 2026-10-19
 
 ### Recent improvements
 - **Unidentified power source rolls fully to ⚠ Incomplete**: blank “Power source identified” item on every power supply sheet, amber banner with Identify power source…, carried from design.psus[].powerSource on import.
@@ -24,6 +24,12 @@ Live site: [masdtools.net](https://masdtools.net) (served from the
 - **Per-sheet supply variant** (120 V / 220–230 V / ULC), tamper and seismic accessories, and **FACU powers these ASDs** with a power-source prompt (in-house / third-party / unidentified — unidentified keeps the sheet Incomplete).
 - **ASD-160 (Micra25 / Senator 25).** + Add ASD-160 and PipeCAD .pl import (MICRA25): 250 mA, dedicated AUX circuit, Remote configuration, networked address 1–127; UL scopes cap SFD/OAP at 1.28 %obs/ft with R-AF7.
 - Shared modules: modulaser-project.js 1.6.0, MASD engine 1.2.0. Hash policy: new fields at their defaults are stripped, so unchanged 02.01.000 files keep their hash.
+
+### QA audit
+- **QA/Auditor verdict: GO (final)** (2026-10-19, on Calculator 4f4c5e5 / Toolbox 7cd58c1 / Report 3303031; `qa/qa-build-review-02.02.000.md`). Brent approved the release 2026-10-19 3:59 PM CT.
+- **Findings fixed before release:** F4 UI test that Auto never picks 12V6A5; F6 plan/decisions log completed (C1 #59–#67, plan rev 4.23c); F8 ribbon scope documented; F10 Toolbox Help uses Toolbox-specific menu shots; F11 two Help images replaced to show what the text names; F12 stale Report FAQ versions; Quick Start step 9 nit; paperwork (verbatim quotes).
+- **Suites green:** 37 suites, 986 checks, 0 FAIL, 0 SKIP (Calculator, Toolbox and Report, including the Calculator 02.02.000 suites run against the Toolbox).
+- **Deferred:** per-cluster total flag → 02.02.001.
 
 ## v02.01.000 — MiniLaser ASD support (2026-10-16) · released 2026-10-17
 
