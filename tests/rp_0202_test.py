@@ -6,6 +6,7 @@ R=[]
 def ok(n,c,i=''): R.append(bool(c)); print('PASS' if c else 'FAIL',n,str(i)[:300])
 s=open(os.path.join(D,'index.html')).read()
 ok('src/rp-0202.js == inline <script id="rp-0202">', open(os.path.join(D,'src/rp-0202.js')).read().strip()==re.search(r'<script id="rp-0202">\n(.*?)\n</script>',s,re.S).group(1).strip())
+ok('FAQ: Toolbox 00.03.000, engine 1.2.0, MLP 1.6.0 (QA F12)', 'The Toolbox (00.03.000)' in s and 'MASD engine 1.2.0 and modulaser-project.js 1.6.0' in s and 'The Toolbox (00.01.000)' not in s)
 async def main():
   async with async_playwright() as p:
     b=await p.chromium.launch(); pg=await b.new_page(); errs=[]; pg.on('pageerror',lambda e: errs.append(str(e))); pg.on('dialog',lambda d: asyncio.ensure_future(d.accept()))
