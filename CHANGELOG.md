@@ -12,6 +12,10 @@ this file from it rather than hand-editing both. Per-release summaries are in
 
 ## 02.02 — 2026-10-19
 
+### 02.02.001 — 2026-10-20 (local build, not released)
+- **SFD/OAP design target (Brent 2026-10-20).** 2.0 %obs/ft for UL-driven SFD/OAP, 2.5 %obs/ft for FM and other standards. Set in the MASD Engineering Toolbox (Config ▸ Performance Criteria), project-wide and per Area/Group override (UL and FM), validated against each detector's published limits (UL: ModuLaser / MiniLaser 1.70–2.18; FM: ≤2.50, ASD-160 ≤3.5; ASD-160 UL 1.28 cap governs). Out-of-range entries are rejected with a message (never clamped); a non-default target needs a reference and the engineer's initials. On UL scopes the SFD Fire 1 seed follows the target; otherwise 2.5. UL and FM pass/fail unchanged. Older projects adopt the default with a one-time notice. Shared module modulaser-project.js 1.6.1. Brent's words are in the in-app Revision Log.
+- The Report reads the target from the linked design; pass/fail in the Report is unchanged. The Rev10 legacy sheet is unchanged (its FM 2.50 / UL 1.70–2.18 text is reference only).
+
 ### 02.02.000 — 2026-10-19 (released 2026-10-19; QA/Auditor GO on 3303031)
 - **Unidentified power source rolls fully to ⚠ Incomplete**: blank “Power source identified” item on every power supply sheet, amber banner with Identify power source…, carried from design.psus[].powerSource on import.
 - **Help, How do I and FAQ topics**: brand, part-number basis, ASD-160 commissioning, FACU power source. **About** lists Edwards and Kidde Commercial, MiniLaser and ASD-160.

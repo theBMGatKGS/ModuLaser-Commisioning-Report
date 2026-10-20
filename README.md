@@ -63,7 +63,7 @@ Every module and power supply gets an automatic **PASS / FAIL / INCOMPLETE** res
 
 **Import PipeCAD (.pl)** pre-fills the report from a PipeCAD 3.6 project export.
 - It fills Section A and one detector sheet per PipeCAD detector: fan speed, Alarm Factor, predicted transport time, pipe length, flow, fittings, and the full hole table.
-- It checks each sampling hole's sensitivity against the selected target's **Fire 1** limit (App. A, printed p.113: VEWFD ≤1.0, EWFD ≤1.5, SFD ≤2.5 %obs/ft) and the predicted transport time against the time limit, showing pass/fail and margin.
+- It checks each sampling hole's sensitivity against the selected target's **Fire 1** limit (App. A, printed p.113: VEWFD ≤1.0, EWFD ≤1.5, SFD ≤2.5 %obs/ft; UL scopes use the UL 268 limits, SFD/OAP Open Area 1.70–2.18; the SFD/OAP design target from the Toolbox is 2.0 for UL-driven scopes and 2.5 otherwise, Brent 2026-10-20) and the predicted transport time against the time limit, showing pass/fail and margin.
 - A preview lists every change, and nothing is written until you confirm.
 
 ### PipeCAD .pl Merge (separate tool)

@@ -27,7 +27,7 @@ async def main():
     pg.on('pageerror', lambda e: errs.append(str(e)))
     await pg.goto(APP); await pg.evaluate('localStorage.clear()'); await pg.reload(); await pg.wait_for_timeout(600)
     v = await pg.evaluate('[fullRev(), MLP.VERSION, document.title]')
-    ok('revision 02.02.000_261019, MLP 1.6.0', v[0] == '02.02.000_261019' and v[1] == '1.6.0' and '02.02.000' in v[2], v)
+    ok('revision 02.02.001_261020, MLP 1.6.1', v[0] == '02.02.001_261020' and v[1] == '1.6.1' and '02.02.001' in v[2], v)
     # QA F1 (M p.66 pipe limits) and F5 (40% flow wording)
     r = await pg.evaluate("""()=>{ const mk=(app,h,fl)=>({type:'ml',desc:'ML',cfg:{app,af:'2',flowLevel:fl},perf:{holes:String(h)},t:{},io:{}});
       const row=(m,re)=>evalMl(m).it.find(i=>re.test(i.label));
