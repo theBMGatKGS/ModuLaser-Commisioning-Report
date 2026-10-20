@@ -14,6 +14,7 @@ Live site: [masdtools.net](https://masdtools.net) (served from the
 
 ### Recent improvements
 - **SFD/OAP design target (Brent 2026-10-20).** 2.0 %obs/ft for UL-driven SFD/OAP, 2.5 %obs/ft for FM and other standards. Set in the MASD Engineering Toolbox (Config ▸ Performance Criteria), project-wide and per Area/Group override (UL and FM), validated against each detector's published limits (UL: ModuLaser / MiniLaser 1.70–2.18; FM: ≤2.50, ASD-160 ≤3.5; ASD-160 UL 1.28 cap governs). Out-of-range entries are rejected with a message (never clamped); a non-default target needs a reference and the engineer's initials. On UL scopes the SFD Fire 1 seed follows the target; otherwise 2.5. UL and FM pass/fail unchanged. Older projects adopt the default with a one-time notice. Shared module modulaser-project.js 1.6.1. Brent's words are in the in-app Revision Log.
+- **MiniLaser alarm factor follows the SFD/OAP target (Brent 2026-10-20 7:09 AM CT, “Yes, follow the target”).** SFD and OAP alarm factors are derived against the scope's target (Area/Group override → project → default: UL 2.0, FM 2.5) instead of the fixed 2.18 (OAP) / 2.0 (SFD). “Keep 1.70, per the manual”: UL lower limit unchanged. FM targets up to 2.50 inclusive. modulaser-project.js 1.6.2.
 - The Report reads the target from the linked design; pass/fail in the Report is unchanged. The Rev10 legacy sheet is unchanged (its FM 2.50 / UL 1.70–2.18 text is reference only).
 
 ---
