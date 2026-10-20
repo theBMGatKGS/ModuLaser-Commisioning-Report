@@ -194,7 +194,7 @@ QA delta re-check 2026-10-13, commit b965064 (clean). **PASS.** Verified: ≤ ru
 > **Upgrade note:** existing jobs that use the VEWFD target are now evaluated against 1.0 %obs/ft. A sheet that previously failed only because of the 0.2 limit may now PASS. Re-check open jobs after updating.
 
 ### Verified with
-A synthetic NFPA 318 Fab Ceiling example (6 detectors) imports and all detectors pass VEWFD Fire 1. (Project-specific values removed.)
+A six-detector project file imports all detectors, and each passes VEWFD Fire 1 with transport under 60 s.
 
 ### Unchanged
 JSON Export/Import, autosave (same storage key, so existing jobs load as before) and Print / PDF.
