@@ -25,7 +25,7 @@ Live site: [masdtools.net](https://masdtools.net) (served from the
 ### Download / Open
 - **Web / PWA (live):** https://thebmgatkgs.github.io/ModuLaser-Commisioning-Report/ — open in a browser, or install it (Chrome/Edge install icon; iPhone/iPad Safari → Share → Add to Home Screen). Works offline after the first visit.
 - **Windows installer:** **ModuLaser-MASD-Field-Report-Setup-02.02.000.exe** — Windows x64 NSIS installer (unsigned; SmartScreen may prompt: More info → Run anyway)
-  - Direct: https://github.com/theBMGatKGS/ModuLaser-Commisioning-Report/releases/download/v02.02.000/ModuLaser-MASD-Field-Report-Setup-02.02.000.exe
+  - Direct: https://github.com/theBMGatKGS/ModuLaser-Commisioning-Report/releases/download/v02.02.000-r1/ModuLaser-MASD-Field-Report-Setup-02.02.000.exe
   - SHA-256: `cf4f2ae11aa8e1300ccb3d3cd78cbad0975bb982d535c066bfcf8063189c5ea2`
 
 ### Recent improvements
