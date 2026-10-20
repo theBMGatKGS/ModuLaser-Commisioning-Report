@@ -1,0 +1,359 @@
+{
+ "format": "modulaser-project",
+ "schemaVersion": 1,
+ "savedAt": "2026-10-20T20:23:16.877Z",
+ "savedBy": {
+  "app": "battery-calculator",
+  "rev": "02.02.001_261019"
+ },
+ "project": {
+  "name": "Example Shaft MiniLaser"
+ },
+ "design": {
+  "owner": "battery-calculator",
+  "rev": "02.02.001_261019",
+  "engine": "1.2.0",
+  "updatedAt": "2026-10-20T20:23:16.877Z",
+  "plLinks": [
+   {
+    "id": "pl-10cf18ca4374-0",
+    "name": "Example-Shaft-MiniLaser.pl",
+    "sha256": "10cf18ca4374b5428490016aaf2e8921b1c5cbf9e10b59e988056c60ee2d83d3",
+    "size": 16967,
+    "lastModified": 1792527754227,
+    "version": "",
+    "unit": "Imperial (ft)",
+    "project": "Example Shaft Top MiniLaser",
+    "groups": [
+     "Shaft Top"
+    ],
+    "importedAt": "2026-10-20T20:23:13.149Z",
+    "placement": [
+     {
+      "area": "Shaft Top",
+      "psus": [],
+      "batteries": []
+     }
+    ]
+   }
+  ],
+  "areas": [
+   "Shaft Top"
+  ],
+  "psus": [
+   {
+    "id": "pls-mvh4rl6m-1",
+    "sheet": 1,
+    "name": "PS-1",
+    "area": "Shaft Top",
+    "location": "Shaft Top",
+    "model": "BPS6A",
+    "enclosure": "None — fits in supply enclosure",
+    "battery": {
+     "model": "12V10A (10.5 Ah)",
+     "ah": 10.5,
+     "qty": 2,
+     "part": "12V10A"
+    },
+    "requiredAh": 10.15,
+    "standbyHours": 24,
+    "alarmMinutes": 15,
+    "designBasis": "NFPA 72 Standard",
+    "totalMa": 335,
+    "status": "PASS",
+    "flags": []
+   }
+  ],
+  "devices": [
+   {
+    "id": "pl-10cf18ca4374-0|Shaft Top#id0",
+    "kind": "minilaser",
+    "type": "MiniLaser",
+    "model": "FHSD8075-ULF",
+    "partNumber": "",
+    "name": "Det 01",
+    "plName": "",
+    "area": "Shaft Top",
+    "address": "",
+    "network": null,
+    "standalone": true,
+    "psuId": "pls-mvh4rl6m-1",
+    "fan": 6,
+    "cluster": "",
+    "ma": 230,
+    "ioModules": 0,
+    "minilaser": {
+     "alarmFactor": 8,
+     "alarmFactorSrc": "derived",
+     "perfClass": "SFD",
+     "configMethod": "Remote",
+     "setup": "pl",
+     "preEngineered": false,
+     "holes": 8,
+     "pre": null,
+     "derivation": {
+      "af": 8,
+      "avg": 2,
+      "threshold": 2,
+      "thresholdSrc": "SFD/OAP default target (UL)",
+      "cls": "SFD",
+      "holes": 8,
+      "fail": false,
+      "steps": [
+       {
+        "af": 8,
+        "avg": 2
+       }
+      ]
+     },
+     "auxCircuit": "1",
+     "circuitSource": "PS-1 AUX-1"
+    },
+    "pl": {
+     "link": "pl-10cf18ca4374-0",
+     "file": "Example-Shaft-MiniLaser.pl",
+     "key": "Shaft Top#id0"
+    },
+    "pipe": {
+     "runs": "Pipe 1",
+     "lengthFt": 65.7,
+     "af": 0,
+     "afActivated": false,
+     "designSens": 0.24626105292442665,
+     "maxTransit": 42,
+     "temperature": 21,
+     "pressure": 1001,
+     "holeUnit": "in",
+     "flow": 22.63449295941381,
+     "tt": 40.15864602930145,
+     "balance": 98.88949617007967,
+     "bends90": 10,
+     "sockets": 5,
+     "clips": 29,
+     "hasResults": true,
+     "holes": [
+      {
+       "i": "1",
+       "endcap": false,
+       "name": "",
+       "size": 0.079,
+       "flow": 2.873192818863797,
+       "tt": 4.717083692070425,
+       "sens": 1.9400000000000002
+      },
+      {
+       "i": "2",
+       "endcap": false,
+       "name": "",
+       "size": 0.079,
+       "flow": 2.867182508516915,
+       "tt": 6.6091304105529805,
+       "sens": 1.9440667107999983
+      },
+      {
+       "i": "3",
+       "endcap": false,
+       "name": "",
+       "size": 0.079,
+       "flow": 2.854314134908277,
+       "tt": 9.196599772792872,
+       "sens": 1.9528313300998617
+      },
+      {
+       "i": "4",
+       "endcap": false,
+       "name": "",
+       "size": 0.079,
+       "flow": 2.845806640884002,
+       "tt": 12.006510594008528,
+       "sens": 1.9586692885305443
+      },
+      {
+       "i": "5",
+       "endcap": false,
+       "name": "",
+       "size": 0.079,
+       "flow": 2.8317404520593095,
+       "tt": 15.4636084402837,
+       "sens": 1.9683986449189665
+      },
+      {
+       "i": "6",
+       "endcap": false,
+       "name": "",
+       "size": 0.079,
+       "flow": 2.8173748063611797,
+       "tt": 19.914020828469873,
+       "sens": 1.978435405900054
+      },
+      {
+       "i": "7",
+       "endcap": false,
+       "name": "",
+       "size": 0.079,
+       "flow": 2.7943287008090585,
+       "tt": 26.093856665396174,
+       "sens": 1.9947524666593073
+      },
+      {
+       "i": "8",
+       "endcap": false,
+       "name": "",
+       "size": 0.079,
+       "flow": 2.750552897011272,
+       "tt": 40.15864602930145,
+       "sens": 2.026499499301549
+      }
+     ],
+     "testPoints": [
+      {
+       "i": "9",
+       "endcap": true,
+       "name": "",
+       "size": 0.079,
+       "flow": 2.7199873393541756,
+       "tt": 61.79338426171869,
+       "sens": 1.8648885653404121
+      }
+     ],
+     "afActivatedRaw": "false",
+     "bends90Total": 10,
+     "bends45Total": 0,
+     "tees": 0,
+     "expansionInPl": false
+    }
+   }
+  ],
+  "calc": {
+   "state": {
+    "version": 1,
+    "autosaveActivated": false,
+    "autosaveEnabled": false,
+    "projectName": "Example Shaft MiniLaser",
+    "preparedBy": "Example Engineer",
+    "projectDate": "2026-10-20",
+    "networkNumber": "",
+    "building": "",
+    "primaryCdmLocation": "",
+    "backupCdmLocation": "",
+    "printBom": true,
+    "locations": [
+     {
+      "name": "Example Shaft Top MiniLaser · Example-Shaft-MiniLaser.pl",
+      "psName": "PS-1",
+      "psLocation": "Shaft Top",
+      "psCapacity": "6",
+      "batteryCabinet": "",
+      "ribbonAssignMode": "auto",
+      "autoBatteryMode": "auto",
+      "tpAutoBatteryMode": "off",
+      "standbyHours": "24",
+      "alarmMinutes": "15",
+      "designBasis": "NFPA 72 Standard",
+      "temperature": "77",
+      "nfpa72Edition": "2022plus",
+      "derating": "1.75",
+      "showCalcDetail": false,
+      "addrScheme": "networked",
+      "senseNet": 1,
+      "mode": "builtin",
+      "submode": "custom",
+      "customQuiescent": "70",
+      "customAuxMa": "35",
+      "tpSupplyMakeModel": "",
+      "auxCircuits": "1",
+      "auxCircuitsCustom": "1",
+      "margin": "0.25",
+      "batterySize": "10",
+      "batterySizeCustom": "40",
+      "tpBatteryModel": "",
+      "tpBatteryAh": "40",
+      "tpBatteryVoltage": "12",
+      "exportMargin": "0.25",
+      "exportChargerAh": "65",
+      "modules": [],
+      "plSheetId": "pls-mvh4rl6m-1",
+      "miniLasers": [
+       {
+        "zone": "Det 01",
+        "setup": "pl",
+        "fan": 6,
+        "af": 8,
+        "afSrc": "derived",
+        "cls": "SFD",
+        "method": "Remote",
+        "io": 0,
+        "circuitSource": "PS-1 AUX-1",
+        "circuitSourceEdited": false,
+        "auxCircuitNum": "1",
+        "plKey": "pl-10cf18ca4374-0|Shaft Top#id0",
+        "holes": 8,
+        "lengthFt": 65.7,
+        "bends90": 10,
+        "tees": 0,
+        "plPre": false,
+        "pre": null,
+        "derivation": {
+         "af": 8,
+         "avg": 2,
+         "threshold": 2,
+         "thresholdSrc": "SFD/OAP default target (UL)",
+         "cls": "SFD",
+         "holes": 8,
+         "fail": false,
+         "steps": [
+          {
+           "af": 8,
+           "avg": 2
+          }
+         ]
+        }
+       }
+      ]
+     }
+    ],
+    "addrLog": [],
+    "plLinks": [
+     {
+      "id": "pl-10cf18ca4374-0",
+      "name": "Example-Shaft-MiniLaser.pl",
+      "path": "",
+      "size": 16967,
+      "lastModified": 1792527754227,
+      "sha256": "10cf18ca4374b5428490016aaf2e8921b1c5cbf9e10b59e988056c60ee2d83d3",
+      "project": "Example Shaft Top MiniLaser",
+      "unit": "Imperial (ft)",
+      "importedAt": "2026-10-20T20:23:13.149Z",
+      "groups": [
+       "Shaft Top"
+      ],
+      "devices": {},
+      "placement": [
+       {
+        "area": "Shaft Top",
+        "psus": [],
+        "batteries": []
+       }
+      ],
+      "meta": {
+       "name": "Example Shaft Top MiniLaser",
+       "location": "Example Shaft Top MiniLaser",
+       "designer": "Example Engineer",
+       "company": "Example Co."
+      },
+      "pipeType": {
+       "innerDiameter": null,
+       "outerDiameter": null,
+       "material": ""
+      }
+     }
+    ]
+   }
+  },
+  "hash": "sha256:c23616c2bfa24f2b2ee0ea5f821e79a64d73b297aef2fe388fb2632caaec979e",
+  "id": "90b85cb9"
+ },
+ "site": null,
+ "changes": [],
+ "approvals": {}
+}
