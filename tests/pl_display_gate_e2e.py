@@ -2,6 +2,7 @@
 job time zone (R4A) and S4B change records.  Synthetic fixtures from tests/pl_display_fixtures.py (temp folder).
 Covers QA re-review RB1 (the gate shows and the import completes), RM3 (per-floor Accept / Change type / Skip and
 grouping), RM1 (no silent device zone; invalid zones refused), and the S4B Low (MLP.changeId ids + dev field).
+Third review: assumed display names use the Calculator's abbreviation and never repeat across floors.
 Run: python3 tests/pl_display_gate_e2e.py        (RPT= overrides the default index.html)
 """
 import asyncio, os, sys
@@ -96,6 +97,7 @@ async def main():
         ok('RM3: Delta gets 1 Minimum (accepted type); Alpha gets Standard (8) + Minimum (4)',
            sorted((i['area'][-5:], i['type'], i['n']) for i in info) == [('Alpha', 'Minimum Display', 4), ('Alpha', 'Standard Display', 8), ('Delta', 'Minimum Display', 8)], info)
         ok('Assumed names ≤ 16 characters', all(len(i['name']) <= 16 for i in info), info)
+        ok('Assumed names use the Calculator abbreviation and are unique', sorted(i['name'] for i in info) == ['EZA-DSP01', 'EZA-DSP02', 'EZD-DSP01'], info)
         plan = await pg.evaluate("state.design.displayPlan || null")
         ok('Per-floor decisions recorded (displayPlan)', plan and len(plan) == 2, plan)
         ok('Dialog closed after import', not await dlg_title(pg))
@@ -108,6 +110,15 @@ async def main():
         await click_btn(pg, 'Continue import'); await pg.wait_for_timeout(300)
         c = await counts(pg)
         ok('Skip all floors: import completes with no assumed displays', c['devs'] == 20 and c['assumed'] == 0, c)
+
+        # Two Areas with the same abbreviation (Delta / Dock → EZD): names must still differ
+        await fresh(pg)
+        await import_pl(pg, F['same_abbr']); await click_btn(pg, 'Import 8 devices')
+        await click_btn(pg, 'Continue without PipeCAD displays')
+        await pg.evaluate("()=>document.querySelectorAll('[data-dacc]').forEach(c=>{ c.checked=true; })")
+        await click_btn(pg, 'Continue import'); await pg.wait_for_timeout(300)
+        names = await pg.evaluate("state.design.devices.filter(d=>d.origin==='assumed').map(d=>d.name)")
+        ok('Same abbreviation on two floors: assumed names do not repeat', len(names) == 2 and len(set(names)) == 2, names)
 
         # No shortage: imports straight through
         await fresh(pg)

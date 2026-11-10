@@ -3767,6 +3767,7 @@ function planDesign(design, project, srcName, siteIn){
   const P = state.project || {};
   [['site','Site / facility name', project.name], ['designer','System designer', project.designer], ['instCo','Installing company', project.company]].forEach(([k,l,v]) => { if(v && !String(P[k]||'').trim()) proj.push({k, l, v}); });
   if(project.location && !String(P.notes||'').includes(project.location)) proj.push({k:'notes', l:'Notes (location)', v:(P.notes?P.notes+'\n':'')+'Location: '+project.location, show:'Location: '+project.location});
+  { const tz = rpTzValid(project.timeZone); if(tz && !rpTzValid(P.timeZone)) proj.push({k:'timeZone', l:'Job time zone', v: tz}); }   // the Calculator's job zone (As-Built prints in job local time)
   const ref = srcName + (design.rev ? ' · Battery Calculator '+design.rev : '');
   proj.push({k:'pipecad', l:'Design reference', v: ref});
   // 02.00.002: the 127 limit is per SenseNET network — more than 127 in total is fine across networks
@@ -3887,12 +3888,33 @@ function rpDisplaysShortage(design){
       dets: a.dets.map(d => ({ id: d.id, name: d.name || d.plName || d.id })),
       existing: a.existing.map(d => ({ id: d.id, name: d.name || d.type, type: d.type })) };
   });
+  // Assumed display names: the Calculator's abbreviation (plAbbr), made unique per floor so two Areas never share a name
+  const used = new Set((design.devices || []).map(d => String(d.name || '').split('-DSP')[0]).filter(Boolean)), taken = new Set();
+  floors.forEach((fl, i) => {
+    let ab = rpAbbr(fl.area) || 'F';
+    if (taken.has(ab) || (fl.status === 'needed' && used.has(ab))){
+      const base = ab.slice(0, 4); let k = i + 1, cand = base + k;
+      while (taken.has(cand) || used.has(cand)){ k++; cand = base + k; }
+      ab = cand;
+    }
+    taken.add(ab); fl.abbr = ab;
+  });
   return { anyNeeded: floors.some(f => f.status === 'needed'), floors };
 }
-function rpAssumedName(area, n){
-  const ab = String(area || 'F').replace(/\s+/g, '').slice(0, 6) || 'F';
-  let nm = ab + '-DSP' + String(n).padStart(2, '0');
-  if (nm.length > MLP.NAME_MAX) nm = ('F-DSP' + String(n).padStart(2, '0'));
+/* Same abbreviation as the Battery Calculator's plAbbr (initials of multi-word Area names, max 6 characters). */
+function rpAbbr(s){
+  const str = String(s || '').trim();
+  if (str.length <= 6) return str.replace(/\s+/g, '');
+  const words = str.split(/[^A-Za-z0-9]+/).filter(Boolean);
+  if (words.length > 1) return words.map(w => /^\d+$/.test(w) ? w : w[0].toUpperCase()).join('').slice(0, 6);
+  return str.slice(0, 6);
+}
+/* fl: a floor from rpDisplaysShortage (uses its unique abbr); a bare Area name falls back to rpAbbr. */
+function rpAssumedName(fl, n){
+  const ab = (fl && typeof fl === 'object') ? (fl.abbr || rpAbbr(fl.area) || 'F') : (rpAbbr(fl) || 'F');
+  const tail = 'DSP' + String(n).padStart(2, '0');
+  let nm = ab + '-' + tail;
+  if (nm.length > MLP.NAME_MAX) nm = 'F' + n + '-' + tail;
   return nm.slice(0, MLP.NAME_MAX);
 }
 /* decisions[floorIdx] = { decision: 'accept'|'skip'|'grouped', type, newTypes: [], groups: { detId: 'e:i' | 'n:j' } } */
@@ -3906,7 +3928,7 @@ function rpInjectAssumedDisplays(design, plan, decisions){
     if (dec.decision === 'skip'){ dp[fl.area] = { decision: 'skip', needed: fl.needed, at }; return; }
     const mk = (n, type, rule, extra) => d2.devices.push(Object.assign({
       id: 'assumed:' + fl.area + ':' + n, kind: 'display', type, model: MLP.DISPLAY_MODELS[type] || 'FHSD8310',
-      name: rpAssumedName(fl.area, n), area: fl.area, address: '', psuId: '', fan: null, cluster: '', origin: 'assumed',
+      name: rpAssumedName(fl, n), area: fl.area, address: '', psuId: '', fan: null, cluster: '', origin: 'assumed',
       assumption: Object.assign({ rule, floor: fl.area, area: fl.area, floorIdx: fl.idx, bucket: n - 1, decision: rule === 'le8-floor' ? 'accept' : 'grouped', at,
         by: (typeof techName === 'function' && techName()) || '', why: 'Assumed during Field Report .pl import — floor short on Std/Min displays (PipeCAD-first: correct it in PipeCAD).' }, extra || {}),
       pl: null, pipe: null }, {}));
@@ -3970,11 +3992,11 @@ function rpDisplaysFloorsHtml(plan){
     if (fl.rule === 'le8-floor'){
       return `<div class="rp-dfloor" data-dfloor="${fl.idx}" style="margin:10px 0;padding:8px 10px;border:1px solid var(--line,#2a3441);border-radius:6px">
         <b>${esc(fl.area)}</b> <span class="note">${fl.nDet} ModuLaser detector${fl.nDet === 1 ? '' : 's'} · 0 Std/Min</span>
-        <div style="margin-top:6px">Suggested: <b>1 ×</b> ${typeSel(`data-dtype="${fl.idx}" aria-label="Display type for ${esc(fl.area)}"`, 'Standard Display')} named <span class="mono">${esc(rpAssumedName(fl.area, 1))}</span></div>
+        <div style="margin-top:6px">Suggested: <b>1 ×</b> ${typeSel(`data-dtype="${fl.idx}" aria-label="Display type for ${esc(fl.area)}"`, 'Standard Display')} named <span class="mono">${esc(rpAssumedName(fl, 1))}</span></div>
         <div style="margin-top:6px"><label><input type="checkbox" data-dacc="${fl.idx}"> Accept</label>${skip}</div></div>`;
     }
     const opts = fl.existing.map((e, i) => `<option value="e:${i}">${esc(e.name)} (existing ${esc(e.type.replace(' Display', ''))})</option>`).join('') +
-      Array.from({ length: fl.needed }, (_, j) => `<option value="n:${j}">New display ${j + 1} · ${esc(rpAssumedName(fl.area, j + 1))}</option>`).join('');
+      Array.from({ length: fl.needed }, (_, j) => `<option value="n:${j}">New display ${j + 1} · ${esc(rpAssumedName(fl, j + 1))}</option>`).join('');
     return `<div class="rp-dfloor" data-dfloor="${fl.idx}" style="margin:10px 0;padding:8px 10px;border:1px solid var(--line,#2a3441);border-radius:6px">
       <b>${esc(fl.area)}</b> <span class="note">${fl.nDet} detectors · ${fl.nCluster} Std/Min · needs ${fl.needed} more display${fl.needed === 1 ? '' : 's'} · max ${RP_DISP_MAX} each</span>${skip}
       <div class="note" style="margin:4px 0">Group detectors from scratch (no auto-grouping): pick each detector's display.</div>
