@@ -1140,7 +1140,7 @@ MLP.PERF_PRESETS = [
 MLP.perfPreset = id => MLP.PERF_PRESETS.find(p => p.id === id) || null;
 MLP.perfIsUl = id => { const p = MLP.perfPreset(id); return !!(p && p.family === 'NFPA'); };
 /* code prescriptions per preset: cited rows prefilled, everything else 'engineer to define' (value blank). */
-/* Research 2026-10-13 (/workspace/deliverables/ModuLaser-Commissioning-Defaults-Citations-2026-10-13.md): NFPA 76-2024 clauses. */
+/* Research 2026-10-13 (ModuLaser-Commissioning-Defaults-Citations-2026-10-13.md, kept outside the repo): NFPA 76-2024 clauses. */
 MLP.PERF_CODE_CITED = {
   'VEWFD – NFPA 76/318': [
     { item: 'NFPA 76 VEWFD sensitivity at each sampling port (effective, above ambient)', value: 'Alert 0.2 %/ft (0.65 %/m); Alarm 1.0 %/ft (3.2 %/m)', ref: 'NFPA 76-2024 8.5.3.1.2.5' },
@@ -2520,7 +2520,7 @@ function secA(){
     ${F('City, state', p+'.city')}
     ${F('ZIP code', p+'.zip', {max:10})}
     ${F('Date of commissioning', p+'.date', {type:'date'})}
-    ${F('Job time zone', p+'.timeZone', {ph:'e.g. America/Chicago'})}
+    ${F('Job time zone (IANA)', p+'.timeZone', {ph:'e.g. America/Chicago', after: (typeof rpTzNote === 'function' ? rpTzNote() : '')})}
     ${F('Applicable standard', p+'.std', {opts:['NFPA 72','NFPA 72 + NFPA 75','NFPA 72 + NFPA 76','EN 54-20','Other (see notes)']})}
   </div>
   <div class="g3" style="margin-top:12px">
@@ -3866,73 +3866,157 @@ async function parsePlFiles(files){
 }
 /* When the job already has a calculator design, a .pl only refreshes PipeCAD data on matching devices. */
 
+/* 02.02.002 (Q7B "same prompt", QA RB1/RM3): bare .pl import gets the Calculator's Displays flow —
+   S1A gate (Stop primary), then per floor S2A Accept / Change type / Skip (≤ 8 detectors, no Std/Min) or
+   S3B grouping (detectors assigned to displays from scratch, max 8 each) / Skip. Command displays never count. */
+const RP_DISP_MAX = 8;
 function rpDisplaysShortage(design){
-  try {
-    const groups = [];
-    const byArea = {};
-    (design.devices || []).forEach(d => {
-      const area = d.area || (d.pl && d.pl.group) || 'Floor';
-      byArea[area] = byArea[area] || { detectors: [], displays: [] };
-      if (d.kind === 'detector') byArea[area].detectors.push(d);
-      if (d.kind === 'display') byArea[area].displays.push(d);
-    });
-    Object.keys(byArea).forEach(a => {
-      const g = byArea[a];
-      groups.push({ name: a, origName: a, detectors: g.detectors, displays: g.displays });
-    });
-    const suggest = (typeof suggestDisplays === 'function') ? suggestDisplays
-      : (typeof MASD_ENGINE !== 'undefined' && MASD_ENGINE.suggestDisplays) ? MASD_ENGINE.suggestDisplays
-      : null;
-    if (!suggest){
-      // lightweight fallback
-      const floors = groups.map(g => {
-        const nDet = (g.detectors||[]).length;
-        const nCluster = (g.displays||[]).filter(d => d.type==='Standard Display' || d.type==='Minimum Display').length;
-        const needed = Math.max(0, Math.ceil(nDet/8) - nCluster);
-        return { floorName: g.name, nDet, nCluster, needed, status: needed ? 'needed' : 'ok' };
-      });
-      return { anyNeeded: floors.some(f => f.status==='needed'), floors };
-    }
-    return suggest(groups, {});
-  } catch (e){ return { anyNeeded: false, floors: [] }; }
-}
-function rpInjectAssumedDisplays(design, plan){
-  (plan.floors || []).forEach((fl, fi) => {
-    if (fl.status !== 'needed' || !fl.needed) return;
-    const n = fl.needed;
-    for (let i = 0; i < n; i++){
-      const name = String(fl.floorName || 'F').replace(/\s+/g,'').slice(0,6) + '-DSP' + String(i+1).padStart(2,'0');
-      design.devices = design.devices || [];
-      design.devices.push({
-        id: 'assumed:' + (fl.floorKey || fl.floorName || fi) + ':' + i,
-        kind: 'display', type: 'Standard Display', model: 'FHSD8310',
-        name: name.slice(0,16), area: fl.floorName, address: '', cluster: '',
-        origin: 'assumed',
-        assumption: { rule: fl.suggestion && fl.suggestion.rule || 'shortage', floor: fl.floorName, decision: 'accept', at: new Date().toISOString(), why: 'Assumed during Report .pl import — floor short on Std/Min displays.' },
-        pl: null
-      });
-    }
+  const byArea = {}, order = [];
+  (design.devices || []).forEach(d => {
+    const area = d.area || (d.pl && d.pl.group) || 'Floor';
+    if (!byArea[area]){ byArea[area] = { dets: [], existing: [] }; order.push(area); }
+    if (d.kind === 'detector') byArea[area].dets.push(d);
+    if (d.kind === 'display' && (d.type === 'Standard Display' || d.type === 'Minimum Display')) byArea[area].existing.push(d);
   });
-  return design;
+  const floors = order.map((area, i) => {
+    const a = byArea[area], nDet = a.dets.length, nCluster = a.existing.length;
+    const capacityNeed = Math.ceil(nDet / RP_DISP_MAX), needed = nDet ? Math.max(0, capacityNeed - nCluster) : 0;
+    return { idx: i, floorName: area, area, nDet, nCluster, needed, capacityNeed,
+      status: !nDet ? 'skip' : needed ? 'needed' : 'ok',
+      rule: needed ? ((nCluster === 0 && nDet <= RP_DISP_MAX) ? 'le8-floor' : 'grouped') : null,
+      dets: a.dets.map(d => ({ id: d.id, name: d.name || d.plName || d.id })),
+      existing: a.existing.map(d => ({ id: d.id, name: d.name || d.type, type: d.type })) };
+  });
+  return { anyNeeded: floors.some(f => f.status === 'needed'), floors };
+}
+function rpAssumedName(area, n){
+  const ab = String(area || 'F').replace(/\s+/g, '').slice(0, 6) || 'F';
+  let nm = ab + '-DSP' + String(n).padStart(2, '0');
+  if (nm.length > MLP.NAME_MAX) nm = ('F-DSP' + String(n).padStart(2, '0'));
+  return nm.slice(0, MLP.NAME_MAX);
+}
+/* decisions[floorIdx] = { decision: 'accept'|'skip'|'grouped', type, newTypes: [], groups: { detId: 'e:i' | 'n:j' } } */
+function rpInjectAssumedDisplays(design, plan, decisions){
+  const d2 = JSON.parse(JSON.stringify(design));
+  d2.devices = d2.devices || [];
+  const at = new Date().toISOString(), dp = {};
+  (plan.floors || []).forEach(fl => {
+    if (fl.status !== 'needed') return;
+    const dec = (decisions || {})[fl.idx] || {};
+    if (dec.decision === 'skip'){ dp[fl.area] = { decision: 'skip', needed: fl.needed, at }; return; }
+    const mk = (n, type, rule, extra) => d2.devices.push(Object.assign({
+      id: 'assumed:' + fl.area + ':' + n, kind: 'display', type, model: MLP.DISPLAY_MODELS[type] || 'FHSD8310',
+      name: rpAssumedName(fl.area, n), area: fl.area, address: '', psuId: '', fan: null, cluster: '', origin: 'assumed',
+      assumption: Object.assign({ rule, floor: fl.area, area: fl.area, floorIdx: fl.idx, bucket: n - 1, decision: rule === 'le8-floor' ? 'accept' : 'grouped', at,
+        by: (typeof techName === 'function' && techName()) || '', why: 'Assumed during Field Report .pl import — floor short on Std/Min displays (PipeCAD-first: correct it in PipeCAD).' }, extra || {}),
+      pl: null, pipe: null }, {}));
+    if (fl.rule === 'le8-floor'){
+      const type = dec.type || 'Standard Display';
+      mk(1, type, 'le8-floor', { members: fl.dets.map(x => x.id) });
+      dp[fl.area] = { decision: 'accept', type, needed: fl.needed };
+      return;
+    }
+    const groups = dec.groups || {};
+    for (let j = 0; j < fl.needed; j++){
+      const members = fl.dets.filter(x => groups[x.id] === 'n:' + j).map(x => x.id);
+      if (!members.length) continue;
+      mk(j + 1, (dec.newTypes || [])[j] || 'Standard Display', 'grouped', { members });
+    }
+    dp[fl.area] = { decision: 'grouped', needed: fl.needed, buckets: Object.values(groups).reduce((o, v) => (o[v] = (o[v] || 0) + 1, o), {}) };
+  });
+  if (Object.keys(dp).length) d2.displayPlan = Object.assign({}, d2.displayPlan || {}, dp);
+  return d2;
+}
+function rpDisplaysReadDecisions(plan){
+  const body = document.getElementById('dlgBody'), out = {};
+  (plan.floors || []).forEach(fl => {
+    if (fl.status !== 'needed') return;
+    const q = sel => body.querySelector(sel);
+    if (q(`[data-dskip="${fl.idx}"]`) && q(`[data-dskip="${fl.idx}"]`).checked){ out[fl.idx] = { decision: 'skip' }; return; }
+    if (fl.rule === 'le8-floor'){
+      const acc = q(`[data-dacc="${fl.idx}"]`);
+      out[fl.idx] = { decision: acc && acc.checked ? 'accept' : '', type: (q(`[data-dtype="${fl.idx}"]`) || {}).value || 'Standard Display' };
+      return;
+    }
+    const groups = {};
+    body.querySelectorAll(`[data-dgrp^="${fl.idx}|"]`).forEach(s => { if (s.value) groups[s.dataset.dgrp.slice(s.dataset.dgrp.indexOf('|') + 1)] = s.value; });
+    const newTypes = [];
+    for (let j = 0; j < fl.needed; j++) newTypes.push((q(`[data-ntype="${fl.idx}|${j}"]`) || {}).value || 'Standard Display');
+    out[fl.idx] = { decision: 'grouped', groups, newTypes };
+  });
+  return out;
+}
+function rpDisplaysProblem(plan, dec){
+  for (const fl of plan.floors){
+    if (fl.status !== 'needed') continue;
+    const d = dec[fl.idx] || {};
+    if (d.decision === 'skip') continue;
+    if (fl.rule === 'le8-floor'){ if (d.decision !== 'accept') return `${fl.area}: Accept the suggested display or Skip this floor.`; continue; }
+    const n = {};
+    fl.dets.forEach(x => { const v = (d.groups || {})[x.id]; if (v) n[v] = (n[v] || 0) + 1; });
+    const left = fl.dets.filter(x => !(d.groups || {})[x.id]).length;
+    if (left) return `${fl.area}: ${left} detector(s) still unassigned — assign each to a display, or Skip this floor.`;
+    for (const k of Object.keys(n)) if (n[k] > RP_DISP_MAX) return `${fl.area}: a display has more than ${RP_DISP_MAX} detectors.`;
+    for (let j = 0; j < fl.needed; j++) if (!n['n:' + j]) return `${fl.area}: assign detectors to every new display, or Skip this floor.`;
+  }
+  return '';
+}
+function rpDisplaysFloorsHtml(plan){
+  const typeSel = (attr, v) => `<select ${attr}><option value="Standard Display"${v === 'Standard Display' ? ' selected' : ''}>Standard (FHSD8310)</option><option value="Minimum Display"${v === 'Minimum Display' ? ' selected' : ''}>Minimum (FHSD8300)</option></select>`;
+  const parts = plan.floors.map(fl => {
+    if (fl.status === 'ok') return `<div class="rp-dfloor" style="margin:8px 0"><b>${esc(fl.area)}</b> <span class="pill">OK</span> <span class="note">${fl.nDet} det / ${fl.nCluster} cluster display${fl.nCluster === 1 ? '' : 's'}</span></div>`;
+    if (fl.status !== 'needed') return '';
+    const skip = `<label style="margin-left:10px"><input type="checkbox" data-dskip="${fl.idx}"> Skip this floor (assumed none)</label>`;
+    if (fl.rule === 'le8-floor'){
+      return `<div class="rp-dfloor" data-dfloor="${fl.idx}" style="margin:10px 0;padding:8px 10px;border:1px solid var(--line,#2a3441);border-radius:6px">
+        <b>${esc(fl.area)}</b> <span class="note">${fl.nDet} ModuLaser detector${fl.nDet === 1 ? '' : 's'} · 0 Std/Min</span>
+        <div style="margin-top:6px">Suggested: <b>1 ×</b> ${typeSel(`data-dtype="${fl.idx}" aria-label="Display type for ${esc(fl.area)}"`, 'Standard Display')} named <span class="mono">${esc(rpAssumedName(fl.area, 1))}</span></div>
+        <div style="margin-top:6px"><label><input type="checkbox" data-dacc="${fl.idx}"> Accept</label>${skip}</div></div>`;
+    }
+    const opts = fl.existing.map((e, i) => `<option value="e:${i}">${esc(e.name)} (existing ${esc(e.type.replace(' Display', ''))})</option>`).join('') +
+      Array.from({ length: fl.needed }, (_, j) => `<option value="n:${j}">New display ${j + 1} · ${esc(rpAssumedName(fl.area, j + 1))}</option>`).join('');
+    return `<div class="rp-dfloor" data-dfloor="${fl.idx}" style="margin:10px 0;padding:8px 10px;border:1px solid var(--line,#2a3441);border-radius:6px">
+      <b>${esc(fl.area)}</b> <span class="note">${fl.nDet} detectors · ${fl.nCluster} Std/Min · needs ${fl.needed} more display${fl.needed === 1 ? '' : 's'} · max ${RP_DISP_MAX} each</span>${skip}
+      <div class="note" style="margin:4px 0">Group detectors from scratch (no auto-grouping): pick each detector's display.</div>
+      <div style="margin:4px 0">${Array.from({ length: fl.needed }, (_, j) => `New display ${j + 1}: ${typeSel(`data-ntype="${fl.idx}|${j}"`, 'Standard Display')}`).join(' &nbsp; ')}</div>
+      <table class="t"><thead><tr><th>Detector</th><th>Display</th></tr></thead><tbody>${fl.dets.map(x => `<tr><td>${esc(x.name)}</td><td><select data-dgrp="${fl.idx}|${esc(x.id)}"><option value="">Choose…</option>${opts}</select></td></tr>`).join('')}</tbody></table></div>`;
+  }).join('');
+  return `<p class="note">Continuing without PipeCAD displays — assumed Std/Min displays are added and flagged on every sheet. Re-run in PipeCAD and re-import when real displays exist.</p>${parts}`;
+}
+function rpDisplaysStep2(design, plan, applyFn){
+  dlg('Displays — choose per floor', rpDisplaysFloorsHtml(plan), [
+    { label: 'Back', fn: () => { setTimeout(() => rpGateDisplaysThenImport(design, plan, applyFn), 0); } },
+    { label: 'Continue import', pri: true, id: 'rpDispContinue', fn: () => {
+      const dec = rpDisplaysReadDecisions(plan), err = rpDisplaysProblem(plan, dec);
+      if (err){ document.getElementById('dlgMsg').textContent = err; return false; }
+      const d2 = rpInjectAssumedDisplays(design, plan, dec);
+      // run after this dialog's own close handler, so a follow-up dialog is never hidden
+      setTimeout(() => applyFn(d2), 0);
+    } }
+  ], 'Accept, change the type, group, or Skip each floor that is short.');
+  const body = document.getElementById('dlgBody');
+  body.querySelectorAll('[data-dtype]').forEach(s => s.addEventListener('change', () => { const a = body.querySelector(`[data-dacc="${s.dataset.dtype}"]`); if (a) a.checked = true; }));
+  body.querySelectorAll('[data-dskip]').forEach(c => c.addEventListener('change', () => {
+    const f = body.querySelector(`[data-dfloor="${c.dataset.dskip}"]`); if (!f) return;
+    f.querySelectorAll('select, [data-dacc]').forEach(x => { x.disabled = c.checked; });
+  }));
 }
 function rpGateDisplaysThenImport(design, planCtx, applyFn){
   const plan = rpDisplaysShortage(design);
   if (!plan.anyNeeded){ applyFn(design); return; }
-  const rows = (plan.floors||[]).map(fl => {
+  const rows = (plan.floors||[]).filter(fl => fl.status !== 'skip').map(fl => {
     const status = fl.status === 'ok' ? 'OK' : (fl.nCluster === 0 ? 'MISSING' : 'SHORTAGE');
     return `<tr><td>${esc(fl.floorName)}</td><td>${String(fl.nDet).padStart(2,'0')}</td><td>${String(fl.nCluster).padStart(2,'0')}</td><td>${String(fl.needed||0).padStart(2,'0')}</td><td>${status}</td></tr>`;
   }).join('');
-  dlg('Displays missing or under-provisioned', `
+  // RB1: open on the next tick — the review dialog's own close handler runs after its button fn and would hide this one
+  setTimeout(() => dlg('Displays missing or under-provisioned', `
     <p class="note">Display modules belong in the PipeCAD project. Correct Std/Min displays there, then re-import.</p>
     <div class="warnline">For accurate commissioning, fix Std/Min displays in PipeCAD first. Assumed displays are a fallback only if you continue.</div>
     <table class="t"><thead><tr><th>Location / Floor</th><th>Detectors</th><th>Std/Min</th><th>Needed</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>
   `, [
-    {label:"Stop import — I'll fix PipeCAD first"},
-    {label:'Continue without PipeCAD displays…', pri:true, fn:() => {
-      rpInjectAssumedDisplays(design, plan);
-      applyFn(design);
-    }}
-  ]);
+    {label:'Continue without PipeCAD displays…', id: 'rpDispGateContinue', fn:() => { setTimeout(() => rpDisplaysStep2(design, plan, applyFn), 0); }},
+    {label:"Stop import — I'll fix PipeCAD first", pri:true, id: 'rpDispGateStop', fn:() => { setSave('Import paused: fix displays in PipeCAD, then re-import the .pl'); }}
+  ], 'Nothing has been imported yet.'), 0);
 }
 
 function mergePlIntoDesign(base, plDesign){
@@ -3963,7 +4047,7 @@ document.getElementById('importPl').addEventListener('change', async e => {
         // Re-plan if assumed displays were injected
         if (des !== design){
           const plan2 = planDesign(des, {name: pr.name, designer: pr.designer, company: pr.company, location: pr.location}, name, null);
-          document.querySelectorAll('[data-conf]').forEach(cb => { if (plan2._conf[+cb.dataset.conf]) plan2._conf[+cb.dataset.conf].take = true; });
+          (plan._conf || []).forEach((c, i) => { if (plan2._conf && plan2._conf[i]) plan2._conf[i].take = c.take; });   // keep the review's conflict picks
           applyPlan(plan2);
         } else {
           applyPlan(plan);
@@ -4451,14 +4535,37 @@ document.addEventListener('change', async e => {
     c.photo = url; logEdit(`changes.${c.id}.photo`, '', f.name, { kind: 'change-photo' }); save(); document.getElementById('dlgBody').innerHTML = fcHtml(); }
 });
 
+/* R4A / QA RM1: As-Built times use the job's local time zone (Project information → Job time zone).
+   Nothing is filled in silently: when it is blank or invalid, the device zone is used and every printed time says so. */
+function rpTzValid(z){
+  z = String(z || '').trim(); if (!z) return null;
+  try { return new Intl.DateTimeFormat('en-US', { timeZone: z }).resolvedOptions().timeZone; } catch (e){ return null; }
+}
 function rpJobTimeZone(){
   const runtime = (typeof Intl !== 'undefined' && Intl.DateTimeFormat().resolvedOptions().timeZone) || 'UTC';
-  if (state && state.project && !state.project.timeZone){
-    state.project.timeZone = runtime; // seed once
-  }
-  const r = (typeof MLP !== 'undefined' && MLP.resolveTimeZone) ? MLP.resolveTimeZone(state && state.project, runtime) : { timeZone: (state && state.project && state.project.timeZone) || runtime, source: 'runtime', note: null };
-  return r;
+  const raw = String((state && state.project && state.project.timeZone) || '').trim();
+  const ok = rpTzValid(raw);
+  if (ok) return { timeZone: ok, source: 'project', note: null };
+  const dev = rpTzValid(runtime) || 'UTC';
+  return { timeZone: dev, source: 'device', note: (raw ? `Job time zone “${raw}” is not valid` : 'Job time zone not set') + ` — using this device's zone (${dev}); set it in Project information` };
 }
+function rpTzNote(){
+  const z = rpJobTimeZone();
+  return `<span class="note" data-calc="tz-note" style="display:block;margin:2px 0 0;${z.source === 'project' ? '' : 'color:var(--warn,#d4a106)'}">${z.source === 'project' ? 'As-Built times print in ' + esc(z.timeZone) : '\u26A0 ' + esc(z.note)}</span>`;
+}
+(function rpTzField(){
+  const appEl = document.getElementById('app'); if (!appEl) return;
+  appEl.addEventListener('change', e => {
+    const el = e.target; if (!el || !el.dataset || el.dataset.k !== 'project.timeZone') return;
+    const raw = String(el.value || '').trim(), ok = rpTzValid(raw);
+    if (raw && !ok){
+      s('project.timeZone', ''); save(); renderMainKeep();
+      dlg('Job time zone', `<p>“${esc(raw)}” is not a valid IANA time zone. Use a name such as <b>America/Chicago</b>, <b>America/New_York</b> or <b>Europe/London</b>.</p><p class="note">Until it is set, As-Built times use this device's zone and say so.</p>`);
+      return;
+    }
+    if (ok && ok !== raw){ s('project.timeZone', ok); save(); renderMainKeep(); }
+  });
+})();
 function rpFmtWhen(iso){
   const z = rpJobTimeZone();
   try { return new Date(iso).toLocaleString('en-US', { timeZone: z.timeZone }) + (z.note ? ' · ' + z.note : ''); }
@@ -4853,7 +4960,7 @@ function rpPowerUnidentified(){ return !!(state.project && state.project.powerSo
         // Report-owned mirror on state.changes (for Field Change list) — do NOT mutate state.design
         state.changes = state.changes || [];
         state.changes.push({
-          id: 'chg-' + (entry && entry.n ? entry.n : Date.now()),
+          id: MLP.changeId(), dev: devId,
           devName: (dev && (dev.name || dev.zone)) || devId,
           field: 'assumed', label, design: 'assumed', value, by: tech, at, why, status: 'logged',
           note: act === 'replace' ? ('Keep address ' + (dev && dev.address || '—') + ' / cluster ' + (dev && dev.cluster || '—')) : ''
