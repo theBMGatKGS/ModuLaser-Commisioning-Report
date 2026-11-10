@@ -3767,7 +3767,10 @@ function planDesign(design, project, srcName, siteIn){
   const P = state.project || {};
   [['site','Site / facility name', project.name], ['designer','System designer', project.designer], ['instCo','Installing company', project.company]].forEach(([k,l,v]) => { if(v && !String(P[k]||'').trim()) proj.push({k, l, v}); });
   if(project.location && !String(P.notes||'').includes(project.location)) proj.push({k:'notes', l:'Notes (location)', v:(P.notes?P.notes+'\n':'')+'Location: '+project.location, show:'Location: '+project.location});
-  { const tz = rpTzValid(project.timeZone); if(tz && !rpTzValid(P.timeZone)) proj.push({k:'timeZone', l:'Job time zone', v: tz}); }   // the Calculator's job zone (As-Built prints in job local time)
+  let tzNote = null;   // the Calculator's job zone (As-Built prints in job local time); never overrides a zone already set here
+  { const tz = rpTzValid(project.timeZone), mine = rpTzValid(P.timeZone);
+    if(tz && !mine) proj.push({k:'timeZone', l:'Job time zone', v: tz});
+    else if(tz && mine && tz !== mine) tzNote = `The design's job time zone is ${tz}; this report keeps its own (${mine}). Change it in Project information if the job is in ${tz}.`; }
   const ref = srcName + (design.rev ? ' · Battery Calculator '+design.rev : '');
   proj.push({k:'pipecad', l:'Design reference', v: ref});
   // 02.00.002: the 127 limit is per SenseNET network — more than 127 in total is fine across networks
@@ -3776,7 +3779,7 @@ function planDesign(design, project, srcName, siteIn){
   const over127 = overNets.length > 0;
   let siteChoice = null;
   if(siteIn && siteIn.state && !isPristine()) siteChoice = { file: siteIn, choice: 'keep' };
-  return {design, project, srcName, psus, devs, goneM, goneP, diff, proj, over127, overNets, netc, siteIn, siteChoice};
+  return {design, project, srcName, psus, devs, goneM, goneP, diff, proj, over127, overNets, netc, siteIn, siteChoice, tzNote};
 }
 function planHtml(plan){
   const actTxt = {set:'Set', update:'Update', same:'—', conflict:'Edited on site'};
@@ -3792,6 +3795,7 @@ function planHtml(plan){
   const vi = MLP.validateDesign(plan.design); if(vi.length) h += `<div class="warnline" style="margin:6px 0">Design checks: ${vi.slice(0,6).map(x=>esc(x.msg)).join(' · ')}${vi.length>6?' …':''}</div>`;
   if(state.design && plan.diff.count) h += `<div class="blk-h">Changes since the last import</div><div class="mlp-diff">${MLP.diffHtml(plan.diff, esc)}</div>`;
   if(plan.proj.length) h += `<div class="blk-h" style="margin-top:12px">Project information</div><div class="scroll"><table class="t plan"><tbody>${plan.proj.map(r=>`<tr><td>${esc(r.l)}</td><td class="wrap">${esc(r.show||r.v)}</td></tr>`).join('')}</tbody></table></div>`;
+  if(plan.tzNote) h += `<div class="warnline" data-tz-mismatch="1" style="margin:6px 0">\u26A0 ${esc(plan.tzNote)}</div>`;
   h += t('Power supplies', plan.psus, x=>x.p.name);
   h += t('Detectors and displays', plan.devs, x=>`${x.d.name}${x.d.area?' · '+x.d.area:''}`);
   if(plan.goneM.length || plan.goneP.length) h += `<div class="warnline" style="margin-top:8px">Not in this design (kept, marked in the sidebar): ${plan.goneM.map(m=>esc(m.desc||'SN '+pad3(m.sn))).concat(plan.goneP.map(p=>esc(p.label||'PSU'))).join(', ')}</div>`;
