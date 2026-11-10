@@ -15,7 +15,7 @@ async def main():
     ok('Help steps: brand, ASD-160, FACU', all(any(k in t for t in h['s']) for k in ['Brand (Edwards | Kidde Commercial)','ASD-160 (Micra25','FACU powers the ASDs']), h['s'][-4:])
     ok('How do I: brand, ASD-160, power source', all(any(k in t for t in h['q']) for k in ['change the brand','commission an ASD-160','power source not identified']))
     ok('FAQ: part-number basis, +20 %, Incomplete after FACU', all(any(k in t for t in h['q']) for k in ['part-number basis','20 % over PipeCAD','Incomplete after unticking FACU']))
-    ok('About: Edwards + Kidde Commercial, MiniLaser, ASD-160, MLP 1.6.3', all(k in h['about'] for k in ['Kidde Commercial','MiniLaser','ASD-160','1.6.3']), h['about'])
+    ok('About: Edwards + Kidde Commercial, MiniLaser, ASD-160, MLP 1.7.0', all(k in h['about'] for k in ['Kidde Commercial','MiniLaser','ASD-160','1.7.0']), h['about'])
     ok('title/app name follow the brand, rev 02.02.002', h['title'].startswith('Edwards ModuLaser MASD') and '02.02.002' in h['title'] and h['app'].startswith('Edwards'), [h['title'],h['app']])
     r=await pg.evaluate("""(()=>{const p={label:'PS-1',model:'BPS6A',loc:'Riser',ckt:'1'}; state.project=state.project||{}; delete state.project.powerSource; const a=evalPsu(p);
       state.project.powerSource='unidentified'; const u=evalPsu(p); renderAll(); const bn=document.getElementById('psrcBanner');
