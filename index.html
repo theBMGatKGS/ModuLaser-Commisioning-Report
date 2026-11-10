@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>ModuLaser MASD — Field Report 02.02.001</title>
+<title>ModuLaser MASD — Field Report 02.02.002</title>
 <meta name="description" content="Offline commissioning worksheet for Edwards ModuLaser Modular Aspirating Smoke Detector installations.">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0b0e12">
@@ -667,7 +667,7 @@ body.light .src.d{color:#003a8c;background:#e3eefc;border-color:#003a8c}
 (function (root) {
 'use strict';
 const MLP = {};
-MLP.VERSION = '1.6.3';   // 1.6.3: QA delta — stored out-of-range target held at the published limit for the Fire 1 seed / MiniLaser AF; one-time notice banner for Calculator and Report. 1.6.2: MiniLaser SFD/OAP alarm factor follows the scope's SFD/OAP target (Brent 2026-10-20 7:09 AM CT). 1.6.1: SFD/OAP design target (Brent 2026-10-20) — project/Area target, published-limit validation, Fire 1 seed on UL scopes. 1.6.0: brand catalog (Edwards | Kidde Commercial), ASD-160 kind (MICRA25), hash defaults. 1.5.1: MiniLaser pipe limits (M p.66)
+MLP.VERSION = '1.7.0';   // 1.7.0: assumed-display origin/assumption fields, displayPlan, project.timeZone, HASH_DEFAULTS additives (schema v1). 1.6.3: QA delta — stored out-of-range target held at the published limit for the Fire 1 seed / MiniLaser AF; one-time notice banner for Calculator and Report. 1.6.2: MiniLaser SFD/OAP alarm factor follows the scope's SFD/OAP target (Brent 2026-10-20 7:09 AM CT). 1.6.1: SFD/OAP design target (Brent 2026-10-20). 1.6.0: brand catalog, ASD-160. 1.5.1: MiniLaser pipe limits (M p.66)
 MLP.FORMAT = 'modulaser-project';
 MLP.SCHEMA_VERSION = 1;
 MLP.EXT = '.mlproj.json';
@@ -935,7 +935,7 @@ MLP.verifyChangesAgainstPl = function (changes, parsed, devices){
 /* ---------------- project document ---------------- */
 MLP.blank = function (){
   return { format: MLP.FORMAT, schemaVersion: MLP.SCHEMA_VERSION, savedAt: '', savedBy: null,
-    project: { name: '', location: '', designer: '', company: '', building: '', networkNumber: '', preparedBy: '', date: '', brand: '' },
+    project: { name: '', location: '', designer: '', company: '', building: '', networkNumber: '', preparedBy: '', date: '', brand: '', timeZone: '' },
     design: null, site: null, changes: [], approvals: {} };
 };
 MLP.isProject = o => !!(o && o.format === MLP.FORMAT && typeof o.schemaVersion === 'number');
@@ -955,7 +955,7 @@ MLP.stringify = function (doc, app, rev, user){
    design.id keeps the old 32-bit FNV identity hash as a short display id only. */
 MLP.HASH_DROP = ['hash', 'id', 'updatedAt', 'importedAt'];
 /* 1.6.0 (B3a): new fields at their defaults are stripped before hashing, so an unchanged 02.01.000 file keeps its hash. */
-MLP.HASH_DEFAULTS = { brand: 'edwards', variant: '120', accessories: [], facuSource: false, ulOptIn: false, psVariant: '120', psTamper: false, psSeismic: false, cabinetUserSet: false, tpFacuSource: false, tpFacuUserSet: false };
+MLP.HASH_DEFAULTS = { brand: 'edwards', variant: '120', accessories: [], facuSource: false, ulOptIn: false, psVariant: '120', psTamper: false, psSeismic: false, cabinetUserSet: false, tpFacuSource: false, tpFacuUserSet: false, origin: 'pl', assumption: null, displayPlan: null, timeZone: null, displaysAssumed: false, commandOfferDismissed: false };
 function stripDefaults(v){
   if (Array.isArray(v)) return v.map(stripDefaults);
   if (v && typeof v === 'object'){ const o = {}; Object.keys(v).forEach(k => { const d = MLP.HASH_DEFAULTS[k], x = v[k];
@@ -1838,6 +1838,83 @@ MLP.asd160ConfigIssues = function (v){
   [['actionDly', 'Pre-Alarm delay', 0, 90], ['fire1Dly', 'Fire delay', 0, 90], ['flowLow', 'Flow low', 0, 20], ['flowHigh', 'Flow high', 0, 20], ['flowLow2', 'Flow low 2', 0, 30], ['flowHigh2', 'Flow high 2', 0, 30], ['flowDly', 'Flow fault delay', 0, 240]]
     .forEach(([k, l, lo, hi]) => { const x = num(v[k]); if (x != null && (x < lo || x > hi)) out.push({ level: 'error', msg: `${l} ${x} is outside ${lo}–${hi}` }); });
   return out;
+};
+
+
+/* ---- Assumed displays (1.7.0) ---- */
+MLP.displayOrigin = function (dev){
+  if (!dev) return 'pl';
+  return dev.origin || 'pl';
+};
+MLP.isAssumedDisplay = function (dev){
+  return !!(dev && (dev.origin === 'assumed' || (dev.assumption && dev.assumption.rule)));
+};
+/** Replace assumed Std/Min rows with real PipeCAD displays, keeping address and cluster (R1A). */
+MLP.replaceAssumedWithReal = function (designDevices, realDisplays, matchFn){
+  const out = (designDevices || []).slice();
+  const reals = (realDisplays || []).slice();
+  const assumed = out.filter(d => MLP.isAssumedDisplay(d) && (d.type === 'Standard Display' || d.type === 'Minimum Display'));
+  assumed.forEach((a, i) => {
+    const real = matchFn ? matchFn(a, reals, i) : reals[i];
+    if (!real) return;
+    const idx = out.indexOf(a);
+    if (idx < 0) return;
+    const kept = { address: a.address, cluster: a.cluster, sheetId: a.sheetId, power: a.power, network: a.network };
+    const merged = Object.assign({}, real, {
+      address: real.address != null && real.address !== '' ? real.address : kept.address,
+      cluster: real.cluster != null && real.cluster !== '' ? real.cluster : kept.cluster,
+      sheetId: kept.sheetId || real.sheetId,
+      power: kept.power || real.power,
+      network: kept.network != null ? kept.network : real.network,
+      origin: 'pl',
+      assumption: null,
+      pl: real.pl != null ? real.pl : true
+    });
+    out[idx] = merged;
+    const ri = reals.indexOf(real); if (ri >= 0) reals.splice(ri, 1);
+  });
+  return out;
+};
+MLP.makeAssumedDisplay = function (opts){
+  opts = opts || {};
+  const type = opts.type || 'Standard Display';
+  return {
+    kind: 'display',
+    type: type,
+    model: (MLP.DISPLAY_MODELS && MLP.DISPLAY_MODELS[type]) || 'FHSD8310',
+    name: opts.name || 'DSP01',
+    origin: 'assumed',
+    assumption: {
+      by: opts.by || '',
+      at: opts.at || new Date().toISOString(),
+      why: opts.why || 'Assumed during PipeCAD import — displays missing or under-provisioned.',
+      rule: opts.rule || 'le8-floor',
+      floor: opts.floor || '',
+      floorIdx: opts.floorIdx != null ? opts.floorIdx : 0,
+      bucket: opts.bucket != null ? opts.bucket : 0,
+      linkId: opts.linkId || '',
+      decision: opts.decision || 'accept'
+    },
+    pl: null,
+    pipe: null,
+    fan: null,
+    address: opts.address || '',
+    cluster: opts.cluster != null ? opts.cluster : '',
+    id: opts.id || ('assumed:' + (opts.linkId || 'link') + ':' + (opts.floorIdx || 0) + ':' + (opts.bucket || 0))
+  };
+};
+/** Resolve job time zone for As-Built / Field Change display (R4A). */
+MLP.resolveTimeZone = function (project, runtimeTz){
+  const p = project || {};
+  const cand = p.timeZone || runtimeTz || '';
+  try {
+    if (cand){ Intl.DateTimeFormat('en-US', { timeZone: cand }).format(new Date()); return { timeZone: cand, source: p.timeZone ? 'project' : 'runtime', note: p.timeZone ? null : 'Job time zone not set — using this device.' }; }
+  } catch (e){}
+  return { timeZone: 'UTC', source: 'utc', note: 'Job time zone not set — using UTC.' };
+};
+MLP.formatInTimeZone = function (iso, timeZone){
+  try { return new Date(iso).toLocaleString('en-US', { timeZone: timeZone || 'UTC' }); }
+  catch (e){ return new Date(iso).toLocaleString('en-US', { timeZone: 'UTC' }) + ' UTC'; }
 };
 
 root.MLP = MLP;
@@ -2904,6 +2981,7 @@ AMENDMENTS.push({ rev: "003", major: "02", minor: "00", date: "261016", desc: "P
 AMENDMENTS.push({ rev: "000", major: "02", minor: "01", date: "261016", desc: "Per Brent (2026-10-16). <b>MiniLaser ASD (FHSD8075-ULF).</b> New module type MiniLaser (standalone: never addressed, no SenseNET checks), from the Battery Calculator 02.01.000 / Toolbox 00.02.000 project file, a PipeCAD .pl (SOLO detectors) or + MiniLaser. Setup: R1 Fault relay (fixed, fail-safe), R2 Relay output 1 (Prealarm), R3 Relay output 2 (Fire Alarm), IN1 supervised input, and per I/O Expansion Module (9-30521, 0–2) X1/X2 OUT1–5 (latched relays, 2 A @ 30 VDC) and IN1–2 (15 kΩ). Configure: fan speed and alarm factor from the design; application (Table 35), configuration method, alarm delay and flow-fault level/delay with no prefilled values. Checks: hole sensitivity (Fire 1 × holes for the alarm factor) and transport time against Table 35 for the selected application; 40% flow fault on a UL/FM application is a warning only. Tests: transport, smoke, airflow fault, relay/input. modulaser-project.js 1.5.1. <b>QA delta:</b> MiniLaser Holes / pipe length check (manual p.66); the 40% flow note reads “UL/FM requires ≤20% (M p.71)”. <b>Final:</b> modulaser-project.js 1.5.1." });
 AMENDMENTS.push({ rev: "000", major: "02", minor: "02", date: "261019", desc: "Harmonized with Battery Calculator 02.02.000; Report: part-number basis dialog on brand mismatch, ASD-160 sheet (PipeCAD limits, Remote config levels, transport +20 %, benchmark test point), FACU checkbox under the FACU field. <b>Brand selector (Edwards | Kidde Commercial)</b> — project-level, first in Project information; part numbers, supply labels, BOM, logos and report titles follow the brand; the remembered default seeds new projects. Per-sheet supply <b>variant</b> (120 V / 220–230 V / ULC), tamper and seismic accessories, and <b>FACU powers these ASDs</b> with a power-source prompt (in-house / third-party / unidentified; unidentified makes the sheet Incomplete). <b>ASD-160 (Micra25 / Senator 25)</b> rows in the ASD table: 250 mA, dedicated AUX circuit, networked address 1–127, PipeCAD .pl import (MICRA25), Remote configuration, UL/non-UL alarm-factor rules (1.28 cap on UL SFD/OAP, R-AF7). Battery 12V6A5 (7.2 Ah) is manual-only with a too-small advisory. AUX/ribbon rules: max 4 AUX per power supply; each ribbon run holds max 4 detectors + 1 display; a detector-started run counts that detector; hybrid clusters may have any number of runs; own-AUX modules are not runs. Help revised with current screenshots; new printable Quick Start (Help ▸ Print Quick Start). MLP 1.6.0, engine 1.2.0. Unidentified power source rolls fully to ⚠ Incomplete: blank “Power source identified” item on every power supply sheet, amber banner with Identify power source…, carried from design.psus[].powerSource on import. Help, How do I and FAQ topics: brand, part-number basis, ASD-160 commissioning, FACU power source. About lists Edwards and Kidde Commercial, MiniLaser and ASD-160. `src/rp-0202.js` is an exact copy of the inline layer (tested); the old assembler is retired. Unidentified power source rolls fully to ⚠ Incomplete: blank “Power source identified” item on every power supply sheet, amber banner with Identify power source…, carried from design.psus[].powerSource on import. Help, How do I and FAQ topics: brand, part-number basis, ASD-160 commissioning, FACU power source. About lists Edwards and Kidde Commercial, MiniLaser and ASD-160. `src/rp-0202.js` is an exact copy of the inline layer (tested); the old assembler is retired. Unidentified power source rolls fully to ⚠ Incomplete: blank “Power source identified” item on every power supply sheet, amber banner with Identify power source…, carried from design.psus[].powerSource on import. Help, How do I and FAQ topics: brand, part-number basis, ASD-160 commissioning, FACU power source. About lists Edwards and Kidde Commercial, MiniLaser and ASD-160. `src/rp-0202.js` is an exact copy of the inline layer (tested); the old assembler is retired. Unidentified power source rolls fully to ⚠ Incomplete: blank “Power source identified” item on every power supply sheet, amber banner with Identify power source…, carried from design.psus[].powerSource on import. Help, How do I and FAQ topics: brand, part-number basis, ASD-160 commissioning, FACU power source. About lists Edwards and Kidde Commercial, MiniLaser and ASD-160. `src/rp-0202.js` is an exact copy of the inline layer (tested); the old assembler is retired." });
 AMENDMENTS.push({ rev: "001", major: "02", minor: "02", date: "261020", desc: "Harmonized with Battery Calculator 02.02.001 / Toolbox 00.03.001. <b>SFD/OAP design target</b> (Brent 2026-10-20 6:39–6:49 AM CT: “SFD/OAP for Engineering Toolbox must be revised from 2.5% obs/ft to 2.0% obs/ft. Make this the target for any UL-driven SFD or OAP requirement. FM and other non-UL targets can remain at 2.5% obs/ft. Allow toolbox a means of adjusting the default % obs/ft to different values for SFD for baseline configurations that apply project-wide but remain within the published limits of the respective detector.” · “UL limit is 1.71% to 2.18%. Target 2.0% for practical purposes.” · “Adjustable for FM too.” · “Allow per-Area/Group overrides too.” · “Yes, for projects requiring UL compliance. All others can remain at 2.5% by default.” · “Reject it with a message.” · “Yes, require a reference and initials.” · “Fold it into 02.02.001.”): the SFD/OAP design target is 2.0 %obs/ft for UL-driven scopes and 2.5 %obs/ft for FM and other standards; adjustable project-wide and per Area/Group (UL and FM), within each detector's published limits (UL: ModuLaser and MiniLaser 1.70–2.18; FM: ModuLaser and MiniLaser ≤2.50, ASD-160 ≤3.5; the ASD-160 UL 1.28 cap always governs). Out-of-range or non-numeric entries are rejected with a message, never clamped; a non-default target needs a reference and the engineer's initials. On UL scopes the SFD Fire 1 seed follows the target; otherwise it stays 2.5. Pass/fail is unchanged (UL Open Area 1.70–2.18 %obs/ft, ≤43 s; FM 3230 ≤2.50, ≤120 s). Older projects adopt the default with a one-time notice. modulaser-project.js 1.6.1. The Report reads the target and limits from the linked design; MiniLaser, ASD-160 and hole pass/fail are unchanged. The Rev10 legacy sheet is unchanged (its FM 2.50 / UL 1.70–2.18 text is reference only). Then (Brent 2026-10-20 7:09 AM CT): “Keep 1.70, per the manual” (UL lower limit unchanged) and “Yes, follow the target”: the MiniLaser alarm-factor rule for SFD and OAP now uses the scope's SFD/OAP target (Area/Group override → project → default; UL default 2.0, FM default 2.5) instead of a fixed 2.18 (OAP) / 2.0 (SFD). FM targets accepted up to 2.50 inclusive. modulaser-project.js 1.6.2. QA SFD/OAP delta: a stored out-of-range target (hand-edited or imported) stays flagged and blocks export, but the Fire 1 seed and the MiniLaser alarm factor use the nearest published limit instead; the one-time notice also shows in the Calculator and the Report; the Report validates the target against the linked design's device kinds (an FM project with only ASD-160s may use up to 3.5 without a false deficiency). modulaser-project.js 1.6.3." });
+AMENDMENTS.push({ rev: "002", major: "02", minor: "02", date: "261109", desc: "Harmonized with Battery Calculator 02.02.002 / Toolbox 00.03.002. Assumed-display badge and Confirm / Replace / Not installed actions (MLP 1.7.0). Field Change / As-Built uses job-local time zone (project.timeZone). Schema v1." });
 TYPES.min = 'Minimum Display Module'; TYPE_SHORT.min = 'Min Display';
 const TYPE_FROM_DESIGN = { 'Detector': 'det', 'Standard Display': 'std', 'Minimum Display': 'min', 'Command Display': 'cmd', 'MiniLaser': 'ml' };
 const TYPE_TO_DESIGN = { det: 'Detector', std: 'Standard Display', min: 'Minimum Display', cmd: 'Command Display', oth: 'Other', ml: 'MiniLaser' };
@@ -4263,14 +4341,29 @@ document.addEventListener('change', async e => {
     const url = await new Promise(res => { const img = new Image(); img.onload = () => { const k = Math.min(1, 800 / Math.max(img.width, img.height)); const cv = document.createElement('canvas'); cv.width = img.width * k; cv.height = img.height * k; cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height); res(cv.toDataURL('image/jpeg', 0.7)); }; img.onerror = () => res(''); img.src = URL.createObjectURL(f); });
     c.photo = url; logEdit(`changes.${c.id}.photo`, '', f.name, { kind: 'change-photo' }); save(); document.getElementById('dlgBody').innerHTML = fcHtml(); }
 });
+
+function rpJobTimeZone(){
+  const runtime = (typeof Intl !== 'undefined' && Intl.DateTimeFormat().resolvedOptions().timeZone) || 'UTC';
+  if (state && state.project && !state.project.timeZone){
+    state.project.timeZone = runtime; // seed once
+  }
+  const r = (typeof MLP !== 'undefined' && MLP.resolveTimeZone) ? MLP.resolveTimeZone(state && state.project, runtime) : { timeZone: (state && state.project && state.project.timeZone) || runtime, source: 'runtime', note: null };
+  return r;
+}
+function rpFmtWhen(iso){
+  const z = rpJobTimeZone();
+  try { return new Date(iso).toLocaleString('en-US', { timeZone: z.timeZone }) + (z.note ? ' · ' + z.note : ''); }
+  catch (e){ return new Date(iso).toLocaleString('en-US', { timeZone: 'UTC' }) + ' UTC'; }
+}
+
 function printFcReport(){
   ensureAudit(); const P = state.project || {};
   const tr = r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`;
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>Field Change / As-Built — ${esc(P.site || '')}</title><style>@page{size:letter landscape;margin:.5in}body{font:10pt Arial,sans-serif}h1{background:#102645;color:#fff;padding:8px 12px;font-size:15pt;margin:0;border-bottom:3px solid #0C77BC}h2{font-size:10pt;text-transform:uppercase;color:#102645;border-bottom:2px solid #0C77BC}table{border-collapse:collapse;width:100%;font-size:8.5pt}th,td{border:1px solid #BFC4CA;padding:3px 5px;text-align:left;vertical-align:top}th{background:#F2F2F2}img{max-width:120px}</style></head><body>
-    <h1>Field Change / As-Built Report</h1><p>${esc(P.site || '')} · ${esc(fullRev())} · printed ${esc(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }))} ET</p>
-    <h2>Changes against design</h2><table><thead><tr><th>#</th><th>Device</th><th>Field</th><th>Design</th><th>As-built</th><th>By</th><th>When</th><th>Why</th><th>Photo</th><th>Status</th></tr></thead><tbody>${state.changes.map((c, i) => `<tr><td>${i + 1}</td><td>${esc(c.devName)}</td><td>${esc(c.label || c.field)}</td><td>${esc(c.design)}</td><td>${esc(c.value)}</td><td>${esc(c.by)}</td><td>${esc(new Date(c.at).toLocaleString('en-US', { timeZone: 'America/New_York' }))}</td><td>${esc(c.why)}</td><td>${c.photo ? `<img src="${c.photo}">` : ''}</td><td>${esc(FC_ST[c.status] || c.status)}</td></tr>`).join('') || '<tr><td colspan="10">None</td></tr>'}</tbody></table>
+    <h1>Field Change / As-Built Report</h1><p>${esc(P.site || '')} · ${esc(fullRev())} · printed ${esc((() => { const z = rpJobTimeZone(); return new Date().toLocaleString('en-US', { timeZone: z.timeZone }) + (z.note ? ' · ' + z.note : ''); })())}</p>
+    <h2>Changes against design</h2><table><thead><tr><th>#</th><th>Device</th><th>Field</th><th>Design</th><th>As-built</th><th>By</th><th>When</th><th>Why</th><th>Photo</th><th>Status</th></tr></thead><tbody>${state.changes.map((c, i) => `<tr><td>${i + 1}</td><td>${esc(c.devName)}</td><td>${esc(c.label || c.field)}</td><td>${esc(c.design)}</td><td>${esc(c.value)}</td><td>${esc(c.by)}</td><td>${esc(rpFmtWhen(c.at))}</td><td>${esc(c.why)}</td><td>${c.photo ? `<img src="${c.photo}">` : ''}</td><td>${esc(FC_ST[c.status] || c.status)}</td></tr>`).join('') || '<tr><td colspan="10">None</td></tr>'}</tbody></table>
     <h2>Approval chain</h2><table><thead><tr><th>Role</th><th>Name</th><th>Date</th><th>Status</th></tr></thead><tbody>${MLP.APPROVAL_ROLES.map(([r, l]) => tr([l, (state.approvals[r] || {}).name || '', (state.approvals[r] || {}).date || '', (state.approvals[r] || {}).status || ''])).join('')}</tbody></table>
-    <h2>Site edit log (append-only)</h2><table><thead><tr><th>#</th><th>When</th><th>Who</th><th>Field</th><th>Old</th><th>New</th><th>Kind</th></tr></thead><tbody>${(state.editLog || []).map(e => tr([e.n, new Date(e.at).toLocaleString('en-US', { timeZone: 'America/New_York' }), e.by, e.path, e.old, e.new, e.kind || ''])).join('')}</tbody></table></body></html>`;
+    <h2>Site edit log (append-only)</h2><table><thead><tr><th>#</th><th>When</th><th>Who</th><th>Field</th><th>Old</th><th>New</th><th>Kind</th></tr></thead><tbody>${(state.editLog || []).map(e => tr([e.n, rpFmtWhen(e.at), e.by, e.path, e.old, e.new, e.kind || ''])).join('')}</tbody></table></body></html>`;
   const f = document.createElement('iframe'); f.style.cssText = 'position:fixed;width:0;height:0;border:0'; document.body.appendChild(f); f.srcdoc = html; f.onload = () => { f.contentWindow.print(); setTimeout(() => f.remove(), 2000); };
   window.__fcReportHtml = html;
 }
@@ -4591,5 +4684,52 @@ function rpPowerUnidentified(){ return !!(state.project && state.project.powerSo
 })();
 
 </script><!--RP0202-END-->
+
+<script id="rp-assumed-displays">
+(function(){
+  function assumedBadge(dev){
+    if (!(typeof MLP !== 'undefined' && MLP.isAssumedDisplay && MLP.isAssumedDisplay(dev))) return '';
+    return '<span class="plw-tag" style="background:rgba(212,177,6,.16);color:#ffe08a;border:1px solid rgba(212,177,6,.35)">Assumed display (not in PipeCAD).</span>';
+  }
+  function assumedMenu(devId){
+    return `<details class="rp-assumed-menu"><summary>Assumed actions…</summary>
+      <button type="button" data-assumed-act="confirm" data-devid="${devId}">Confirm installed</button>
+      <button type="button" data-assumed-act="replace" data-devid="${devId}">Replace with actual</button>
+      <button type="button" data-assumed-act="not" data-devid="${devId}">Not installed</button>
+      <div class="note">Each action records who / when (job time zone) / why.</div>
+    </details>`;
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-assumed-act]');
+    if (!b || !state) return;
+    const act = b.dataset.assumedAct, id = b.dataset.devid;
+    const dev = (state.design && state.design.devices || []).find(d => String(d.id) === String(id) || String(d.name) === String(id));
+    const by = (state.project && (state.project.commEng || state.project.tech)) || 'Installer';
+    const why = prompt('Why? (required)') || '';
+    if (!why.trim()) return;
+    const at = new Date().toISOString();
+    state.changes = state.changes || [];
+    if (act === 'confirm'){
+      if (dev){ dev.assumption = Object.assign({}, dev.assumption || {}, { decision: 'confirm-installed', at, by, why }); }
+      state.changes.push({ devName: (dev && (dev.name || dev.zone)) || id, field: 'assumed', label: 'Confirm installed', design: 'assumed', value: 'confirmed', by, at, why, status: 'open' });
+    } else if (act === 'replace'){
+      const model = prompt('Actual model / type', (dev && dev.type) || 'Standard Display') || '';
+      if (dev){
+        const kept = { address: dev.address, cluster: dev.cluster };
+        Object.assign(dev, { type: model, origin: 'pl', assumption: null, address: kept.address, cluster: kept.cluster });
+      }
+      state.changes.push({ devName: (dev && (dev.name || dev.zone)) || id, field: 'assumed', label: 'Replace with actual', design: 'assumed', value: model, by, at, why, status: 'open' });
+    } else if (act === 'not'){
+      if (dev){ dev.assumption = Object.assign({}, dev.assumption || {}, { decision: 'not-installed', at, by, why }); }
+      state.changes.push({ devName: (dev && (dev.name || dev.zone)) || id, field: 'assumed', label: 'Not installed', design: 'assumed', value: 'not-installed', by, at, why, status: 'open' });
+    }
+    if (typeof save === 'function') save();
+    if (typeof renderAll === 'function') renderAll();
+  });
+  // Hook render of device identity if a known hook exists
+  window.rpAssumedBadge = assumedBadge;
+  window.rpAssumedMenu = assumedMenu;
+})();
+</script>
 </body>
 </html>
