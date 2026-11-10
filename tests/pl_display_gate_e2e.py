@@ -120,6 +120,20 @@ async def main():
         names = await pg.evaluate("state.design.devices.filter(d=>d.origin==='assumed').map(d=>d.name)")
         ok('Same abbreviation on two floors: assumed names do not repeat', len(names) == 2 and len(set(names)) == 2, names)
 
+        # QA sixth review: two floors with the same Area name are two floors in the gate (MLP 1.7.1 ' #2' keys), not one pooled row
+        await fresh(pg)
+        await import_pl(pg, F['dup_area']); await click_btn(pg, 'Import 20 devices')
+        rows = await pg.evaluate("[...document.querySelectorAll('#dlgBody table.t tbody tr')].map(r=>[...r.cells].map(c=>c.textContent))")
+        ok('Same-named floors: gate lists each floor (8 det needs 1, 12 det needs 2), not one 20-detector row', rows == [['Example Zone Alpha', '08', '00', '01', 'MISSING'], ['Example Zone Alpha #2', '12', '00', '02', 'MISSING']], rows)
+        await click_btn(pg, 'Continue without PipeCAD displays')
+        await pg.evaluate("""()=>{ document.querySelectorAll('[data-dacc]').forEach(c=>{ c.checked=true; });
+          const sels=[...document.querySelectorAll('[data-dgrp]')]; sels.forEach((s,i)=>{ s.value = i < 8 ? 'n:0' : 'n:1'; }); }""")
+        await click_btn(pg, 'Continue import'); await pg.wait_for_timeout(300)
+        ad = await pg.evaluate("state.design.devices.filter(d=>d.origin==='assumed').map(d=>[d.name, d.area, d.assumption.area, (d.assumption.members||[]).length])")
+        ok('Same-named floors: 3 assumed displays (1 + 2), unique names, Area kept, each counted to its own floor', sorted(ad) == [['EZA-DSP01', 'Example Zone Alpha', 'Example Zone Alpha', 8], ['EZA2-DSP01', 'Example Zone Alpha', 'Example Zone Alpha #2', 8], ['EZA2-DSP02', 'Example Zone Alpha', 'Example Zone Alpha #2', 4]], ad)
+        plan = await pg.evaluate("rpDisplaysShortage(state.design).floors.map(f=>[f.area,f.nDet,f.nCluster,f.status])")
+        ok('Same-named floors: after import each floor is covered (8/1, 12/2)', plan == [['Example Zone Alpha', 8, 1, 'ok'], ['Example Zone Alpha #2', 12, 2, 'ok']], plan)
+
         # No shortage: imports straight through
         await fresh(pg)
         await import_pl(pg, F['ok_one']); await click_btn(pg, 'Import 5 devices'); await pg.wait_for_timeout(300)
