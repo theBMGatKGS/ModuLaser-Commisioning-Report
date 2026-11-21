@@ -5,10 +5,15 @@ const SHELL = [
   './',
   './index.html', './pl-merge.html',
   './manifest.json',
+  './icons/icon-16.png',
+  './icons/icon-32.png',
+  './icons/icon-64.png',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon-512-maskable.png',
-  './icons/apple-touch-icon.png'
+  './icons/apple-touch-icon.png',
+  './assets/brand-brentronix/pill-dark-h22.png',
+  './assets/brand-brentronix/pill-dark-h44.png'
 ];
 
 self.addEventListener('install', (event) => {

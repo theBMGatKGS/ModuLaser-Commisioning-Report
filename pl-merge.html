@@ -6,6 +6,9 @@
 <title>PipeCAD .pl Merge</title>
 <meta name="description" content="Combine several PipeCAD 3.6 project files (.pl) into one, in the browser.">
 <meta name="theme-color" content="#1f3a5f">
+<link rel="icon" href="icons/icon-16.png" sizes="16x16" type="image/png">
+<link rel="icon" href="icons/icon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="icons/icon-64.png" sizes="64x64" type="image/png">
 <link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <!--
@@ -23,6 +26,10 @@ body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 -apple-system
 button,input{font:inherit;color:inherit}
 .bar{position:sticky;top:0;z-index:5;background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.18)}
 .bar-in{max-width:960px;margin:0 auto;padding:10px 16px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.bx-logo{height:32px;width:auto;display:block}
+.bx-head{flex:1 1 260px;min-width:0}
+.bx-meta{font-size:10px;color:#8A9099;margin-top:2px}
+.bx-tag{color:#4F9F9F;margin-left:6px}
 .bar h1{font-size:15px;margin:0;font-weight:700;flex:1 1 260px}
 .bar h1 small{display:block;font-weight:500;opacity:.8;font-size:12px}
 .bar a{color:#fff;font-size:13px;font-weight:600}
@@ -61,7 +68,9 @@ ul.tree li{margin:2px 0}
 </head>
 <body>
 <div class="bar"><div class="bar-in">
-  <h1>PipeCAD .pl Merge <small>Combine several PipeCAD project files into one, unchanged · v01.00.000 · 2026-10-09</small></h1>
+  <img class="bx-logo" src="assets/brand-brentronix/pill-dark-h44.png" alt="BRENTRONIX" height="32">
+  <div class="bx-head"><h1>PipeCAD .pl Merge <small>Combine several PipeCAD project files into one, unchanged · v01.00.000 · 2026-10-09</small></h1>
+  <div class="bx-meta"><span>by The BMG</span> <span class="bx-tag">a WWBD project</span></div></div>
   <a href="index.html">Open the Field Report</a>
 </div></div>
 <main>
