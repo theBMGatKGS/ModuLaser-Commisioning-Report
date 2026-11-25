@@ -12,6 +12,9 @@ this file from it rather than hand-editing both. Per-release summaries are in
 
 ## 02.02 — 2026-10-19
 
+### 02.02.003 — 2026-11-25
+- **White/light-blue BRENTRONIX set on dark and navy headers (25 Nov 2026, 10:10 AM CT).** The black menustrip pill and the PipeCAD merge header pill sit on `#000` / `#1f3a5f` with the outline-only whiteblue pill and light-grey / light-blue byline colours.  App icons, marks, light-background art, and print-on-white files stay on the navy/teal pack.  Service-worker cache `masd-field-report-02-02-003`.
+
 ### 02.02.001 — 2026-10-20 (local build, not released)
 - **SFD/OAP design target (Brent 2026-10-20).** 2.0 %obs/ft for UL-driven SFD/OAP, 2.5 %obs/ft for FM and other standards. Set in the MASD Engineering Toolbox (Config ▸ Performance Criteria), project-wide and per Area/Group override (UL and FM), validated against each detector's published limits (UL: ModuLaser / MiniLaser 1.70–2.18; FM: ≤2.50, ASD-160 ≤3.5; ASD-160 UL 1.28 cap governs). Out-of-range entries are rejected with a message (never clamped); a non-default target needs a reference and the engineer's initials. On UL scopes the SFD Fire 1 seed follows the target; otherwise 2.5. UL and FM pass/fail unchanged. Older projects adopt the default with a one-time notice. Shared module modulaser-project.js 1.6.1. Brent's words are in the in-app Revision Log.
 - **MiniLaser alarm factor follows the SFD/OAP target (Brent 2026-10-20 7:09 AM CT, “Yes, follow the target”).** SFD and OAP alarm factors are derived against the scope's target (Area/Group override → project → default: UL 2.0, FM 2.5) instead of the fixed 2.18 (OAP) / 2.0 (SFD). “Keep 1.70, per the manual”: UL lower limit unchanged. FM targets up to 2.50 inclusive. modulaser-project.js 1.6.2.

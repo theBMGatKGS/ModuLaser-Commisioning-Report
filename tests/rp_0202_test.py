@@ -16,7 +16,7 @@ async def main():
     ok('How do I: brand, ASD-160, power source', all(any(k in t for t in h['q']) for k in ['change the brand','commission an ASD-160','power source not identified']))
     ok('FAQ: part-number basis, +20 %, Incomplete after FACU', all(any(k in t for t in h['q']) for k in ['part-number basis','20 % over PipeCAD','Incomplete after unticking FACU']))
     ok('About: Edwards + Kidde Commercial, MiniLaser, ASD-160, MLP 1.7.1', all(k in h['about'] for k in ['Kidde Commercial','MiniLaser','ASD-160','1.7.1']), h['about'])
-    ok('title/app name follow the brand, rev 02.02.002', h['title'].startswith('Edwards ModuLaser MASD') and '02.02.002' in h['title'] and h['app'].startswith('Edwards'), [h['title'],h['app']])
+    ok('title/app name follow the brand, rev 02.02.003', h['title'].startswith('Edwards ModuLaser MASD') and '02.02.003' in h['title'] and h['app'].startswith('Edwards'), [h['title'],h['app']])
     r=await pg.evaluate("""(()=>{const p={label:'PS-1',model:'BPS6A',loc:'Riser',ckt:'1'}; state.project=state.project||{}; delete state.project.powerSource; const a=evalPsu(p);
       state.project.powerSource='unidentified'; const u=evalPsu(p); renderAll(); const bn=document.getElementById('psrcBanner');
       const out=[a.it.some(i=>i.label==='Power source identified'), u.auto, u.final, u.secs.id, u.it.slice(-1)[0].label, !!bn && !bn.hidden && bn.textContent.includes('\u26a0 Incomplete')];

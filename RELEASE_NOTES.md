@@ -10,6 +10,10 @@ Live site: [masdtools.net](https://masdtools.net) (served from the
 
 ---
 
+## v02.02.003 — White/light-blue BRENTRONIX headers (2026-11-25)
+
+The black menustrip pill and the PipeCAD merge header pill use the white/light-blue BRENTRONIX set on `#000` / `#1f3a5f`, with no pill fill.  App icons, marks, light-background art, and print-on-white files stay on the navy/teal pack.  Service-worker cache is `masd-field-report-02-02-003`.
+
 ## v02.02.001 — SFD/OAP design target (2026-10-20) · not released
 
 ### Recent improvements
