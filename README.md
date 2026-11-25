@@ -1,3 +1,8 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/wwbd-readme-banner-dark.png">
+  <img src=".github/wwbd-readme-banner-light.png" alt="WWBD by BRENTRONIX" width="588">
+</picture>
+
 # Edwards ModuLaser MASD — Field Report
 
 ![ModuLaser MASD Field Report PWA in its dark theme: blank Project Information sheet with section navigation and project progress panel](docs/screenshot.png)
